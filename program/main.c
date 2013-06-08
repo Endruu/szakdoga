@@ -26,6 +26,7 @@ Program Parameters:
 ******************************************************************************/   
 #include "global.h"
 #include <stdio.h>
+#include <string.h>
 
 
 //--------------------------------------------------------------------------//
@@ -44,23 +45,27 @@ complex tmp;
 
 void main(void)
 {
-
+	filterR = newFilterInfo();
 #ifdef _COMPILE_WITH_BLACKFIN
 	resetFilter();
-	Init_All();
-	CYCLES_INIT(sOneTime);
+	Init_Device();
 
 	while(1) {
-#endif	
+#endif
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
+			strcpy(uart_buffer, "GI:BW:N5*T:BP:A1000C1000W0*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*
 			/*decodeInput(uart_buffer);*/
-			//CYCLES_START(sOneTime);
-			pwf = getPrewarpFreq(w0, 1/F_SAMPLING);
+			changeState(uart_buffer);
+			printErrors(uart_buffer, UART_BUF_SIZE);
+			printf("Errors:\n");
+			printf(uart_buffer);
+			printFilterInfo(&filterR);
+			//pwf = getPrewarpFreq(w0, 1/F_SAMPLING);
 			//printf("%d - %g\n", sizeof(pzkContainer), pwf);
 			//pz[0] = createChebyshev2(5, 10.0/6.0, 0.01778);
 			//pz[0] = createChebyshev1(5, 0.1);
-			pz[0] = createButterworth(3, 1);
+			//pz[0] = createButterworth(3, 1);
 			/*pz[0] = createPzkContainer(2, 0);
 			tmp.im = 0;
 			tmp.re = 1;
@@ -75,7 +80,6 @@ void main(void)
 			pz[2] = t2hp(pz[0] , w0);
 			pz[3] = t2bp(pz[0] , w0, dw);
 			pz[4] = t2bs(pz[0] , w0, dw);
-			//CYCLES_STOP(sOneTime);
 			
 			
 			for(i = 5; i < 9; i++) {
@@ -87,73 +91,8 @@ void main(void)
 				print4Matlab(pz[i]);
 				print4Matlab(pz[i+4]);
 			}*/
-			printf("FLAGS: %d\n", __SET_ETSI_FLAGS);
-			fDirect1();
-			//CYCLES_PRINT(sOneTime);
 		}
 #ifdef _COMPILE_WITH_BLACKFIN
 	}
 #endif
 }
-
-/*
-#include "LabFrameFIR.h"
-
-#define N 20		// number of filter coefficients
-float coefs[N] = {	// Filter coeffs
-#include "mova_float.dat"
-};
-
-
-
-float input[N];
-int output[N];
-int i = 0;		
-
-//--------------------------------------------------------------------------//
-// Function:	Process_Data()												//
-//																			//
-// Description: This function is called from inside the SPORT0 ISR every 	//
-//				time a complete audio frame has been received. The new 		//
-//				input samples can be found in the variables iChannel0LeftIn,//
-//				iChannel0RightIn, iChannel1LeftIn and iChannel1RightIn 		//
-//				respectively. The processed	data should be stored in 		//
-//				iChannel0LeftOut, iChannel0RightOut, iChannel1LeftOut,		//
-//				iChannel1RightOut, iChannel2LeftOut and	iChannel2RightOut	//
-//				respectively.												//
-//--------------------------------------------------------------------------//
-// The function below is capable to execute an FIR filter up to 10 (!)      //
-// coefficents only.                                                        //
-//--------------------------------------------------------------------------//
-
-void Process_Data(void)
-{
-	
-	iChannel0LeftOut = iChannel0RightIn;	
-		
-	iChannel0RightIn = iChannel0RightIn <<8;
-	input[i] = (float) iChannel0RightIn;	
-
-				
-	int j;
-	int ix = i;
-	float fout = 0;
-	int out;		
-	
-	// Filter loop
-	for (j=0;j<N;j++){
-		fout += input[ix++%N] * coefs[j]; 
-	}
-	
-	out = (int) fout;				
-	output[i++] = out;	
-	
-	if (i==N)
-	{
-		i = 0;
-	}
-	
-	iChannel0RightOut = out >> 8;	
-	
-}
-*/

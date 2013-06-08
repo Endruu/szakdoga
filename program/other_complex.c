@@ -43,3 +43,11 @@ complex_double	conj(complex_double a) {
 	a.im = -a.im;
 	return a;
 }
+
+double alog10(double n) {
+	return pow(10.0,n);
+}
+
+double alog(double n) {
+	return exp(n);
+}

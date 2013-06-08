@@ -18,7 +18,7 @@ Checks and normalizes the input parameters for later use.
 Returns	0 if parameters can not be normalized
 		1 if parameters are OK
 */
-real normalizeIirParameters(iirParameters *ip) {
+int normalizeIirParameters(iirParameters *ip) {
 	real	tmp;
 	
 	if(ip->ac < 0) { ip->ac *= -1; warn(0); }
@@ -58,7 +58,12 @@ real normalizeIirParameters(iirParameters *ip) {
 		if(ip->ws == 1) { error(0); }
 		if( ip->ws > MAX_WS_INPUT ) { ip->ws = MAX_WS_INPUT; warn(0); }
 		if(ip->ws < 1) {
-			if( ip->ws < 1.0/MAX_WS_INPUT ) { ip->ws = 1/MAX_WS_INPUT; warn(0); }
+			if( ip->ws < 1.0/MAX_WS_INPUT ) {
+				ip->ws = 1/MAX_WS_INPUT;
+				warn(0);
+			} else {
+				ip->ws = 1/ip->ws;
+			}
 			ip->fixWs = 1;
 		}
 	}
@@ -79,7 +84,7 @@ int convertParametersForButterworth( iirParameters * ip ) {
 	
 	if( ip->n ) {
 		if( ip->e0 ) {
-			return;
+			return 1;
 		} else {
 			if( ip->ws && ip->as ) {
 				if( ip->inDb ) {
@@ -90,7 +95,7 @@ int convertParametersForButterworth( iirParameters * ip ) {
 				ip->e0 /= pow( ip->ws, ip->n );
 			} else {
 				if( ip->ws || ip->as ) {
-					//HIBA
+					error(0);
 				} else {
 					ip->e0 = DEFAULT_BW_E0;
 				}
@@ -104,7 +109,7 @@ int convertParametersForButterworth( iirParameters * ip ) {
 				ip->n = (uint)ceil(log(sqrt( 1/( ip->as * ip->as ) - 1 )/ip->e0)/log(ip->ws));
 			}
 		} else {
-			//HIBA
+			error(0);
 		}
 	}
 	
@@ -119,7 +124,7 @@ pzkContainer * createButterworth(uint n, real e0) {
 	uint i;
 	
 	if( filt == NULL ) {
-		error(0, NULL);
+		errorR(0, NULL);
 	}
 	
 	if( e0 != 1.0 ) {
@@ -158,7 +163,7 @@ int convertParametersForChebyshev1( iirParameters * ip ) {
 	
 	if( ip->n ) {
 		if( ip->e0 ) {
-			return;
+			return 1;
 		} else {
 			if( ip->ws && ip->as ) {
 				if( ip->inDb ) {
@@ -166,11 +171,11 @@ int convertParametersForChebyshev1( iirParameters * ip ) {
 				} else {
 					as = 1/( ip->as * ip->as );
 				}
-				tmp = pow( ip->ws + sqrt(ip->ws*ip->ws - 1), n);
+				tmp = pow( ip->ws + sqrt(ip->ws*ip->ws - 1), ip->n);
 				ip->e0 = sqrt(2*tmp*sqrt(as-1) - 1) / tmp;
 			} else {
 				if( ip->ws || ip->as ) {
-					//HIBA
+					error(0);
 				} else {
 					ip->e0 = DEFAULT_C1_E0;
 				}
@@ -186,7 +191,7 @@ int convertParametersForChebyshev1( iirParameters * ip ) {
 			tmp = (as-1)/(ip->e0*ip->e0);
 			ip->n = (uint)ceil(log( sqrt(tmp) + sqrt(tmp-1) )/log( ip->ws + sqrt(ip->ws*ip->ws - 1) ));
 		} else {
-			//HIBA
+			error(0);
 		}
 	}
 	
@@ -244,7 +249,7 @@ int convertParametersForChebyshev2( iirParameters * ip ) {
 	
 	if( ip->n ) {
 		if( ip->ws && ip->as) {
-				return;
+				return 1;
 		} else {
 			if( ip->ac ) {
 				ip->e0 = 1/(ip->ac*ip->ac)-1;
@@ -261,7 +266,7 @@ int convertParametersForChebyshev2( iirParameters * ip ) {
 				tmp = pow(sqrt(ip->e0) + sqrt(ip->e0-1), 1.0/(real)ip->n);
 				ip->ws = (tmp*tmp+1)/(2*tmp);
 			} else {
-				//HIBA
+				error(0);
 			}
 		}
 	} else {
@@ -269,7 +274,7 @@ int convertParametersForChebyshev2( iirParameters * ip ) {
 			ip->e0 = (1/(ip->as*ip->as)-1)/(1/(ip->ac*ip->ac)-1);
 			ip->n = (uint)ceil(log( sqrt(ip->e0) + sqrt(ip->e0-1) )/log( ip->ws + sqrt(ip->ws*ip->ws - 1) ));
 		} else {
-			//HIBA
+			error(0);
 		}
 	}
 	
@@ -322,7 +327,7 @@ int createReferentFilter( filterInfo *fi ) {
 	switch( fi->subtype ) {
 		case butterworth:
 			if( convertParametersForButterworth( &fi->iirP ) ) {
-				pzk = createButterworth(fi->iirP.n, fi->iirP.e0) );
+				pzk = createButterworth(fi->iirP.n, fi->iirP.e0);
 			} else {
 				error(0);
 			}
@@ -330,14 +335,14 @@ int createReferentFilter( filterInfo *fi ) {
 			
 		case chebyshev1:
 			if( convertParametersForChebyshev1( &fi->iirP ) ) {
-				pzk = createChebyshev1(fi->iirP.n, fi->iirP.e0) );
+				pzk = createChebyshev1(fi->iirP.n, fi->iirP.e0);
 			} else {
 				error(0);
 			}
 			break;
 		case chebyshev2:
 			if( convertParametersForChebyshev2( &fi->iirP ) ) {
-				pzk = createChebyshev2(fi->iirP.n, fi->iirP.ws, fi->iirP.as) );
+				pzk = createChebyshev2(fi->iirP.n, fi->iirP.ws, fi->iirP.as);
 			} else {
 				error(0);
 			}

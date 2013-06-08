@@ -8,7 +8,6 @@
 //--------------------------------------------------------------------------------------------------------
 // Definition of global variables
 //--------------------------------------------------------------------------------------------------------
-dspState stateVar = sStart;
 
 int aLeftIn;
 int aRightIn;
@@ -23,21 +22,21 @@ pzkContainer pzkList[3];
 
 char uart_buffer[UART_BUF_SIZE];
 
-void (*filterFunction)();
-void *delayLine	= NULL;
-void *coefLine	= NULL;
-uint stages		= 0;
-filterInfo filterR = newFilterInfo();
-
 uint changeFilterRequest = 1;
 
-section("L1_data_a") DELAY_TYPE delayLineR[DELAY_SIZE];
-section("L1_data_b") COEFF_TYPE coeffLineR[COEFF_SIZE];
-
+filterInfo filterR;
 #ifdef _COMPILE_WITH_BLACKFIN
-cycle_stats_t sOneTime;
+section("L1_data_a") DELAY_TYPE delayLineR[DELAY_SIZE];
+section("L1_data_b") COEFF_TYPE coeffLine1[COEFF_SIZE];
+section("L1_data_b") COEFF_TYPE coeffLine2[COEFF_SIZE];
+#else
+DELAY_TYPE delayLineR[DELAY_SIZE];
+COEFF_TYPE coeffLine1[COEFF_SIZE];
+COEFF_TYPE coeffLine2[COEFF_SIZE];
 #endif
 
+COEFF_TYPE * coeffLineR = coeffLine1;
+COEFF_TYPE * coeffLineTemp = coeffLine2;
 
 #ifdef _COMPILE_WITH_BLACKFIN
 
@@ -179,7 +178,7 @@ void Init_Interrupts()
 //
 // Description:	Aggregates all of the initializating functions
 //--------------------------------------------------------------------------------------------------------
-void Init_All()
+void Init_Device()
 {
 	Init_Flags();
 	Audio_Reset();

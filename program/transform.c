@@ -26,10 +26,10 @@ int normalizeTransformParameters(transformParameters *tp) {
 	}
 	
 	if( tp->w0 < MIN_FREQUENCY ) {
-		//WARN
+		warn(0);
 		tp->w0 = MIN_FREQUENCY;
 	} else if( tp->w0 > MAX_FREQUENCY ) {
-		//WARN
+		warn(0);
 		tp->w0 = MAX_FREQUENCY;
 	}
 	
@@ -37,7 +37,7 @@ int normalizeTransformParameters(transformParameters *tp) {
 		if( tp->isDw ) {
 			if( tp->w1 < MIN_BANDWIDTH ) {
 				tp->w1 = MIN_BANDWIDTH;
-				//WARN
+				warn(0);
 				bw_minimal++;
 			}
 			tmp1 = (sqrt(tp->w1*tp->w1+4*tp->w0*tp->w0) - tp->w1) / 2;
@@ -45,7 +45,7 @@ int normalizeTransformParameters(transformParameters *tp) {
 			
 			if( tmp1 < MIN_FREQUENCY ) {
 				if( bw_minimal ) {	//error: bandwidth should be shrunk but it is already minimal
-					//HIBA
+					error(0);
 				} else {
 					tmp1 = MIN_FREQUENCY;
 					freq_changed++;
@@ -53,7 +53,7 @@ int normalizeTransformParameters(transformParameters *tp) {
 			}
 			if( tmp2 > MAX_FREQUENCY ) {
 				if( bw_minimal ) {	//error: bandwidth should be shrunk but it is already minimal
-					//HIBA
+					error(0);
 				} else {
 					tmp2 = MAX_FREQUENCY;
 					freq_changed++;
@@ -61,9 +61,9 @@ int normalizeTransformParameters(transformParameters *tp) {
 			}
 			
 			if( freq_changed ) {
-				//WARN
-				tp->w0 = sqrt(tmp1, tmp2);
-				tp->dw = tmp2 - tmp1;
+				warn(0);
+				tp->w0 = sqrt(tmp1*tmp2);
+				tp->w1 = tmp2 - tmp1;
 			}
 			
 		} else {
@@ -75,29 +75,61 @@ int normalizeTransformParameters(transformParameters *tp) {
 			if( tp->w0 < MIN_FREQUENCY ) {
 				tp->w0 = MIN_FREQUENCY;
 				freq_changed++;
-				//WARN
+				warn(0);
 			}
 			if( tp->w1 > MAX_FREQUENCY ) {
 				tp->w1 = MAX_FREQUENCY;
 				freq_changed++;
-				//WARN
+				warn(0);
 			}
 			
-			tp->w0 = sqrt(tp->w1, tp->w0);
-			tp->dw = tp->w1 - tp->w0;
+			tp->w0 = sqrt(tp->w1*tp->w0);
+			tp->w1 = tp->w1 - tp->w0;
 			
 			if( tp->w1 < MIN_BANDWIDTH ) {
 				if( freq_changed ) {	//error: bandwidth should be shrunk but it is already minimal
-					//HIBA
+					error(0);
 				} else {
 					tp->w1 = MIN_BANDWIDTH;
-					//WARN
+					warn(0);
 				}
 			}
 		}
 	}
 	
 	return 1;
+}
+
+int transformFilter( filterInfo *fi ) {
+	pzkContainer * pzk;
+	real w0;
+	
+	w0 = fi->transformP.w0;
+	if( fi->iirP.fixWs ) w0 /= fi->iirP.ws;
+
+	switch( fi->type ) {
+		case lowpass:
+			pzk = t2lp(fi->iFilter, w0);
+			break;
+		case highpass:
+			pzk = t2hp(fi->iFilter, w0);
+			break;
+		case bandpass:
+			pzk = t2bp(fi->iFilter, w0, fi->transformP.w1);
+			break;
+		case bandstop:
+			pzk = t2bp(fi->iFilter, w0, fi->transformP.w1);
+			break;
+		default:
+			error(0);
+	}
+	
+	if( pzk == NULL ) {
+		error(0);
+	} else {
+		fi->tFilter = pzk;
+		return 1;
+	}
 }
 
 
@@ -402,43 +434,79 @@ pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw) {
 		}
 	}
 	
-	return f;
+	return f;	
+}
+
+int digitalizeFilter( filterInfo *fi ) {
+	pzkContainer * pzk;
+	real pwf;
 	
+	if( fi->warping == WARP_AUTO ) {
+		pwf = fi->transformP.w0;
+		if( fi->iirP.fixWs ) pwf /= fi->iirP.ws;
+		pwf = getPrewarpFreq( pwf );
+	} else if( fi->warping == WARP_NORMAL ) {
+		pwf = WARP_NORMAL;
+	} else {
+		pwf = getPrewarpFreq( fi->warping );
+	}
+	
+	pzk = bilinear(fi->tFilter, pwf);
+	
+	if( pzk == NULL ) {
+		error(0);
+	} else {
+		fi->dFilter = pzk;
+		return 1;
+	}
 }
 
-
-real getPrewarpFreq(real radps, real samplingTime) {
-	return ( radps == 0.0 ) ? ( 2 / samplingTime ) : ( radps / tan(radps * samplingTime / 2) );
+real getPrewarpFreq(real radps) {
+	return ( radps == 0.0 ) ? ( 2 *F_SAMPLING ) : ( radps / tan( radps/(F_SAMPLING * 2) ) );
 }
 
-pzkContainer * bilinear(pzkContainer * pzk, real Fs, real pwf) {
+pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 	pzkContainer * f;
-	uint i;
+	uint i, auto_pwf = 0;
 	int no_1z;
 	complex denom, tmp, one;
+	
+	if( pwf == WARP_NORMAL ) auto_pwf = 1;
 	
 	one.re = -1.0;
 	one.im = 0.0;
 	
-	tmp.re = pwf;
-	pwf = getPrewarpFreq(pwf, 1.0/Fs);
 	no_1z = (int)countPoles(pzk) - (int)countZeros(pzk);
 
-	i = countPoles(pzk);		//TODO: finomítani!
+	i = countPoles(pzk);
 	if( i < countZeros(pzk) ) {
 		i = countZeros(pzk);
 	}
-	
 	f = createPzkContainer(i, i);
 	
-	f->pwf = pwf;
-	f->no_wz = pzk->no_wz;
+	f->no_wz = DIGITAL_FILTER;
+	f->wz = DIGITAL_FILTER;
 	
+	if( auto_pwf ) pwf = getPrewarpFreq( pzk->wz );
 	if( pzk->wz == 0 ) {
 		f->amp = pzk->amp * pow(pwf, (real)pzk->no_wz);
+		tmp.re = 1;
+		tmp.im = 0;
 	} else {
-		f->amp = pzk->amp * pow(tmp.re/sin(tmp.re/(2*Fs)), (real)(2*pzk->no_wz));
-		f->wz = pzk->wz;
+		f->amp = pzk->amp * pow(pwf*pwf + pzk->wz*pzk->wz, (real)(pzk->no_wz));
+		tmp.re = pwf;
+		tmp.im = pzk->wz;
+		tmp = cdiv(tmp,conj(tmp));
+	}
+	
+	if( pzk->no_wz >= 0 ) {
+		for( i = 0; i < pzk->no_wz; i++ ) {
+			addZero(f, tmp);
+		}
+	} else {
+		for( i = 0; i < -pzk->no_wz; i++ ) {
+			addPole(f, tmp);
+		}
 	}
 	
 	if(  no_1z >= 0 ) {
@@ -455,11 +523,13 @@ pzkContainer * bilinear(pzkContainer * pzk, real Fs, real pwf) {
 
 	for( i = 0; i < pzk->nextZero; i++ ) {
 		if( cisreal(pzk->zeros[i]) ) {
+			if( auto_pwf ) pwf = getPrewarpFreq( pzk->zeros[i].re );
 			denom.re = pwf - pzk->zeros[i].re;
 			f->amp *= denom.re;
 			tmp.re = (pwf + pzk->zeros[i].re) / denom.re;
 			tmp.im = 0.0;
 		} else {
+			if( auto_pwf ) pwf = getPrewarpFreq( cabs(pzk->zeros[i]) );
 			denom = csub2(pwf, pzk->zeros[i]);
 			f->amp *= cabs2(denom);
 			tmp = cdiv( cadd2(pwf, pzk->zeros[i]), denom );
@@ -469,11 +539,13 @@ pzkContainer * bilinear(pzkContainer * pzk, real Fs, real pwf) {
 	
 	for( i = 0; i < pzk->nextPole; i++ ) {
 		if( cisreal(pzk->poles[i]) ) {
+			if( auto_pwf ) pwf = getPrewarpFreq( pzk->poles[i].re );
 			denom.re = 1 / ( pwf - pzk->poles[i].re );
 			f->amp *= denom.re;
 			tmp.re = (pwf + pzk->poles[i].re) * denom.re;
 			tmp.im = 0.0;
 		} else {
+			if( auto_pwf ) pwf = getPrewarpFreq( cabs(pzk->poles[i]) );
 			denom = cdiv( one, csub2(pwf, pzk->poles[i]) );
 			f->amp *= cabs2(denom);
 			tmp = cmlt( cadd2(pwf, pzk->poles[i]), denom );

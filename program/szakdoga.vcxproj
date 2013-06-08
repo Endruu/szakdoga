@@ -76,12 +76,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="error.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="global_var.h" />
     <ClInclude Include="other_complex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ecomplex.c" />
+    <ClCompile Include="error.c" />
     <ClCompile Include="filters.c" />
     <ClCompile Include="generate.c" />
     <ClCompile Include="implement.c" />
@@ -90,6 +92,7 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="other_complex.c" />
     <ClCompile Include="pzk_container.c" />
+    <ClCompile Include="state.c" />
     <ClCompile Include="transform.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

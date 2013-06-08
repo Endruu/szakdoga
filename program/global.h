@@ -5,7 +5,8 @@
 //--------------------------------------------------------------------------------------------------------
 // Header files																			
 //--------------------------------------------------------------------------------------------------------
-#include "global_var.h"		//global variables
+#include "global_var.h"		// global variables
+#include "error.h"			// error handling
 
 #ifdef _COMPILE_WITH_BLACKFIN
 #include <sys\exception.h>	//interrupt handling
@@ -26,7 +27,7 @@ void Init_Sport0(void);
 void Init_DMA(void);
 void Init_Interrupts(void);
 void Enable_DMA_Sport0(void);
-void Init_All(void);						// the previous functions aggregated
+void Init_Device(void);						// the previous functions aggregated
 
 // in file interrupts.c
 EX_INTERRUPT_HANDLER(Sport0_RX_ISR);
@@ -49,7 +50,7 @@ void fPassThrough(void);
 void fDirect1(void);
 
 // in file implement.c
-void iDirect1(pzkContainer * pzk);
+int createReferentFilter( filterInfo *fi );
 
 // in file pzk_container.c
 pzkContainer *	createPzkContainer(uint np, uint nz);
@@ -73,7 +74,8 @@ pzkContainer * createChebyshev1(uint n, real e0);
 pzkContainer * createChebyshev2(uint n, real Os, real d2);
 
 iirParameters newIirParameters(void);
-real normalizeIirParameters(iirParameters *ip);
+int normalizeIirParameters(iirParameters *ip);
+int createReferentFilter( filterInfo *fi );
 
 int convertParametersForButterworth( iirParameters * ip );
 int convertParametersForChebyshev1( iirParameters * ip );
@@ -87,9 +89,29 @@ pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw);
 
 transformParameters newTransformParameters(void);
 int normalizeTransformParameters(transformParameters *tp);
+int transformFilter( filterInfo *fi );
 
-pzkContainer * bilinear(pzkContainer * pzk, real Fs, real pwf);
-real getPrewarpFreq(real radps, real samplingTime);
+int digitalizeFilter( filterInfo *fi );
+pzkContainer * bilinear(pzkContainer * pzk, real pwf);
+real getPrewarpFreq(real radps);
+
+// in file state.c
+filterInfo newFilterInfo(void);
+filterInfo copyFilterInfo(filterInfo * fi);
+void printFilterInfo( filterInfo * fi );
+
+int decodeDigitalizationInput(char code[], filterInfo * fi);
+int decodeTransformInput(char code[], filterInfo * fi);
+int decodeIirInput(char code[], filterInfo * fi);
+
+int changeState(char code[]);
+int implementFilter(filterInfo * fi);
+
+int compare1(complex c1, complex c2);
+void sortDigitalPZ(pzkContainer * pzk);
+int preSortDigitalZeros(pzkContainer * pzk);
+int sortDigitalPoles(pzkContainer * pzk);
+
 
 #endif
 
