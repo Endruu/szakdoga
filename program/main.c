@@ -57,7 +57,7 @@ void main(void)
 			/*decodeInput(uart_buffer);*/
 			//CYCLES_START(sOneTime);
 			pwf = getPrewarpFreq(w0, 1/F_SAMPLING);
-			printf("%d - %g\n", sizeof(pzkContainer), pwf);
+			//printf("%d - %g\n", sizeof(pzkContainer), pwf);
 			//pz[0] = createChebyshev2(5, 10.0/6.0, 0.01778);
 			//pz[0] = createChebyshev1(5, 0.1);
 			pz[0] = createButterworth(3, 1);
@@ -71,7 +71,7 @@ void main(void)
 			addZero(pz[0],tmp);
 			pz[0]->amp = 2;*/
 
-			pz[1] = t2lp(pz[0] , w0);
+			/*pz[1] = t2lp(pz[0] , w0);
 			pz[2] = t2hp(pz[0] , w0);
 			pz[3] = t2bp(pz[0] , w0, dw);
 			pz[4] = t2bs(pz[0] , w0, dw);
@@ -79,13 +79,16 @@ void main(void)
 			
 			
 			for(i = 5; i < 9; i++) {
+				sortPzkContainer(pz[i-4]);
 				pz[i] = bilinear(pz[i-4],F_SAMPLING,w0);
 			}
 			for(i = 1; i < 5; i++) {
 				printPzkContainer(pz[i]);
 				print4Matlab(pz[i]);
 				print4Matlab(pz[i+4]);
-			}
+			}*/
+			printf("FLAGS: %d\n", __SET_ETSI_FLAGS);
+			fDirect1();
 			//CYCLES_PRINT(sOneTime);
 		}
 #ifdef _COMPILE_WITH_BLACKFIN

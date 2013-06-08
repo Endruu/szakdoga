@@ -57,6 +57,8 @@ uint	shrinkPzkContainer(pzkContainer * pzk, uint min);
 void	deletePzkContainer(pzkContainer * pzk);
 void	printPzkContainer(pzkContainer * pzk);
 void print4Matlab(pzkContainer * pzk);
+void sortPzkContainer(pzkContainer * pzk);
+void sortPZ(complex * list, uint num);
 
 uint addPole(pzkContainer * pzk, complex pole);
 uint addZero(pzkContainer * pzk, complex zero);

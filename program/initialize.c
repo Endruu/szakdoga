@@ -26,6 +26,9 @@ uint stages		= 0;
 
 uint changeFilterRequest = 1;
 
+section("L1_data_a") DELAY_TYPE delayLineR[DELAY_SIZE];
+section("L1_data_b") COEFF_TYPE coeffLineR[COEFF_SIZE];
+
 #ifdef _COMPILE_WITH_BLACKFIN
 cycle_stats_t sOneTime;
 #endif
@@ -177,7 +180,7 @@ void Init_All()
 	Audio_Reset();
 	Init_Sport0();
 	Init_DMA();
-	Init_Interrupts();
+	//Init_Interrupts();
 	Enable_DMA_Sport0();
 }
 

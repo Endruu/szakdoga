@@ -15,6 +15,9 @@
 #include <complex.h>	// complex typedefs and functions
 #include <cycles.h>		// statistics
 
+//#define ETSI_SOURCE
+//#define __SET_ETSI_FLAGS 1
+
 #else
 
 #include <stddef.h>
@@ -49,6 +52,22 @@
 
 // sampling rate of ADC
 #define F_SAMPLING				48000.0
+
+// parameters for preallocated data/coefficient arrays
+#define COEFF_SIZE			100
+#define DELAY_SIZE			100
+
+#ifdef _COMPILE_WITH_BLACKFIN
+
+#define COEFF_TYPE			fract16
+#define DELAY_TYPE			fract16
+
+#else
+
+#define COEFF_TYPE			int
+#define DELAY_TYPE			int
+
+#endif
 
 // math constants
 #define PI						3.14159265358979323846
@@ -122,6 +141,10 @@ extern uint changeFilterRequest;
 // variables for statistics
 extern cycle_stats_t sOneTime;
 #endif
+
+// delay line, and coeff array
+extern DELAY_TYPE delayLineR[];
+extern COEFF_TYPE coeffLineR[];
 
 #endif
 

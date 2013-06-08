@@ -181,6 +181,9 @@ uint addPole(pzkContainer * pzk, complex pole) {
 		return 1;
 	}
 	else if( pzk->pSize > pzk->nextPole ) {
+		if( pole.im < 0 ) {
+			pole.im = -pole.im;
+		}
 		pzk->poles[pzk->nextPole++] = pole;
 		return 1;
 	}
@@ -195,6 +198,9 @@ uint addZero(pzkContainer * pzk, complex zero) {
 		return 1;
 	}
 	else if( pzk->zSize > pzk->nextZero ) {
+		if( zero.im < 0 ) {
+			zero.im = -zero.im;
+		}
 		pzk->zeros[pzk->nextZero++] = zero;
 		return 1;
 	}
@@ -255,6 +261,11 @@ uint countBiquads(pzkContainer * pzk) {
 	
 }
 
+void sortPzkContainer(pzkContainer * pzk) {
+	sortPZ(pzk->zeros, pzk->nextZero);
+	sortPZ(pzk->poles, pzk->nextPole);
+}
+
 void sortPZ(complex * list, uint num) {
     uint	pos = 1,
 			last = 0;
@@ -270,7 +281,7 @@ void sortPZ(complex * list, uint num) {
 		}
 		
 		else if (abs(list[pos].re) == abs(list[pos-1].re)) {
-			if (abs(list[pos].im) >= abs(list[pos-1].im)) {
+			if (list[pos].im >= list[pos-1].im) {
 				if (last != 0) {
 					pos = last;
 					last = 0;
