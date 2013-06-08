@@ -69,7 +69,7 @@ int createReferentFilter( filterInfo *fi );
 
 // PZK_CONTAINER.C	//------------------------------------------------------------------------------------
 
-pzkContainer *	createPzkContainer(uint np, uint nz);
+pzkContainer * createPzkContainer(uint np, uint nz);
 uint shrinkPzkContainer(pzkContainer * pzk, uint min);
 void deletePzkContainer(pzkContainer * pzk);
 void printPzkContainer(pzkContainer * pzk);
@@ -100,6 +100,7 @@ int convertParametersForButterworth( iirParameters * ip );
 int convertParametersForChebyshev1( iirParameters * ip );
 int convertParametersForChebyshev2( iirParameters * ip );
 
+
 // TRANSFORM.C	//----------------------------------------------------------------------------------------
 
 pzkContainer * t2lp(pzkContainer * pzk, real w0);
@@ -111,9 +112,19 @@ transformParameters newTransformParameters(void);
 int normalizeTransformParameters(transformParameters *tp);
 int transformFilter( filterInfo *fi );
 
+
+// BILINEAR.C	//----------------------------------------------------------------------------------------
+
 int digitalizeFilter( filterInfo *fi );
 pzkContainer * bilinear(pzkContainer * pzk, real pwf);
-real getPrewarpFreq(real radps);
+real getPrewarpFactor(real radps);
+complex prewarpPZ(complex pz);
+
+
+// UART.C	//--------------------------------------------------------------------------------------------
+uint toggleEcho(void);
+uint receiveString(void);
+
 
 // STATE.C	//--------------------------------------------------------------------------------------------
 filterInfo newFilterInfo(void);
@@ -133,7 +144,7 @@ int preSortDigitalZeros(pzkContainer * pzk);
 int sortDigitalPoles(pzkContainer * pzk);
 
 fract32 direct1(fract16 * coeffs, fract16 * delays, uint count);
-fract32 passThrought(fract16 * coeffs, fract16 * delays, uint count);
+fract32 passThrough(fract16 * coeffs, fract16 * delays, uint count);
 
 #endif
 

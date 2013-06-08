@@ -82,10 +82,10 @@
     <ClInclude Include="other_complex.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="bilinear.c" />
     <ClCompile Include="ecomplex.c" />
     <ClCompile Include="error.c" />
-    <ClCompile Include="filters.c" />
-    <ClCompile Include="generate.c" />
+    <ClCompile Include="generate_iir.c" />
     <ClCompile Include="implement.c" />
     <ClCompile Include="initialize.c" />
     <ClCompile Include="interrupts.c" />
@@ -94,6 +94,7 @@
     <ClCompile Include="pzk_container.c" />
     <ClCompile Include="state.c" />
     <ClCompile Include="transform.c" />
+    <ClCompile Include="uart.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

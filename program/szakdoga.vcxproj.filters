@@ -32,12 +32,6 @@
     <ClCompile Include="ecomplex.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="filters.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="generate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="implement.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,6 +57,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="state.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="uart.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generate_iir.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bilinear.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

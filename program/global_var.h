@@ -22,6 +22,7 @@
 
 #include <stddef.h>
 #define fract16 int
+#define fract32 int
 #define _COMPLEX_DEFINED
 #include "other_complex.h"
 
@@ -192,8 +193,8 @@ extern pzkContainer pzkList[];
 
 extern char uart_buffer[];
 
-// request to set the filter
-extern uint changeFilterRequest;
+// pending string from uart
+extern uint uartRequest;
 
 // delay line, and coeff array
 extern DELAY_TYPE delayLineR[];

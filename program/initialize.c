@@ -22,7 +22,7 @@ pzkContainer pzkList[3];
 
 char uart_buffer[UART_BUF_SIZE];
 
-uint changeFilterRequest = 1;
+uint uartRequest = 1;
 
 filterInfo filterR;
 #ifdef _COMPILE_WITH_BLACKFIN

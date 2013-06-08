@@ -8,7 +8,7 @@ filterInfo newFilterInfo() {
 	r.iFilter		= NULL;
 	r.tFilter		= NULL;
 	r.dFilter		= NULL;
-	r.filter		= &passThrought;
+	r.filter		= &passThrough;
 	r.type		= empty;
 	r.subtype		= empty;
 	r.supertype	= empty;

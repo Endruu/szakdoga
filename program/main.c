@@ -38,10 +38,7 @@ Program Parameters:
 //				file "Process_Data.c".										//
 //--------------------------------------------------------------------------//
 
-pzkContainer * pz[9];
-real pwf, w0 = 1000, dw = 1000;
-uint i;
-complex tmp;
+int i;
 
 void main(void)
 {
@@ -51,53 +48,23 @@ void main(void)
 
 	while(1) {
 #endif
-		if( changeFilterRequest ) {
-			changeFilterRequest = 0;
-			strcpy(uart_buffer, "GI:C1:A3B40W5*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
+		if( uartRequest ) {
+			strcpy(uart_buffer, "GI:C1:N5B40W5*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
 			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
 			//printPzkContainer(filterR.tFilter);
-			//printFilterInfo(&filterR);
+			printFilterInfo(&filterR);
 			/*CLI();
 			printf("HALT!\n");
 			STI();*/
 			/*printErrors(uart_buffer, UART_BUF_SIZE);
 			printf("Errors:\n");
-			printf(uart_buffer);
+			printf(uart_buffer);*/
 			
 			for(i=0; i<COEFF_SIZE; i++) {
 					printf("%d - %d\n", delayLineR[i], coeffLineR[i]);
 			}
-			//pwf = getPrewarpFreq(w0, 1/F_SAMPLING);
-			//printf("%d - %g\n", sizeof(pzkContainer), pwf);
-			//pz[0] = createChebyshev2(5, 10.0/6.0, 0.01778);
-			//pz[0] = createChebyshev1(5, 0.1);
-			//pz[0] = createButterworth(3, 1);
-			pz[0] = createPzkContainer(2, 0);
-			tmp.im = 0;
-			tmp.re = 1;
-			addPole(pz[0],tmp);
-			tmp.re = 2;
-			addPole(pz[0],tmp);
-			tmp.re = 0;
-			addZero(pz[0],tmp);
-			pz[0]->amp = 2;*/
-
-			/*pz[1] = t2lp(pz[0] , w0);
-			pz[2] = t2hp(pz[0] , w0);
-			pz[3] = t2bp(pz[0] , w0, dw);
-			pz[4] = t2bs(pz[0] , w0, dw);
-			
-			
-			for(i = 5; i < 9; i++) {
-				sortPzkContainer(pz[i-4]);
-				pz[i] = bilinear(pz[i-4],F_SAMPLING,w0);
-			}
-			for(i = 1; i < 5; i++) {
-				printPzkContainer(pz[i]);
-				print4Matlab(pz[i]);
-				print4Matlab(pz[i+4]);
-			}*/
+			uartRequest = 0;
 		}
 #ifdef _COMPILE_WITH_BLACKFIN
 	}

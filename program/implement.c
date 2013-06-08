@@ -166,6 +166,12 @@ real implementFilter( filterInfo * fi ) {
 	return K;
 }
 
-fract32 passThrought(fract16 * coeffs, fract16 * delays, uint count) {
-		return fr16_to_fr32( delays[0] );
+fract32 passThrough(fract16 * coeffs, fract16 * delays, uint count) {
+		//return fr16_to_fr32( delays[0] );
+	return delays[0];
+}
+
+
+fract32 direct1(fract16 * coeffs, fract16 * delays, uint count) {
+	return delays[0];
 }
