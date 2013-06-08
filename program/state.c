@@ -136,6 +136,7 @@ int changeState(char code[]) {
 					deleteFilterInfo( &newFilter );
 					error(0); 
 				}
+				printFilterInfo(&newFilter);
 				if( !implementFilter( &newFilter ) ) {
 					deleteFilterInfo( &newFilter );
 					error(0); 

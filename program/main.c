@@ -39,6 +39,7 @@ Program Parameters:
 //--------------------------------------------------------------------------//
 
 int i;
+FILE * f;
 
 void main(void)
 {
@@ -49,7 +50,7 @@ void main(void)
 	while(1) {
 #endif
 		if( uartRequest ) {
-			strcpy(uart_buffer, "GI:BW:N3A3*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
+			strcpy(uart_buffer, "GI:bw:N3*T:bs:A100B20000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
 			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
 			//printPzkContainer(filterR.tFilter);
@@ -62,10 +63,15 @@ void main(void)
 			/*printErrors(uart_buffer, UART_BUF_SIZE);
 			printf("Errors:\n");
 			printf(uart_buffer);*/
-			
-			for(i=0; i<100; i++) {
-					printf("%d\n", (*filterR.filter)(32768, coeffLineR, delayLineR));
-					//printf("%g\n", (float)coeffLineR[i]/32768.0);
+
+			f = fopen("pulse.txt","w");
+			fprintf(f, "%d\n", (*filterR.filter)(0x7FFF, coeffLineR, delayLineR) >> 8);
+			for(i=0; i<2047; i++) {
+				fprintf(f, "%d\n", (*filterR.filter)(0, coeffLineR, delayLineR) >> 8);
+			}
+			fclose(f);
+			for(i=0; i<30; i++) {
+				printf("%g\n", (float)coeffLineR[i]/32768.0);
 			}
 			uartRequest = 0;
 		}

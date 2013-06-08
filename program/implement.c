@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #define MAX_FR16	0x7FFF
+#define m1pln2		-1.442695041
 
 #ifdef _COMPILE_WITH_BLACKFIN
 
@@ -12,32 +13,32 @@
 
 #define float_to_fr16(p)	(int)(32768.0*(p))
 #define fr16_to_float(p)	((float)(p))/32768.0
-#define fr16_to_fr32(p)		(int)(p)
+#define fr16_to_fr32(p)		(int)((p)*32768)
 
 #endif
 
 real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1, complex * p2, int scale_mod ) {
-	real K = 1, tmp1, tmp2, tmp3, tmp4;	
-	const real m1pln2 = -1/log(2.0);
+	real K = 1, tmp1, tmp2, tmp3, tmp4;
+	int sign = 1;
 	
 	if( !cisreal(*p1) ) {
 		if( p2 != p1 && p2 != NULL ) {
 			error(1);									// if p1 is complex then p2 is assumed to be its conjugate
 		}
 		coeffs[4] = float_to_fr16( (float)( -cabs2(*p1) ) );
-		coeffs[5] = float_to_fr16( (float)( p1->re ) );
+		coeffs[5] = float_to_fr16( (float)( -p1->re ) );
 		
-		K *= 1-2*p1->re+cabs2(*p1);
+		K *= (1-2*p1->re+cabs2(*p1))/4;
 		
 	} else {
 		tmp1 = -p1->re * p2->re;
 		tmp2 = -(p1->re + p2->re)/2;
 		
 		if( fabs(p1->re) != 1.0 ) {
-			K *=( 1 - p1->re );
+			K *=( p1->re - 1 )/2;
 		}
 		if( fabs(p2->re) != 1.0 ) {
-			K *=( 1 - p2->re );
+			K *=( p2->re - 1 )/2;
 		}
 		
 		if( tmp1 == 1 ) {								// if -p1*p2 = 1	: fract16 can only store [-1,1)
@@ -73,17 +74,28 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 		if( z2 != z1 && z2 != NULL ) {
 			error(2);									// if z1 is complex then z2 is assumed to be its conjugate
 		}
-		K /= fabs( 1-2*z1->re+cabs2(*z1) );
+
+		K /= 1-2*z1->re+cabs2(*z1)/4;
+
+		if( K < 0 ) {
+			K = -K;
+			sign = -1;
+		}
+
 		tmp3 = -K*cabs2(*z1);
 		tmp2 = K*z1->re;
 	} else {
-		if( fabs(z1->re) != 1.0 ) {
-			K /=( 1 - z1->re );
+		if( z1->re != 1.0 ) {
+			K /=( z1->re - 1)/2;
 		}
-		if( fabs(z2->re) != 1.0 ) {
-			K /=( 1 - z2->re );
+		if( z2->re != 1.0 ) {
+			K /=( z2->re - 1)/2;
 		}
-		K = fabs(K);
+
+		if( K < 0 ) {
+			K = -K;
+			sign = -1;
+		}
 		
 		tmp3 = -K * z1->re * z2->re;
 		tmp2 = K *( z1->re + z2->re )/2;
@@ -98,7 +110,7 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 	
 	tmp1 = floor( log(fabs(tmp1)) * m1pln2 );
 	tmp4 = ceil( log(fabs(tmp4)) * m1pln2 );
-	if( tmp4 > tmp1 ) tmp4 = tmp1;				// min(tmp1, tmp4)
+	if( tmp4 > tmp1 ) tmp4 = tmp1;							// min(tmp1, tmp4)
 	tmp1 = pow(2, tmp4);
 	tmp3 *= tmp1;
 	tmp2 *= tmp1;
@@ -108,8 +120,12 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 	coeffs[1] = float_to_fr16( (float)tmp2 );
 	coeffs[0] = float_to_fr16( (float)tmp3 );
 	coeffs[3] = (int)(-tmp4);
-		
-	return K;
+	
+	if( sign == 1 ) {
+		return K;
+	} else {
+		return -K;
+	}
 }
 
 real implementFilter( filterInfo * fi ) {
@@ -207,8 +223,9 @@ fract32 direct1(fract16 input, fract16 * coeffs, fract16 * delays) {
 		delays[prevD++] = tmp;
 		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(tmp);
 
-		acc *= pow( 2.0, fr16_to_float(coeffs[nextC++]) );
+		acc *= pow( 2.0, (double)(coeffs[nextC++]) );
 
+		
 		acc += fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
 		delays[prevD++] = delays[nextD];
 		acc -= fr16_to_float(coeffs[nextC]) * fr16_to_float(delays[nextD]);
@@ -217,5 +234,7 @@ fract32 direct1(fract16 input, fract16 * coeffs, fract16 * delays) {
 		delays[prevD++] = tmp;	
 	}
 
-	return fr16_to_fr32( float_to_fr16((float)( acc * fr16_to_float(coeffs[nextC]) ) ) );
+	acc *= fr16_to_float(coeffs[nextC]);
+	tmp = float_to_fr16( (float)acc );
+	return fr16_to_fr32( tmp );
 }
