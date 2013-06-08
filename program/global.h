@@ -9,7 +9,6 @@
 
 #ifdef _COMPILE_WITH_BLACKFIN
 #include <sys\exception.h>	//interrupt handling
-
 #else
 
 #define EX_INTERRUPT_HANDLER(_SG)
@@ -57,6 +56,7 @@ pzkContainer *	createPzkContainer(uint np, uint nz);
 uint	shrinkPzkContainer(pzkContainer * pzk, uint min);
 void	deletePzkContainer(pzkContainer * pzk);
 void	printPzkContainer(pzkContainer * pzk);
+void print4Matlab(pzkContainer * pzk);
 
 uint addPole(pzkContainer * pzk, complex pole);
 uint addZero(pzkContainer * pzk, complex zero);
@@ -68,7 +68,7 @@ uint countBiquads(pzkContainer * pzk);
 // in file generate.c
 pzkContainer * createButterworth(uint n, real e0);
 pzkContainer * createChebyshev1(uint n, real e0);
-pzkContainer * createChebyshev2(uint n, real e0);
+pzkContainer * createChebyshev2(uint n, real Os, real d2);
 
 // in file transform.c
 pzkContainer * t2lp(pzkContainer * pzk, real w0);
@@ -77,7 +77,7 @@ pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw);
 pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw);
 
 pzkContainer * bilinear(pzkContainer * pzk, real pwf);
-real getPrewarpFreq(real radps);
+real getPrewarpFreq(real radps, real samplingTime);
 
 #endif
 

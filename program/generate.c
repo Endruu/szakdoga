@@ -38,8 +38,7 @@ pzkContainer * createChebyshev1(uint n, real e0) {
 	const real prn = PIP2 / (real)n;	// pi/(2n)
 	uint i;
 	
-	tmp.re = sqrt(1 + e0^2);
-	filt->amp = 1 / tmp.re;
+	tmp.re = sqrt(1 + e0*e0);
 	tmp.re = (1 + tmp.re) / e0;
 	tmp.re = pow(tmp.re, 1.0/(real)n);
 	tmp.im = 1 / tmp.re;
@@ -51,13 +50,56 @@ pzkContainer * createChebyshev1(uint n, real e0) {
 		tmp.re = sh * sin(fi);
 		tmp.im = ch * cos(fi);
 		addPole(filt, tmp);	//TODO! hibaellenõrzés
+		filt->amp *= cabs2(tmp);
 	}
 	
 	if( n % 2 ) {
 		tmp.re = sh;
 		tmp.im = 0.0;
 		addPole(filt, tmp);
-		filt->amp = 1;
+		filt->amp *= -tmp.re;
+	} else {
+		filt->amp *= 1 / sqrt(1 + e0*e0);
+	}
+	
+	return filt;
+}
+
+pzkContainer * createChebyshev2(uint n, real Os, real d2) {
+	pzkContainer * filt = createPzkContainer((n+1)/2, n/2);
+	real ch, sh, fi;
+	complex tmp, cOs;
+	const real prn = PIP2 / (real)n;	// pi/(2n)
+	uint i;
+
+	cOs.re = Os;
+	cOs.im = 0;
+	
+	tmp.re = sqrt(1 - d2*d2);
+	tmp.re = (1 + tmp.re) / d2;
+	tmp.re = pow(tmp.re, 1.0/(real)n);
+	tmp.im = 1 / tmp.re;
+	sh = -(tmp.re - tmp.im)/2;
+	ch = (tmp.re + tmp.im)/2;
+	
+	for( i = 0; i < n/2; i++ ) {
+		fi = (real)( 2*i + 1 ) * prn ;
+		tmp.re = sh * sin(fi);
+		tmp.im = ch * cos(fi);
+		tmp = cdiv(cOs, tmp);
+		addPole(filt, tmp);	//TODO! hibaellenõrzés
+		filt->amp *= cabs2(tmp);
+		tmp.re = 0;
+		tmp.im = Os / cos(fi);
+		addZero(filt, tmp);
+		filt->amp /= tmp.im * tmp.im;
+	}
+	
+	if( n % 2 ) {
+		tmp.re = Os / sh;
+		tmp.im = 0.0;
+		addPole(filt, tmp);
+		filt->amp *= -tmp.re;
 	}
 	
 	return filt;

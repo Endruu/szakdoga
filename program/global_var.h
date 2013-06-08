@@ -15,6 +15,8 @@
 
 #else
 
+#include <stddef.h>
+#define _COMPLEX_DEFINED
 #include "other_complex.h"
 
 #endif
@@ -104,9 +106,6 @@ extern int aRxBuffer[];
 extern int aTxBuffer[];
 extern int channelDelay;
 
-// variables for statistics
-extern cycle_stats_t sOneTime;
-
 extern void (*filterFunction)(void);
 extern void *delayLine;
 extern void *coefLine;
@@ -116,6 +115,11 @@ extern char uart_buffer[];
 
 // request to set the filter
 extern uint changeFilterRequest;
+
+#ifdef _COMPILE_WITH_BLACKFIN
+// variables for statistics
+extern cycle_stats_t sOneTime;
+#endif
 
 #endif
 

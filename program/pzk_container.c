@@ -98,6 +98,82 @@ void printPzkContainer(pzkContainer * pzk) {
 	printf("---------------------------------------------------------\n");
 }
 
+void print4Matlab(pzkContainer * pzk) {
+	unsigned int i;
+	int tmp;
+	complex ctmp1, ctmp2;
+
+	printf("k = %10g;\n", pzk->amp);
+
+	printf("z = [ ");
+	if(pzk->nextZero) {
+		for(i=0; i<pzk->nextZero;i++) {
+			printf("%.10g%+.10gi ", pzk->zeros[i].re, pzk->zeros[i].im);
+			if(pzk->zeros[i].im != 0) {
+				printf("%.10g%+.10gi ", pzk->zeros[i].re, -pzk->zeros[i].im);
+			}
+		}
+	}
+	if(pzk->no_wz > 0) {
+		if(pzk->wz == 0 ) {
+			tmp = (pzk->pwf) ? 1 : 0;
+			for(i=0; i<pzk->no_wz; i++) {
+				printf("%d ", tmp);
+			}
+		} else {
+			if( pzk->pwf ) {
+				ctmp1.re = pzk->pwf;
+				ctmp1.im = pzk->wz;
+				ctmp2.re = pzk->pwf;
+				ctmp2.im = -pzk->wz;
+				ctmp1 = cdiv(ctmp1, ctmp2);
+				for(i=0; i<pzk->no_wz; i++) {
+					printf("%.10g%+.10gi %.10g%+.10gi ", ctmp1.re, ctmp1.im, ctmp1.re, -ctmp1.im);
+				}
+			} else {
+				for(i=0; i<pzk->no_wz; i++) {
+					printf("%.10gi %.10gi ", pzk->wz, -pzk->wz);
+				}
+			}
+		}
+	}
+	printf("];\n");
+
+	printf("p = [ ");
+	if(pzk->nextPole) {
+		for(i=0; i<pzk->nextPole;i++) {
+			printf("%.10g%+.10gi ", pzk->poles[i].re, pzk->poles[i].im);
+			if(pzk->poles[i].im != 0) {
+				printf("%.10g%+.10gi ", pzk->poles[i].re, -pzk->poles[i].im);
+			}
+		}
+	}
+	if(pzk->no_wz < 0) {
+		if(pzk->wz == 0 ) {
+			tmp = (pzk->pwf) ? -1 : 0;
+			for(i=0; i<-pzk->no_wz; i++) {
+				printf("%d ", tmp);
+			}
+		} else {
+			if( pzk->pwf ) {
+				ctmp1.re = pzk->pwf;
+				ctmp1.im = pzk->wz;
+				ctmp2.re = pzk->pwf;
+				ctmp2.im = -pzk->wz;
+				ctmp1 = cdiv(ctmp1, ctmp2);
+				for(i=0; i<-pzk->no_wz; i++) {
+					printf("%.10g%+.10gi %.10g%+.10gi ", ctmp1.re, ctmp1.im, ctmp1.re, -ctmp1.im);
+				}
+			} else {
+				for(i=0; i<-pzk->no_wz; i++) {
+					printf("%.10gi %.10gi ", pzk->wz, -pzk->wz);
+				}
+			}
+		}
+	}
+	printf("];\n\n");
+}
+
 uint addPole(pzkContainer * pzk, complex pole) {
 	if( cisnull(pole) && pzk->wz == 0.0 ) {
 		pzk->no_wz--;

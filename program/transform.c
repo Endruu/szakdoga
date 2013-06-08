@@ -1,6 +1,10 @@
 #include "global.h"
 #include <math.h>
 
+#ifndef _COMPILE_WITH_BLACKFIN
+#define cabs cabs_custom
+#endif
+
 pzkContainer * t2lp(pzkContainer * pzk, real w0) {
 	pzkContainer * f = createPzkContainer(pzk->nextPole, pzk->nextZero);
 	uint i;
@@ -38,7 +42,7 @@ pzkContainer * t2hp(pzkContainer * pzk, real w0) {
 	uint i;
 	complex tmp;
 	
-	f->amp *= pzk->amp * pow(w0,(real)pzk->no_wz);
+	f->amp = pzk->amp * pow(w0,(real)pzk->no_wz);
 	f->no_wz = -pzk->no_wz;
 
 	for( i = 0; i < pzk->nextPole; i++ ) {
@@ -46,11 +50,12 @@ pzkContainer * t2hp(pzkContainer * pzk, real w0) {
 		tmp.im = 0;
 		f->no_wz++;
 		if( cisreal(pzk->poles[i]) ) {
-			f->amp = -f->amp;
+			f->amp /= -pzk->poles[i].re;
 			tmp.re /= pzk->poles[i].re;
 		} else {
 			tmp = cdiv(tmp, pzk->poles[i]);
-f->no_wz++;
+			f->amp /= cabs2(pzk->poles[i]);
+			f->no_wz++;
 		}
 		addPole(f, tmp);
 	}
@@ -60,10 +65,11 @@ f->no_wz++;
 		tmp.im = 0;
 		f->no_wz--;	
 		if( cisreal(pzk->zeros[i]) ) {
-			f->amp = -f->amp;
+			f->amp *= -pzk->zeros[i].re;
 			tmp.re /= pzk->zeros[i].re;
 		} else {
 			tmp = cdiv(tmp, pzk->zeros[i]);
+			f->amp *= cabs2(pzk->zeros[i]);
 			f->no_wz--;
 		}
 		addZero(f, tmp);
@@ -78,6 +84,7 @@ pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw) {
 	uint nop, noz, i;
 	pzkContainer * f;
 	const real dwp2 = dw / 2;
+	const real w02 = w0*w0;
 	complex tmp, beta, gamma, cw0;
 	
 	cw0.re = w0;
@@ -96,7 +103,7 @@ pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw) {
 	f = createPzkContainer(nop, noz);
 	
 	f->no_wz = -pzk->no_wz;
-	f->amp = pzk->amp * pow(dw, (real)(f->no_wz));
+	f->amp = pzk->amp * pow(dw, (real)(f->no_wz)+(real)countPoles(pzk)-(real)countZeros(pzk));
 		
 	gamma.re = 0;
 	gamma.im = w0;
@@ -112,67 +119,71 @@ pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw) {
 	}
 
 	for( i = 0; i < pzk->nextPole; i++ ) {
-		beta = cmul2(dwp2, pzk->poles[i]);
-		
-		tmp = cdiv(cw0, beta);
-		tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
-	
-		if( cisreal(tmp) ) {
-			gamma.im = 0;
-			gamma.re = beta.re * (1 + tmp.re);
-			addPole(f, gamma);
-			gamma.re = beta.re * (1 - tmp.re);
-			addPole(f, gamma);
+		if( cisreal(pzk->poles[i]) ) {
+			beta.re = dwp2 * pzk->poles[i].re;
+			tmp.re = 1 - ( w02/(beta.re*beta.re) );
+
+			if( tmp.re >= 0 ) {
+				tmp.re = sqrt( tmp.re );
+				gamma.im = 0;
+				gamma.re = beta.re * (1 + tmp.re);
+				addPole(f, gamma);
+				gamma.re = beta.re * (1 - tmp.re);
+				addPole(f, gamma);
+			} else {
+				tmp.im = sqrt( -tmp.re );
+				tmp.re = 1;
+				gamma = cmul2( beta.re, tmp );
+				addPole(f, gamma);
+			}
+
 			f->no_wz++;
-			f->amp *= beta.re * 2;
-		}
-		else if( cisimag(tmp) ) {
-			gamma = cmlt(beta, cadd2(1, tmp));
-			addPole(f, gamma);
-			f->no_wz++;
-			f->amp *= beta.re * 2;
 		}
 		else {
+			beta = cmul2(dwp2, pzk->poles[i]);	
+			tmp = cdiv(cw0, beta);
+			tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
+
 			gamma = cmlt(beta, cadd2(1, tmp));
 			addPole(f, gamma);
 			gamma = cmlt(beta, csub2(1, tmp));
 			addPole(f, gamma);
 			f->no_wz += 2;
-			f->amp *= cabs2(beta) * 4;
 		}
-
 	}
 	
 	for( i = 0; i < pzk->nextZero; i++ ) {
-		beta = cmul2(dwp2, pzk->zeros[i]);
-		
-		tmp = cdiv(cw0, beta);
-		tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
-	
-		if( cisreal(tmp) ) {
-			gamma.im = 0;
-			gamma.re = beta.re * (1 + tmp.re);
-			addZero(f, gamma);
-			gamma.re = beta.re * (1 - tmp.re);
-			addZero(f, gamma);
+		if( cisreal(pzk->zeros[i]) ) {
+			beta.re = dwp2 * pzk->zeros[i].re;
+			tmp.re = 1 - ( w02/(beta.re*beta.re) );
+
+			if( tmp.re >= 0 ) {
+				tmp.re = sqrt( tmp.re );
+				gamma.im = 0;
+				gamma.re = beta.re * (1 + tmp.re);
+				addZero(f, gamma);
+				gamma.re = beta.re * (1 - tmp.re);
+				addZero(f, gamma);
+			} else {
+				tmp.im = sqrt( -tmp.re );
+				tmp.re = 1;
+				gamma = cmul2( beta.re, tmp );
+				addZero(f, gamma);
+			}
+
 			f->no_wz--;
-			f->amp /= beta.re * 2;
-		}
-		else if( cisimag(tmp) ) {
-			gamma = cmlt(beta, cadd2(1, tmp));
-			addZero(f, gamma);
-			f->no_wz--;
-			f->amp /= beta.re * 2;
 		}
 		else {
+			beta = cmul2(dwp2, pzk->zeros[i]);	
+			tmp = cdiv(cw0, beta);
+			tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
+
 			gamma = cmlt(beta, cadd2(1, tmp));
 			addZero(f, gamma);
 			gamma = cmlt(beta, csub2(1, tmp));
 			addZero(f, gamma);
 			f->no_wz -= 2;
-			f->amp /= cabs2(beta) * 4;
 		}
-		
 	}
 	
 	//shrink
@@ -183,8 +194,14 @@ pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw) {
 pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw) {
 	uint nop, noz, i;
 	pzkContainer * f;
-	const real dwp2 = 2.0 / dw;
-	complex tmp, beta, gamma;
+	const real w02 = w0*w0;
+	complex tmp, beta, gamma, cw0, cdwp2;
+
+	cw0.re = w0;
+	cw0.im = 0;
+
+	cdwp2.re = dw / 2;
+	cdwp2.im = 0;
 	
 	noz = 2*pzk->nextZero;
 	nop = 2*pzk->nextPole;
@@ -216,65 +233,77 @@ pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw) {
 	}
 
 	for( i = 0; i < pzk->nextPole; i++ ) {
-		beta = cmul2(dwp2, pzk->poles[i]);
-		
-		tmp = cmul2(w0, beta);
-		tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
-	
-		if( cisreal(tmp) ) {
-			gamma.im = 0;
-			gamma.re = (1 + tmp.re) / beta.re;
-			addPole(f, gamma);
-			gamma.re = (1 - tmp.re) / beta.re;
-			addPole(f, gamma);
+		if( cisreal(pzk->poles[i]) ) {
+			beta.re = cdwp2.re / pzk->poles[i].re;
+			tmp.re = 1 - ( w02/(beta.re*beta.re) );
+
+			if( tmp.re >= 0 ) {
+				tmp.re = sqrt( tmp.re );
+				gamma.im = 0;
+				gamma.re = beta.re * (1 + tmp.re);
+				addPole(f, gamma);
+				gamma.re = beta.re * (1 - tmp.re);
+				addPole(f, gamma);
+			} else {
+				tmp.im = sqrt( -tmp.re );
+				tmp.re = 1;
+				gamma = cmul2( beta.re, tmp );
+				addPole(f, gamma);
+			}
+
+			f->amp /= -pzk->poles[i].re;
 			f->no_wz++;
-			f->amp = -f->amp;
-		}
-		else if( cisimag(tmp) ) {
-			gamma = cdiv(cadd2(1, tmp), beta);
-			addPole(f, gamma);
-			f->no_wz++;
-			f->amp = -f->amp;
 		}
 		else {
-			gamma = cdiv(cadd2(1, tmp), beta);
+			beta = cdiv(cdwp2, pzk->poles[i]);	
+			tmp = cdiv(cw0, beta);
+			tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
+
+			gamma = cmlt(beta, cadd2(1, tmp));
 			addPole(f, gamma);
-			gamma = cdiv(csub2(1, tmp), beta);
+			gamma = cmlt(beta, csub2(1, tmp));
 			addPole(f, gamma);
+
+			f->amp /= cabs2(pzk->poles[i]);
 			f->no_wz += 2;
 		}
-
 	}
 	
 	for( i = 0; i < pzk->nextZero; i++ ) {
-		beta = cmul2(dwp2, pzk->zeros[i]);
-		
-		tmp = cmul2(w0, beta);
-		tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
-	
-		if( cisreal(tmp) ) {
-			gamma.im = 0;
-			gamma.re = (1 + tmp.re) / beta.re;
-			addZero(f, gamma);
-			gamma.re = (1 - tmp.re) / beta.re;
-			addZero(f, gamma);
+		if( cisreal(pzk->zeros[i]) ) {
+			beta.re = cdwp2.re / pzk->zeros[i].re;
+			tmp.re = 1 - ( w02/(beta.re*beta.re) );
+
+			if( tmp.re >= 0 ) {
+				tmp.re = sqrt( tmp.re );
+				gamma.im = 0;
+				gamma.re = beta.re * (1 + tmp.re);
+				addZero(f, gamma);
+				gamma.re = beta.re * (1 - tmp.re);
+				addZero(f, gamma);
+			} else {
+				tmp.im = sqrt( -tmp.re );
+				tmp.re = 1;
+				gamma = cmul2( beta.re, tmp );
+				addZero(f, gamma);
+			}
+
+			f->amp *= -pzk->zeros[i].re;
 			f->no_wz--;
-			f->amp = -f->amp;
-		}
-		else if( cisimag(tmp) ) {
-			gamma = cdiv(cadd2(1, tmp), beta);
-			addZero(f, gamma);
-			f->no_wz--;
-			f->amp = -f->amp;
 		}
 		else {
-			gamma = cdiv(cadd2(1, tmp), beta);
+			beta = cdiv(cdwp2, pzk->zeros[i]);	
+			tmp = cdiv(cw0, beta);
+			tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
+
+			gamma = cmlt(beta, cadd2(1, tmp));
 			addZero(f, gamma);
-			gamma = cdiv(csub2(1, tmp), beta);
+			gamma = cmlt(beta, csub2(1, tmp));
 			addZero(f, gamma);
+
+			f->amp *= cabs2(pzk->zeros[i]);
 			f->no_wz -= 2;
 		}
-		
 	}
 	
 	return f;
@@ -290,17 +319,16 @@ pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 	pzkContainer * f;
 	uint i;
 	int no_1z;
-	real rdenom;
-	complex cdenom, tmp, one, cpwf, cwz;
+	complex denom, tmp, one;
 	
 	one.re = -1.0;
 	one.im = 0.0;
-	cpwf.re = pwf;
-	cpwf.im = 0.0;
 	
-	i = pzk->nextPole;
-	if( i < pzk->nextZero ) {
-		i = pzk->nextZero;
+	no_1z = (int)countPoles(pzk) - (int)countZeros(pzk);
+
+	i = countPoles(pzk);		//TODO: finomítani!
+	if( i < countZeros(pzk) ) {
+		i = countZeros(pzk);
 	}
 	
 	f = createPzkContainer(i, i);
@@ -309,18 +337,15 @@ pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 	f->no_wz = pzk->no_wz;
 	
 	if( pzk->wz == 0 ) {
-		cwz.re = 1.0;
-		cwz.im = 0;
-		f->amp = pzk->amp * pow(pwf, pzk->no_wz);
+		f->amp = pzk->amp * pow(pwf, (real)pzk->no_wz);
 	} else {
 		f->wz = pzk->wz;
 		tmp.re = pwf;
 		tmp.im = pzk->wz;
-		cwz = cdiv(tmp, conj(tmp));
-		f->amp = pzk->amp * pow(cabs2(cwz), pzk->no_wz);
+		tmp = cdiv(tmp, conj(tmp));
+		//f->amp = pzk->amp * pow(cabs2(tmp), (real)pzk->no_wz);
 	}
 	
-	no_1z = (int)countPoles(pzk) - (int)countZeros(pzk);
 	if(  no_1z >= 0 ) {
 		for( i = 0; i < no_1z; i++ ) {
 			addZero(f, one);
@@ -335,28 +360,28 @@ pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 
 	for( i = 0; i < pzk->nextZero; i++ ) {
 		if( cisreal(pzk->zeros[i]) ) {
-			rdenom = pwf - pzk->zeros[i].re;
-			f->amp *= rdenom;
-			tmp.re = (pwf + pzk->zeros[i].re) / rdenom;
+			denom.re = pwf - pzk->zeros[i].re;
+			f->amp *= denom.re;
+			tmp.re = (pwf + pzk->zeros[i].re) / denom.re;
 			tmp.im = 0.0;
 		} else {
-			cdenom = csub(one, pzk->zeros[i]);
-			f->amp *= cabs2(cdenom);
-			tmp = cdiv( cadd(one, pzk->zeros[i]), cdenom );
+			denom = csub2(pwf, pzk->zeros[i]);
+			f->amp *= cabs2(denom);
+			tmp = cdiv( cadd2(pwf, pzk->zeros[i]), denom );
 		}
 		addZero(f, tmp);
 	}
 	
 	for( i = 0; i < pzk->nextPole; i++ ) {
 		if( cisreal(pzk->poles[i]) ) {
-			rdenom = 1 /( pwf - pzk->poles[i].re );
-			f->amp *= rdenom;
-			tmp.re = (pwf + pzk->poles[i].re) * rdenom;
+			denom.re = 1 / ( pwf - pzk->poles[i].re );
+			f->amp *= denom.re;
+			tmp.re = (pwf + pzk->poles[i].re) * denom.re;
 			tmp.im = 0.0;
 		} else {
-			cdenom = cdiv( one, csub(cpwf, pzk->poles[i]) );
-			f->amp *= cabs2(cdenom);
-			tmp = cmlt( cadd(cpwf, pzk->poles[i]), cdenom );
+			denom = cdiv( one, csub2(pwf, pzk->poles[i]) );
+			f->amp *= cabs2(denom);
+			tmp = cmlt( cadd2(pwf, pzk->poles[i]), denom );
 		}
 		addPole(f, tmp);
 	}
