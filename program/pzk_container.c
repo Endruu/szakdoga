@@ -12,14 +12,14 @@ pzkContainer * createPzkContainer(uint np, uint nz) {
 	
 	pzk = (pzkContainer *) malloc(sizeof(pzkContainer));
 	if( pzk == NULL ) {
-		errorR(0, NULL);
+		errorR(37, NULL);
 	}
 	
 	if( nz != 0 ) {
 		pzk->zeros = (complex *) malloc(nz * sizeof(complex));
 		if( pzk->zeros == NULL ) {
 			free(pzk);
-			errorR(0, NULL);
+			errorR(38, NULL);
 		}
 	} else {
 		pzk->zeros = NULL;
@@ -30,7 +30,7 @@ pzkContainer * createPzkContainer(uint np, uint nz) {
 		if( pzk->poles == NULL ) {
 			free(pzk->zeros);
 			free(pzk);
-			errorR(0, NULL);
+			errorR(39, NULL);
 		}
 	} else {
 		pzk->poles = NULL;
@@ -70,7 +70,6 @@ uint shrinkPzkContainer(pzkContainer * pzk, uint min) {
 
 void deletePzkContainer(pzkContainer * pzk) {
 	if(pzk == NULL) {
-		warn(0);
 		return;
 	}
 	free(pzk->poles);

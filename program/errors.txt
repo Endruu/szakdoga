@@ -13,6 +13,22 @@
 101	: Amplification at stop frequency is greater than one, must be less than one
 102	: Amplification at corner and stop frequency are equal
 103	: Corner and stop frequency are equal
+104	: Error while converting input parameters for Butterworth
+105	: Error while converting input parameters for Chebyshev
+106	: Error while converting input parameters for Inverse Chebyshev
+107	: Not a valid filter type for referent filter creation (try: BW, C1, C2)
+108	: Error while generating referent filter
+109	: Error while fixing the stop frequency of the referent filter
+
+110	: Stop frequency or stopband attenuation is missing
+111	: Stop frequency or stopband attenuation or passband attenuation is missing
+112	: Failed to create empty pzkContainer
+113	: Stop frequency or stopband attenuation is missing
+114	: Stop frequency or stopband attenuation or passband attenuation is missing
+115	: Failed to create empty pzkContainer
+116	: Stop frequency and stopband attenuation are missing
+117	: Stop frequency or stopband attenuation or passband attenuation is missing
+118	: Failed to create empty pzkContainer
 
 10	: Filter's type is not defined
 11	: FIR not implemented yet
@@ -40,3 +56,17 @@
 33	: Error while digitalizing transformed filter
 34	: Digitalized filter is missing
 35	: Error while implementing digitalized filter
+
+36	: Error while digitalizing transformed filter
+
+37	: Could not allocate space for a pzkContainer
+38	: Could not allocate space for zeros
+39	: Could not allocate space for poles
+
+40	: Bandwidth should be shrunk but it is already minimal
+41	: Bandwidth should be shrunk but it is already minimal
+42	: Bandwidth should be shrunk but it is already minimal
+43	: Not a valid filter type for filter transformation (try: LP, HP, BP, BS)
+44	: Error while transforming referent filter
+
+

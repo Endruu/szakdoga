@@ -51,7 +51,7 @@ int normalizeTransformParameters(transformParameters *tp) {
 			
 			if( tmp1 < MIN_FREQUENCY ) {
 				if( bw_minimal ) {	//error: bandwidth should be shrunk but it is already minimal
-					error(0);
+					error(40);
 				} else {
 					tmp1 = MIN_FREQUENCY;
 					freq_changed++;
@@ -59,7 +59,7 @@ int normalizeTransformParameters(transformParameters *tp) {
 			}
 			if( tmp2 > MAX_FREQUENCY ) {
 				if( bw_minimal ) {	//error: bandwidth should be shrunk but it is already minimal
-					error(0);
+					error(41);
 				} else {
 					tmp2 = MAX_FREQUENCY;
 					freq_changed++;
@@ -94,7 +94,7 @@ int normalizeTransformParameters(transformParameters *tp) {
 			
 			if( tp->w1 < MIN_BANDWIDTH ) {
 				if( freq_changed ) {	//error: bandwidth should be shrunk but it is already minimal
-					error(0);
+					error(42);
 				} else {
 					tp->w1 = MIN_BANDWIDTH;
 					warn(0);
@@ -127,11 +127,11 @@ int transformFilter( filterInfo *fi ) {
 			pzk = t2bp(fi->iFilter, fi->transformP.w0, fi->transformP.w1);
 			break;
 		default:
-			error(0);
+			error(43);
 	}
 	
 	if( pzk == NULL ) {
-		error(0);
+		error(44);
 	} else {
 		fi->tFilter = pzk;
 		return 1;

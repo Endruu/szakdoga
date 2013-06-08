@@ -88,7 +88,7 @@ int createReferentFilter( filterInfo *fi ) {
 			if( convertParametersForButterworth( &fi->iirP ) ) {
 				pzk = createButterworth(fi->iirP.n, fi->iirP.e0);
 			} else {
-				error(0);
+				error(104);
 			}
 			break;
 			
@@ -96,29 +96,29 @@ int createReferentFilter( filterInfo *fi ) {
 			if( convertParametersForChebyshev1( &fi->iirP ) ) {
 				pzk = createChebyshev1(fi->iirP.n, fi->iirP.e0);
 			} else {
-				error(0);
+				error(105);
 			}
 			break;
 		case chebyshev2:
 			if( convertParametersForChebyshev2( &fi->iirP ) ) {
 				pzk = createChebyshev2(fi->iirP.n, fi->iirP.ws, fi->iirP.as);
 			} else {
-				error(0);
+				error(106);
 			}
 			break;
 		default:
-			error(0);
+			error(107);
 	}
 	
 	if( pzk == NULL ) {
-		error(0);
+		error(108);
 	} else {
 		if( fi->iirP.fixWs ) {
 			tmp = t2lp(pzk,1/fi->iirP.ws);
 			if( tmp != NULL ) {
 				fi->iFilter = tmp;
 			} else {
-				error(0);
+				error(109);
 			}
 		} else {
 			fi->iFilter = pzk;
@@ -154,7 +154,7 @@ int convertParametersForButterworth( iirParameters * ip ) {
 				ip->e0 /= pow( ip->ws, ip->n );
 			} else {
 				if( ip->ws || ip->as ) {
-					error(0);
+					error(110);
 				} else {
 					ip->e0 = DEFAULT_BW_E0;
 				}
@@ -168,7 +168,7 @@ int convertParametersForButterworth( iirParameters * ip ) {
 				ip->n = (uint)ceil(log(sqrt( 1/( ip->as * ip->as ) - 1 )/ip->e0)/log(ip->ws));
 			}
 		} else {
-			error(0);
+			error(111);
 		}
 	}
 	
@@ -183,7 +183,7 @@ pzkContainer * createButterworth(uint n, real e0) {
 	uint i;
 	
 	if( filt == NULL ) {
-		errorR(0, NULL);
+		errorR(112, NULL);
 	}
 	
 	if( e0 != 1.0 ) {
@@ -237,7 +237,7 @@ int convertParametersForChebyshev1( iirParameters * ip ) {
 				ip->e0 = sqrt(2*tmp*sqrt(as-1) - 1) / tmp;
 			} else {
 				if( ip->ws || ip->as ) {
-					error(0);
+					error(113);
 				} else {
 					ip->e0 = DEFAULT_C1_E0;
 				}
@@ -253,7 +253,7 @@ int convertParametersForChebyshev1( iirParameters * ip ) {
 			tmp = (as-1)/(ip->e0*ip->e0);
 			ip->n = (uint)ceil(log( sqrt(tmp) + sqrt(tmp-1) )/log( ip->ws + sqrt(ip->ws*ip->ws - 1) ));
 		} else {
-			error(0);
+			error(114);
 		}
 	}
 	
@@ -266,6 +266,10 @@ pzkContainer * createChebyshev1(uint n, real e0) {
 	complex tmp;
 	const real prn = PIP2 / (real)n;	// pi/(2n)
 	uint i;
+	
+	if( filt == NULL ) {
+		errorR(115, NULL);
+	}
 	
 	tmp.re = sqrt(1 + e0*e0);
 	tmp.re = (1 + tmp.re) / e0;
@@ -331,7 +335,7 @@ int convertParametersForChebyshev2( iirParameters * ip ) {
 				tmp = pow(sqrt(ip->e0) + sqrt(ip->e0-1), 1.0/(real)ip->n);
 				ip->ws = (tmp*tmp+1)/(2*tmp);
 			} else {
-				error(0);
+				error(116);
 			}
 		}
 	} else {
@@ -339,7 +343,7 @@ int convertParametersForChebyshev2( iirParameters * ip ) {
 			ip->e0 = (1/(ip->as*ip->as)-1)/(1/(ip->ac*ip->ac)-1);
 			ip->n = (uint)ceil(log( sqrt(ip->e0) + sqrt(ip->e0-1) )/log( ip->ws + sqrt(ip->ws*ip->ws - 1) ));
 		} else {
-			error(0);
+			error(117);
 		}
 	}
 	
@@ -352,6 +356,10 @@ pzkContainer * createChebyshev2(uint n, real Os, real d2) {
 	complex tmp, cOs;
 	const real prn = PIP2 / (real)n;	// pi/(2n)
 	uint i;
+	
+	if( filt == NULL ) {
+		errorR(118, NULL);
+	}
 
 	cOs.re = Os;
 	cOs.im = 0;

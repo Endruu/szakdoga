@@ -22,7 +22,7 @@ int digitalizeFilter( filterInfo *fi ) {
 	pzk = bilinear(fi->tFilter, pwf);
 	
 	if( pzk == NULL ) {
-		error(0);
+		error(36);
 	} else {
 		fi->dFilter = pzk;
 		return 1;
