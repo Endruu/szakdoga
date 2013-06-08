@@ -238,10 +238,10 @@ int convertParametersForChebyshev2( iirParameters * ip ) {
 	
 	if( ip->inDb ) {
 		if( ip->as ) {
-			ip->as = alog( -ip->as / 20 );
+			ip->as = alog10( -ip->as / 20 );
 		}
 		if( ip->ac ) {
-			ip->ac = alog( -ip->ac / 20 );	//valszeg csak 10-zel kell osztani
+			ip->ac = alog10( -ip->ac / 20 );
 		}
 		ip->inDb = 0;
 	}
