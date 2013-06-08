@@ -27,7 +27,9 @@ EX_INTERRUPT_HANDLER(Sport0_RX_ISR);
 // in file ecomplex.c
 real cabs2(complex c);
 complex cmul2(real a, complex b);
+complex cadd2(real a, complex b);
 complex csub2(real a, complex b);
+complex csqrt(complex c);
 
 uint cisnull(complex  c);
 uint cisreal(complex  c);

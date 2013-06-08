@@ -5,8 +5,9 @@
 //--------------------------------------------------------------------------------------------------------
 // Header files
 //--------------------------------------------------------------------------------------------------------
-#include <fract.h>		// fract typedefs and functions
+#include <fract.h>			// fract typedefs and functions
 #include <complex.h>	// complex typedefs and functions
+#include <cycles.h>		// statistics
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -91,6 +92,9 @@ extern int aRightOut;
 extern int aRxBuffer[];
 extern int aTxBuffer[];
 extern int channelDelay;
+
+// variables for statistics
+extern cycle_stats_t sOneTime;
 
 extern void (*filterFunction)(void);
 extern void *delayLine;

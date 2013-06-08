@@ -66,14 +66,14 @@ void printPzkContainer(pzkContainer * pzk) {
 	if(pzk->nextZero) {
 		printf("Zeros: (%u)\n", countZeros(pzk));
 		for(i=0; i<pzk->nextZero;i++) {
-			printf("  %10g + j%g\n", pzk->zeros[i].re, pzk->zeros[i].im);
+			printf("  %10g + %gi\n", pzk->zeros[i].re, pzk->zeros[i].im);
 		}
 	}
 
 	if(pzk->nextPole) {
 		printf("Poles: (%u)\n", countPoles(pzk));
 		for(i=0; i<pzk->nextPole;i++) {
-			printf("  %10g + j%g\n", pzk->poles[i].re, pzk->poles[i].im);
+			printf("  %10g + %gi\n", pzk->poles[i].re, pzk->poles[i].im);
 		}
 	}
 	
@@ -93,7 +93,7 @@ void printPzkContainer(pzkContainer * pzk) {
 			printf("Number of j%g conjugate poles: %d\n", pzk->wz, pzk->no_wz);
 		}
 	}
-	
+
 	printf("---------------------------------------------------------\n");
 }
 
@@ -156,7 +156,7 @@ uint countZeros(pzkContainer * pzk) {
 	
 	if( pzk->no_wz > 0 ) {
 		nz += pzk->no_wz;
-		if( pzk->wz != 0.0 ) {
+		if( pzk->wz != 0 ) {
 			nz += pzk->no_wz;	// not null means complex => 2 zeros
 		}
 	}

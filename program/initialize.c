@@ -16,6 +16,8 @@ int channelDelay	= 0;
 
 char uart_buffer[UART_BUF_SIZE];
 
+cycle_stats_t sOneTime;
+
 void (*filterFunction)();
 void *delayLine	= NULL;
 void *coefLine	= NULL;

@@ -42,17 +42,22 @@ void main(void)
 {
 	resetFilter();
 	Init_All();
+	CYCLES_INIT(sOneTime);
 
 	while(1) {
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
 			/*decodeInput(uart_buffer);*/
-			pz1 = createButterworth(5,1);
+			CYCLES_START(sOneTime);
+			pz1 = createButterworth(5,1);		
+			pz2 = t2bp(pz1, 5000, 50);			
+			pz3 = t2bp(pz1, 5000, 9000);//bilinear(pz2, 95996.52775);
+			CYCLES_STOP(sOneTime);
+			
 			//printPzkContainer(pz1);
-			pz2 = t2lp(pz1, 1000);
-			//printPzkContainer(pz2);
-			pz3 = bilinear(pz2, 95996.52775);
+			printPzkContainer(pz2);
 			printPzkContainer(pz3);
+			CYCLES_PRINT(sOneTime);
 		}
 	}
 }

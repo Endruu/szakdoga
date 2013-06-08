@@ -1,5 +1,5 @@
 #include "global.h"
-
+#include <math.h>
 /*
 complex_double polar(double a, double f) {
 	complex_double c;
@@ -31,6 +31,11 @@ complex cmul2(real a, complex b) {
 	return b;
 }
 
+complex cadd2(real a, complex b) {
+	b.re = a + b.re;
+	return b;
+}
+
 complex csub2(real a, complex b) {
 	b.re = a - b.re;
 	b.im = -b.im;
@@ -53,3 +58,27 @@ uint cisequal(complex  a, complex b) {
 	return ( a.im == b.im && a.re == b.re ) ? 1 : 0;
 }
 
+complex csqrt(complex c) {
+	complex ret;
+	real mag;
+	
+	if(c.im == 0) {
+		if(c.re >= 0) {
+			c.re = sqrt(c.re);
+		} else {
+			c.im = sqrt(-c.re);
+			c.re = 0;
+		}
+		return c;
+	}
+	else {
+		mag = cabs(c);
+		ret.re = sqrt((c.re+mag)/2);
+		ret.im = sqrt((-c.re+mag)/2);
+		if( c.im < 0 ) {
+			ret.im = -ret.im;
+		}
+		return ret;
+	}
+	
+}
