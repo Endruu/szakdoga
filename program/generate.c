@@ -1,37 +1,68 @@
 #include "global.h"
 #include <stdio.h>
 #include <math.h>
-//#include <string.h>
 
-//#define sscanf sscanf_s
 
 pzkContainer * createButterworth(uint n, real e0) {
-	pzkContainer * bw = createPzkContainer((n+1)/2, 0);
+	pzkContainer * filt = createPzkContainer((n+1)/2, 0);
 	real fi;
 	complex tmp;
 	const real prn = PIP2 / (real)n;	// pi/(2n)
 	uint i;
 	
 	if( e0 != 1.0 ) {
-		bw->amp = pow(e0, -(real)n);
+		filt->amp = pow(e0, -(real)n);
 	}
 	
 	for( i = 0; i < n/2; i++ ) {
 		fi = (real)( 2*i + 1 + n ) * prn ;
-		addPole(bw, polar( bw->amp, fi ) );	//TODO! hibaellenõrzés
+		addPole(filt, polar( filt->amp, fi ) );	//TODO! hibaellenõrzés
 	}
 	
 	if( n % 2 ) {
-		tmp.re = -bw->amp;
+		tmp.re = -filt->amp;
 		tmp.im = 0.0;
-		addPole(bw, tmp);
+		addPole(filt, tmp);
 	}
 	
-	bw->amp = 1 / e0;
-	bw->type = lowpass;
+	filt->amp = 1 / e0;
+	filt->type = lowpass;
 	
-	return bw;
+	return filt;
 }
+
+pzkContainer * createChebyshev1(uint n, real e0) {
+	pzkContainer * filt = createPzkContainer((n+1)/2, 0);
+	real ch, sh, fi;
+	complex tmp;
+	const real prn = PIP2 / (real)n;	// pi/(2n)
+	uint i;
+	
+	tmp.re = sqrt(1 + e0^2);
+	filt->amp = 1 / tmp.re;
+	tmp.re = (1 + tmp.re) / e0;
+	tmp.re = pow(tmp.re, 1.0/(real)n);
+	tmp.im = 1 / tmp.re;
+	sh = -(tmp.re - tmp.im)/2;
+	ch = (tmp.re + tmp.im)/2;
+	
+	for( i = 0; i < n/2; i++ ) {
+		fi = (real)( 2*i + 1 ) * prn ;
+		tmp.re = sh * sin(fi);
+		tmp.im = ch * cos(fi);
+		addPole(filt, tmp);	//TODO! hibaellenõrzés
+	}
+	
+	if( n % 2 ) {
+		tmp.re = sh;
+		tmp.im = 0.0;
+		addPole(filt, tmp);
+		filt->amp = 1;
+	}
+	
+	return filt;
+}
+
 /*
 real transformA2E(real a0, filterType type) {
 	switch( type  ) {

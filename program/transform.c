@@ -282,8 +282,8 @@ pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw) {
 }
 
 
-real getPrewarpFreq(real radps) {
-	return radps / tan(radps / (F_SAMPLING * 2));
+real getPrewarpFreq(real radps, real samplingTime) {
+	return ( radps == 0.0 ) ? ( 2 / samplingTime ) : ( radps / tan(radps * samplingTime / 2) );
 }
 
 pzkContainer * bilinear(pzkContainer * pzk, real pwf) {

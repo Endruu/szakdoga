@@ -1,4 +1,7 @@
 #include "global.h"
+
+#ifdef _COMPILE_WITH_BLACKFIN
+
 #include <blackfin.h>
 
 //--------------------------------------------------------------------------------------------------------
@@ -30,3 +33,5 @@ EX_INTERRUPT_HANDLER(Sport0_RX_ISR)
 	(*filterFunction)();
 
 }
+
+#endif

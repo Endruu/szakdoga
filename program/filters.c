@@ -1,4 +1,7 @@
 #include "global.h"
+
+#ifdef _COMPILE_WITH_BLACKFIN
+
 #include <libetsi.h>
 
 void resetFilter()
@@ -25,3 +28,5 @@ void fPassThrough() {
 void fDirect1() {
 	fract32 acc = 0;
 }
+
+#endif

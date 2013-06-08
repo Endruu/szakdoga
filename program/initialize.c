@@ -1,5 +1,8 @@
 #include "global.h"		//prototypes
+
+#ifdef _COMPILE_WITH_BLACKFIN
 #include <blackfin.h>	//symbolic register names
+#endif
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -16,8 +19,6 @@ int channelDelay	= 0;
 
 char uart_buffer[UART_BUF_SIZE];
 
-cycle_stats_t sOneTime;
-
 void (*filterFunction)();
 void *delayLine	= NULL;
 void *coefLine	= NULL;
@@ -25,6 +26,12 @@ uint stages		= 0;
 
 uint changeFilterRequest = 1;
 
+#ifdef _COMPILE_WITH_BLACKFIN
+cycle_stats_t sOneTime;
+#endif
+
+
+#ifdef _COMPILE_WITH_BLACKFIN
 
 //--------------------------------------------------------------------------------------------------------
 // Function:	Init_Flags
@@ -173,3 +180,5 @@ void Init_All()
 	Init_Interrupts();
 	Enable_DMA_Sport0();
 }
+
+#endif

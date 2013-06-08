@@ -5,8 +5,16 @@
 //--------------------------------------------------------------------------------------------------------
 // Header files																			
 //--------------------------------------------------------------------------------------------------------
+#include "global_var.h"		//global variables
+
+#ifdef _COMPILE_WITH_BLACKFIN
 #include <sys\exception.h>	//interrupt handling
-#include "global_var.h"			//global variables
+
+#else
+
+#define EX_INTERRUPT_HANDLER(_SG)
+
+#endif
 
 
 //--------------------------------------------------------------------------------------------------------

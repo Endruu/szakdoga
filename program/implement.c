@@ -1,5 +1,7 @@
 #include "global.h"
 
+#ifdef _COMPILE_WITH_BLACKFIN
+
 void iDirect1(pzkContainer * pzk)
 {
 	stages = countBiquads(pzk);
@@ -10,3 +12,5 @@ void iDirect1(pzkContainer * pzk)
 	
 	
 }
+
+#endif

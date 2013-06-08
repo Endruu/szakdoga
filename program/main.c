@@ -43,11 +43,14 @@ uint i;
 
 void main(void)
 {
+
+#ifdef _COMPILE_WITH_BLACKFIN
 	resetFilter();
 	Init_All();
 	CYCLES_INIT(sOneTime);
 
 	while(1) {
+#endif	
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
 			/*decodeInput(uart_buffer);*/
@@ -71,11 +74,13 @@ void main(void)
 			CYCLES_PRINT(sOneTime);*/
 			w0 = 1;
 			for(i = 0; i < 7; i++) {
-				printf("%g -> %g\n", w0, getPrewarpFreq(w0) );
+				printf("%g -> %g\n", w0, getPrewarpFreq(w0, 1/F_SAMPLING) );
 				w0 *= 10;
 			}
 		}
+#ifdef _COMPILE_WITH_BLACKFIN
 	}
+#endif
 }
 
 /*

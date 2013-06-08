@@ -1,3 +1,5 @@
+//#define _COMPILE_WITH_BLACKFIN	// uncomment to compile with other compiler, some functions will be unavailable
+
 #ifndef  _GLOBAL_VAR_H
 #define _GLOBAL_VAR_H
 
@@ -5,9 +7,17 @@
 //--------------------------------------------------------------------------------------------------------
 // Header files
 //--------------------------------------------------------------------------------------------------------
-#include <fract.h>			// fract typedefs and functions
+#ifdef _COMPILE_WITH_BLACKFIN
+
+#include <fract.h>		// fract typedefs and functions
 #include <complex.h>	// complex typedefs and functions
 #include <cycles.h>		// statistics
+
+#else
+
+#include "other_complex.h"
+
+#endif
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -22,23 +32,23 @@
 #define AUDIO_RESET_DELAY		0xf00
 
 // SPORT0 word length
-#define SLEN_24							0x0017
+#define SLEN_24					0x0017
 
 // DMA flow mode
-#define FLOW_1							0x1000
+#define FLOW_1					0x1000
 
 // UART buffersize
-#define UART_BUF_SIZE				100
+#define UART_BUF_SIZE			100
 
 // audio buffersize
-#define AUDIO_BUF_SIZE				2				// 2 bytes for 24bit ADC/DAC
+#define AUDIO_BUF_SIZE			2				// 2 bytes for 24bit ADC/DAC
 
 // sampling rate of ADC
-#define F_SAMPLING						48000.0
+#define F_SAMPLING				48000.0
 
 // math constants
-#define PI										3.14159265358979323846
-#define PIP2									1.57079632679489661923		// pi/2
+#define PI						3.14159265358979323846
+#define PIP2					1.57079632679489661923		// pi/2
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -46,8 +56,8 @@
 //--------------------------------------------------------------------------------------------------------
 
 typedef complex_double	complex;
-typedef double					real;
-typedef unsigned int			uint;
+typedef double			real;
+typedef unsigned int	uint;
 
 typedef enum {
 	iir,
