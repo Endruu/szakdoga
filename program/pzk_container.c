@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "global.h"
 
 pzkContainer * createPzkContainer(uint np, uint nz) {
@@ -252,4 +253,59 @@ uint countBiquads(pzkContainer * pzk) {
 	
 	return (nz + 1)/2;
 	
+}
+
+void sortPZ(complex * list, uint num) {
+    uint	pos = 1,
+			last = 0;
+	complex tmp;
+			
+    while( pos < num ) {
+        if (abs(list[pos].re) > abs(list[pos-1].re)) {	//lehet h -1* kellene abs helyett
+            if (last != 0) {
+                pos = last;
+                last = 0;
+            }
+            pos++;
+		}
+		
+		else if (abs(list[pos].re) == abs(list[pos-1].re)) {
+			if (abs(list[pos].im) >= abs(list[pos-1].im)) {
+				if (last != 0) {
+					pos = last;
+					last = 0;
+				}
+				pos++;
+			}
+			else {
+				tmp = list[pos];
+				list[pos] = list[pos-1];
+				list[pos-1] = tmp;
+				if (pos > 1) {
+					if (last == 0) {
+						last = pos;
+					}
+					pos--;
+				}
+				else {
+					pos++;
+				}
+			}
+		}
+		
+        else {
+            tmp = list[pos];
+			list[pos] = list[pos-1];
+			list[pos-1] = tmp;
+            if (pos > 1) {
+                if (last == 0) {
+                    last = pos;
+                }
+                pos--;
+			}
+            else {
+                pos++;
+            }
+        }
+    }
 }

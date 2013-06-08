@@ -94,10 +94,10 @@ pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw) {
 	nop = 2*pzk->nextPole;
 	
 	if( pzk->no_wz > 0 ) {
-		nop += pzk->no_wz;
+		noz += pzk->no_wz;
 	}
 	if( pzk->no_wz < 0 ) {
-		noz -= pzk->no_wz;
+		nop -= pzk->no_wz;
 	}
 	
 	f = createPzkContainer(nop, noz);

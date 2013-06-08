@@ -1,4 +1,6 @@
+#ifdef __VISUALDSPVERSION__
 #define _COMPILE_WITH_BLACKFIN	// uncomment to compile with other compiler, some functions will be unavailable
+#endif
 
 #ifndef  _GLOBAL_VAR_H
 #define _GLOBAL_VAR_H
