@@ -10,9 +10,13 @@
 
 #ifdef _COMPILE_WITH_BLACKFIN
 #include <sys\exception.h>	//interrupt handling
+#define CLI()	interruptBackup = cli()
+#define STI()	sti(interruptBackup)
 #else
 
 #define EX_INTERRUPT_HANDLER(_SG)
+#define CLI()
+#define STI()
 
 #endif
 

@@ -63,6 +63,8 @@
 	<folders>
 		<folder name="Header Files" ext=".h,.hpp,.hxx">
 			<files>
+				<file name=".\error.h">
+				</file>
 				<file name=".\global.h">
 				</file>
 				<file name=".\global_var.h">
@@ -107,7 +109,7 @@
 						</file-configuration>
 					</file-configurations>
 				</file>
-				<file name=".\filters.c">
+				<file name=".\error.c">
 					<file-configurations>
 						<file-configuration name="Debug">
 							<excluded-flag value="no"/>
@@ -124,6 +126,22 @@
 					</file-configurations>
 				</file>
 				<file name=".\generate.c">
+					<file-configurations>
+						<file-configuration name="Debug">
+							<excluded-flag value="no"/>
+							<build-with-flag value="project"/>
+							<intermediate-dir>.\Debug</intermediate-dir>
+							<output-dir>.\Debug</output-dir>
+						</file-configuration>
+						<file-configuration name="Release">
+							<excluded-flag value="no"/>
+							<build-with-flag value="project"/>
+							<intermediate-dir>.\Release</intermediate-dir>
+							<output-dir>.\Release</output-dir>
+						</file-configuration>
+					</file-configurations>
+				</file>
+				<file name=".\implement.c">
 					<file-configurations>
 						<file-configuration name="Debug">
 							<excluded-flag value="no"/>
@@ -188,6 +206,22 @@
 					</file-configurations>
 				</file>
 				<file name=".\pzk_container.c">
+					<file-configurations>
+						<file-configuration name="Debug">
+							<excluded-flag value="no"/>
+							<build-with-flag value="project"/>
+							<intermediate-dir>.\Debug</intermediate-dir>
+							<output-dir>.\Debug</output-dir>
+						</file-configuration>
+						<file-configuration name="Release">
+							<excluded-flag value="no"/>
+							<build-with-flag value="project"/>
+							<intermediate-dir>.\Release</intermediate-dir>
+							<output-dir>.\Release</output-dir>
+						</file-configuration>
+					</file-configurations>
+				</file>
+				<file name=".\state.c">
 					<file-configurations>
 						<file-configuration name="Debug">
 							<excluded-flag value="no"/>

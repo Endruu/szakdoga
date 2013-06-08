@@ -47,20 +47,23 @@ void main(void)
 {
 	filterR = newFilterInfo();
 #ifdef _COMPILE_WITH_BLACKFIN
-	resetFilter();
+	//resetFilter();
 	Init_Device();
 
 	while(1) {
 #endif
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
-			strcpy(uart_buffer, "GI:BW:N5*T:BP:A1000C1000W0*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*
+			strcpy(uart_buffer, "GI:BW:N5*T:LP:A1000W0*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*
 			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
 			printErrors(uart_buffer, UART_BUF_SIZE);
 			printf("Errors:\n");
 			printf(uart_buffer);
 			printFilterInfo(&filterR);
+			for(i=0; i<COEFF_SIZE; i++) {
+					printf("%d - %d\n", delayLineR[i], coeffLineR[i]);
+			}
 			//pwf = getPrewarpFreq(w0, 1/F_SAMPLING);
 			//printf("%d - %g\n", sizeof(pzkContainer), pwf);
 			//pz[0] = createChebyshev2(5, 10.0/6.0, 0.01778);

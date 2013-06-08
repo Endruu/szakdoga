@@ -198,5 +198,7 @@ extern COEFF_TYPE * coeffLineR;
 extern COEFF_TYPE * coeffLineTemp;
 extern filterInfo filterR;
 
+extern unsigned int interruptBackup;
+
 #endif
 

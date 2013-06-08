@@ -1,5 +1,6 @@
 #include "global.h"
 #include <math.h>
+#include <stdio.h>
 
 #define MAX_FR16	0x7FFF
 
@@ -18,12 +19,13 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 	const real m1pln2 = -1/log(2.0);
 	
 	if( !cisreal(*p1) ) {
-		if( p2 != p1 || p2 != NULL ) {
+		/*if( p2 != p1 && p2 != NULL ) {
 			error(0);									// if p1 is complex then p2 is assumed to be its conjugate
-		}
+		}*/
 		coeffs[4] = float_to_fr16( (float)( -cabs2(*p1) ) );
 		coeffs[5] = float_to_fr16( (float)( p1->re ) );
-		K *= 1-2*p1->re+cabs2(*p1);
+		tmp1= 1-2*p1->re+cabs2(*p1);
+		if(tmp1 != 0) K *= tmp1; 
 	} else {
 		tmp1 = -p1->re * p2->re;
 		tmp2 = -(p1->re + p2->re)/2;
@@ -62,10 +64,11 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 	}
 	
 	if( !cisreal(*z1) ) {
-		if( z2 != z1 || z2 != NULL ) {
+		/*if( z2 != z1 && z2 != NULL ) {
 			error(0);									// if z1 is complex then z2 is assumed to be its conjugate
-		}
-		K /= abs(1-2*z1->re+cabs2(*z1));
+		}*/
+		tmp1= abs(1-2*z1->re+cabs2(*z1));
+		if(tmp1 != 0) K /= tmp1;
 		tmp3 = -K*cabs2(*z1);
 		tmp2 = K*z1->re;
 		tmp1 = -K;
@@ -106,5 +109,52 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 }
 
 int implementFilter( filterInfo * fi ) {
+	int i = 0, j = 0;
+	complex *p1, *p2, *z1, *z2;
+	complex zero;
+	real tmp;
+	real K = fi->dFilter->amp;
+	
+	zero.re = 0;
+	zero.im = 0;
+	
+	sortDigitalPZ(fi->dFilter);
+	
+	while( i+1 < fi->dFilter->nextPole ) {
+		p1 = &fi->dFilter->poles[i];
+		if( cisreal( fi->dFilter->poles[i] ) ) {
+			p2 = &fi->dFilter->poles[i+1];
+			i += 2;
+		} else {
+			p2 = NULL;
+			i++;
+		}
+		z1 = &fi->dFilter->zeros[j];
+		if( cisreal( fi->dFilter->zeros[j] ) ) {
+			z2 = &fi->dFilter->zeros[j+1];
+			j += 2;
+		} else {
+			z2 = NULL;
+			j++;
+		}
+		tmp = direct1_biquad(coeffLineTemp, z1, z2, p1, p2, 0);
+		printf("%g\n", tmp);
+		/*if(tmp=0) {
+			K /= tmp;
+		} else {
+			error(0);
+		}*/
+	}
+	if( i < fi->dFilter->nextPole) {
+		p1 = &fi->dFilter->poles[i];
+		z1 = &fi->dFilter->zeros[j];
+		tmp = direct1_biquad(coeffLineTemp, z1, &zero, p1, &zero, 0);
+		/*if(tmp!=0) {
+			K /= tmp;
+		} else {
+			error(0);
+		}*/
+	}
+	
 	return 1;
 }

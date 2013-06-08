@@ -38,6 +38,8 @@ COEFF_TYPE coeffLine2[COEFF_SIZE];
 COEFF_TYPE * coeffLineR = coeffLine1;
 COEFF_TYPE * coeffLineTemp = coeffLine2;
 
+unsigned int interruptBackup;
+
 #ifdef _COMPILE_WITH_BLACKFIN
 
 //--------------------------------------------------------------------------------------------------------

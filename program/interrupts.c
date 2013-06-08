@@ -30,7 +30,7 @@ EX_INTERRUPT_HANDLER(Sport0_RX_ISR)
 	aRightIn	= aRxBuffer[INTERNAL_ADC_R0];
 	
 	// run filter
-	(*filterFunction)();
+	//(*filterFunction)();
 
 }
 

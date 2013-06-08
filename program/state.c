@@ -9,9 +9,9 @@ filterInfo newFilterInfo() {
 	r.tFilter		= NULL;
 	r.dFilter		= NULL;
 	r.filter		= NULL;
-	r.type			= empty;
+	r.type		= empty;
 	r.subtype		= empty;
-	r.supertype		= empty;
+	r.supertype	= empty;
 	r.fState		= sStart;
 	return r;
 }
@@ -51,6 +51,7 @@ void printFilterInfo( filterInfo * fi ) {
 int changeState(char code[]) {
 	int	tmp,
 		chars_read = 0;
+	COEFF_TYPE * tmp_ptr;
 	
 	filterInfo newFilter = copyFilterInfo( &filterR );
 	
@@ -127,10 +128,10 @@ int changeState(char code[]) {
 					deleteFilterInfo( &newFilter );
 					error(0); 
 				}
-				/*if( !implementFilter( &newFilter ) ) {
+				if( !implementFilter( &newFilter ) ) {
 					deleteFilterInfo( &newFilter );
 					error(0); 
-				}*/
+				}
 			break;
 		}
 		
@@ -146,8 +147,16 @@ int changeState(char code[]) {
 				filterR.dFilter = NULL;
 			break;
 		}
+		
+		// set the new filter in an atomic way
+		CLI();
 		deleteFilterInfo( &filterR );
 		filterR = newFilter;
+		tmp_ptr = coeffLineR;
+		coeffLineR = coeffLineTemp;
+		coeffLineTemp = tmp_ptr;
+		STI();
+		
 		return chars_read;
 		
 	} else if( newFilter.supertype == fir ) {
