@@ -53,16 +53,18 @@ void main(void)
 #endif
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
-			strcpy(uart_buffer, "GI:BW:A0.7B0.01W5L0*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
+			strcpy(uart_buffer, "GI:C1:A3B40W5*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
 			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
+			//printPzkContainer(filterR.tFilter);
+			//printFilterInfo(&filterR);
 			/*CLI();
 			printf("HALT!\n");
 			STI();*/
 			/*printErrors(uart_buffer, UART_BUF_SIZE);
 			printf("Errors:\n");
 			printf(uart_buffer);
-			printFilterInfo(&filterR);
+			
 			for(i=0; i<COEFF_SIZE; i++) {
 					printf("%d - %d\n", delayLineR[i], coeffLineR[i]);
 			}

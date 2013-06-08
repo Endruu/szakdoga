@@ -35,7 +35,7 @@ real getPrewarpFreq(real radps) {
 
 complex prewarpPZ(complex pz) {
 	const real abs = cabs(pz);
-	const real f2 = 2*F_SAMPLE;
+	const real f2 = 2*F_SAMPLING;
 	return cmul2(f2*atan(abs/f2)/abs, pz);
 }
 

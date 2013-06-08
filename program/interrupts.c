@@ -38,7 +38,9 @@ EX_INTERRUPT_HANDLER(Sport0_RX_ISR)
 }
 
 EX_INTERRUPT_HANDLER(Uart0_RX_ISR) {
-	*pUART0_THR = 'A';
+	*pUART0_THR = '\n';
+	*pUART0_THR = *pUART0_RBR;
+	
 }
 
 #endif
