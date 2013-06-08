@@ -40,6 +40,7 @@ Program Parameters:
 pzkContainer * pz[9];
 real pwf, w0 = 1000, dw = 1000;
 uint i;
+complex tmp;
 
 void main(void)
 {
@@ -58,8 +59,18 @@ void main(void)
 			pwf = getPrewarpFreq(w0, 1/F_SAMPLING);
 			printf("%d - %g\n", sizeof(pzkContainer), pwf);
 			//pz[0] = createChebyshev2(5, 10.0/6.0, 0.01778);
-			pz[0] = createChebyshev1(5, 0.1);
+			//pz[0] = createChebyshev1(5, 0.1);
 			//pz[0] = createButterworth(5, 1);
+			pz[0] = createPzkContainer(2, 0);
+			tmp.im = 0;
+			tmp.re = 1;
+			addPole(pz[0],tmp);
+			tmp.re = 2;
+			addPole(pz[0],tmp);
+			tmp.re = 0;
+			addZero(pz[0],tmp);
+			pz[0]->amp = 2;
+
 			pz[1] = t2lp(pz[0] , w0);
 			pz[2] = t2hp(pz[0] , w0);
 			pz[3] = t2bp(pz[0] , w0, dw);
@@ -68,10 +79,10 @@ void main(void)
 			
 			
 			for(i = 5; i < 9; i++) {
-				pz[i] = bilinear(pz[i-4],pwf);
+				pz[i] = bilinear(pz[i-4],F_SAMPLING,w0);
 			}
 			for(i = 1; i < 5; i++) {
-				//printPzkContainer(pz[i]);
+				printPzkContainer(pz[i]);
 				print4Matlab(pz[i]);
 				print4Matlab(pz[i+4]);
 			}

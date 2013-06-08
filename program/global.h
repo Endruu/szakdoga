@@ -76,7 +76,7 @@ pzkContainer * t2hp(pzkContainer * pzk, real w0);
 pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw);
 pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw);
 
-pzkContainer * bilinear(pzkContainer * pzk, real pwf);
+pzkContainer * bilinear(pzkContainer * pzk, real Fs, real pwf);
 real getPrewarpFreq(real radps, real samplingTime);
 
 #endif

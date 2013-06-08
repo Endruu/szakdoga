@@ -315,7 +315,7 @@ real getPrewarpFreq(real radps, real samplingTime) {
 	return ( radps == 0.0 ) ? ( 2 / samplingTime ) : ( radps / tan(radps * samplingTime / 2) );
 }
 
-pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
+pzkContainer * bilinear(pzkContainer * pzk, real Fs, real pwf) {
 	pzkContainer * f;
 	uint i;
 	int no_1z;
@@ -324,6 +324,8 @@ pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 	one.re = -1.0;
 	one.im = 0.0;
 	
+	tmp.re = pwf;
+	pwf = getPrewarpFreq(pwf, 1.0/Fs);
 	no_1z = (int)countPoles(pzk) - (int)countZeros(pzk);
 
 	i = countPoles(pzk);		//TODO: finomítani!
@@ -339,11 +341,8 @@ pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 	if( pzk->wz == 0 ) {
 		f->amp = pzk->amp * pow(pwf, (real)pzk->no_wz);
 	} else {
+		f->amp = pzk->amp * pow(tmp.re/sin(tmp.re/(2*Fs)), (real)(2*pzk->no_wz));
 		f->wz = pzk->wz;
-		tmp.re = pwf;
-		tmp.im = pzk->wz;
-		tmp = cdiv(tmp, conj(tmp));
-		//f->amp = pzk->amp * pow(cabs2(tmp), (real)pzk->no_wz);
 	}
 	
 	if(  no_1z >= 0 ) {
