@@ -48,14 +48,14 @@ void main(void)
 	Init_Device();
 
 	while(1) {
-		if( uartRequest ) {
+		if( uartRequest == 1 ) {
 			changeState(uart_buffer);
 			if( getErrors() ) {
 				printErrors(uart_buffer, UART_BUF_SIZE);
-				printf("%s\n", uart_buffer);
+				//printf("%s\n", uart_buffer);
 				clearErrors();
 			} else {
-				printf("OK\n");
+				//printf("OK\n");
 			}
 			uartRequest = 0;
 		}

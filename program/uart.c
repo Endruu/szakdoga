@@ -27,7 +27,7 @@ uint sendChar(char c) {
 uint receiveString() {
 	char in = *pUART0_RBR;
 	
-	if( uartRequest ) {								// buffer is in use
+	if( uartRequest == 1 ) {								// buffer is in use
 		if( _echo ) sendChar('~');
 		return 0;
 	}

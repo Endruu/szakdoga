@@ -124,7 +124,7 @@ int transformFilter( filterInfo *fi ) {
 			pzk = t2bp(fi->iFilter, fi->transformP.w0, fi->transformP.w1);
 			break;
 		case bandstop:
-			pzk = t2bp(fi->iFilter, fi->transformP.w0, fi->transformP.w1);
+			pzk = t2bs(fi->iFilter, fi->transformP.w0, fi->transformP.w1);
 			break;
 		default:
 			error(43);

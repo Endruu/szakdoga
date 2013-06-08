@@ -136,6 +136,7 @@ int changeState(char code[]) {
 					deleteFilterInfo( &newFilter );
 					error(34); 
 				}
+				//printPzkContainer(newFilter.dFilter);
 				if( !implementFilter( &newFilter ) ) {
 					deleteFilterInfo( &newFilter );
 					error(35); 
@@ -164,6 +165,9 @@ int changeState(char code[]) {
 		tmp_ptr = coeffLineR;
 		coeffLineR = coeffLineTemp;
 		coeffLineTemp = tmp_ptr;
+		for(tmp = 0; tmp < DELAY_SIZE; tmp++) {
+				delayLineR[tmp] = 0;
+		}
 		enableAudio();
 		//STI();
 		
