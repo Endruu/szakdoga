@@ -96,7 +96,7 @@ pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw) {
 	f = createPzkContainer(nop, noz);
 	
 	f->no_wz = -pzk->no_wz;
-	f->amp = pzk->amp * pow(dw, (real)(f->no_wz);
+	f->amp = pzk->amp * pow(dw, (real)(f->no_wz));
 		
 	gamma.re = 0;
 	gamma.im = w0;
@@ -200,7 +200,7 @@ pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw) {
 	
 	f->wz = w0;
 	f->no_wz = -pzk->no_wz;
-	f->amp = pzk->amp * pow(dw, (real)(pzk->no_wz);
+	f->amp = pzk->amp * pow(dw, (real)(pzk->no_wz));
 		
 	gamma.re = 0;
 	gamma.im = 0;
@@ -218,7 +218,7 @@ pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw) {
 	for( i = 0; i < pzk->nextPole; i++ ) {
 		beta = cmul2(dwp2, pzk->poles[i]);
 		
-		tmp = cmult2(w0, beta);
+		tmp = cmul2(w0, beta);
 		tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
 	
 		if( cisreal(tmp) ) {
@@ -249,7 +249,7 @@ pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw) {
 	for( i = 0; i < pzk->nextZero; i++ ) {
 		beta = cmul2(dwp2, pzk->zeros[i]);
 		
-		tmp = cmult2(w0, beta);
+		tmp = cmul2(w0, beta);
 		tmp = csqrt( csub2(1, cmlt(tmp, tmp)) );
 	
 		if( cisreal(tmp) ) {
@@ -281,54 +281,68 @@ pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw) {
 	
 }
 
-/*
+
+real getPrewarpFreq(real radps) {
+	return radps / tan(radps / (F_SAMPLING * 2));
+}
+
 pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
-	pzkContainer * f = createPzkContainer(pzk->nextPole, pzk->nextZero);
+	pzkContainer * f;
 	uint i;
+	int no_1z;
 	real rdenom;
-	complex cdenom, tmp, one, cpwf;
+	complex cdenom, tmp, one, cpwf, cwz;
 	
-	one.re = 1.0;
+	one.re = -1.0;
 	one.im = 0.0;
 	cpwf.re = pwf;
 	cpwf.im = 0.0;
 	
-	
-	if( pzk->type != bandstop ) {
-		//f->no_wz =
-		f->no_0z = -pzk->no_0z;
-	} else {
-	
-		if(pzk->no_0z > 0) {
-			for( f->no_0z = 0; f->no_0z < pzk->no_0z; f->no_0z++ ) {
-				addZero(f, one);
-			}
-		}
-		
-		if(pzk->no_0z < 0) {
-			for( f->no_0z = 0; f->no_0z > pzk->no_0z; f->no_0z-- ) {
-				addPole(f, one);
-			}
-		}
-		
-		//kiegészítésre szorul
-		
+	i = pzk->nextPole;
+	if( i < pzk->nextZero ) {
+		i = pzk->nextZero;
 	}
 	
-	f->amp = pzk->amp * pow(pwf, pzk->no_0z);
+	f = createPzkContainer(i, i);
 	
+	f->pwf = pwf;
+	f->no_wz = pzk->no_wz;
+	
+	if( pzk->wz == 0 ) {
+		cwz.re = 1.0;
+		cwz.im = 0;
+		f->amp = pzk->amp * pow(pwf, pzk->no_wz);
+	} else {
+		f->wz = pzk->wz;
+		tmp.re = pwf;
+		tmp.im = pzk->wz;
+		cwz = cdiv(tmp, conj(tmp));
+		f->amp = pzk->amp * pow(cabs2(cwz), pzk->no_wz);
+	}
+	
+	no_1z = (int)countPoles(pzk) - (int)countZeros(pzk);
+	if(  no_1z >= 0 ) {
+		for( i = 0; i < no_1z; i++ ) {
+			addZero(f, one);
+		}
+	} else {					// should not be the case
+		for( i = 0; i < -no_1z; i++ ) {
+			addPole(f, one);
+		}
+	}
+
+	one.re = 1.0;
+
 	for( i = 0; i < pzk->nextZero; i++ ) {
 		if( cisreal(pzk->zeros[i]) ) {
 			rdenom = pwf - pzk->zeros[i].re;
 			f->amp *= rdenom;
 			tmp.re = (pwf + pzk->zeros[i].re) / rdenom;
 			tmp.im = 0.0;
-			f->no_0z--;
 		} else {
 			cdenom = csub(one, pzk->zeros[i]);
 			f->amp *= cabs2(cdenom);
 			tmp = cdiv( cadd(one, pzk->zeros[i]), cdenom );
-			f->no_0z -= 2;
 		}
 		addZero(f, tmp);
 	}
@@ -339,15 +353,13 @@ pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 			f->amp *= rdenom;
 			tmp.re = (pwf + pzk->poles[i].re) * rdenom;
 			tmp.im = 0.0;
-			f->no_0z++;
 		} else {
 			cdenom = cdiv( one, csub(cpwf, pzk->poles[i]) );
 			f->amp *= cabs2(cdenom);
 			tmp = cmlt( cadd(cpwf, pzk->poles[i]), cdenom );
-			f->no_0z += 2;
 		}
 		addPole(f, tmp);
 	}
 	
 	return f;
-}*/
+}

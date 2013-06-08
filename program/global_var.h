@@ -67,14 +67,15 @@ typedef enum {
 
 typedef struct {
 	real	amp,
-			wz;
+			wz,
+			pwf;
 	complex * poles;
 	complex * zeros;
 	uint	pSize,
 			zSize,
 			nextPole,
 			nextZero;
-	int		no_wz;
+	int	no_wz;
 	filterType type;
 } pzkContainer;
 

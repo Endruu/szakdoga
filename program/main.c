@@ -25,6 +25,7 @@ Program Parameters:
 
 ******************************************************************************/   
 #include "global.h"
+#include <stdio.h>
 
 
 //--------------------------------------------------------------------------//
@@ -36,7 +37,9 @@ Program Parameters:
 //				file "Process_Data.c".										//
 //--------------------------------------------------------------------------//
 
-pzkContainer *pz1, *pz2, *pz3;
+pzkContainer * pz[9];
+real pwf, w0 = 20000, dw = 2000;
+uint i;
 
 void main(void)
 {
@@ -48,16 +51,29 @@ void main(void)
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
 			/*decodeInput(uart_buffer);*/
-			CYCLES_START(sOneTime);
-			pz1 = createButterworth(5,1);		
-			pz2 = t2bp(pz1, 5000, 50);			
-			pz3 = t2bp(pz1, 5000, 9000);//bilinear(pz2, 95996.52775);
+			/*CYCLES_START(sOneTime);
+			pwf = getPrewarpFreq(w0);
+			printf("%d - %g\n", sizeof(pzkContainer), pwf);
+			pz[0] = createButterworth(3,1);
+			pz[1] = t2lp(pz[0] , w0);
+			pz[2] = t2hp(pz[0] , w0);
+			pz[3] = t2bp(pz[0] , w0, dw);
+			pz[4] = t2bs(pz[0] , w0, dw);
 			CYCLES_STOP(sOneTime);
 			
-			//printPzkContainer(pz1);
-			printPzkContainer(pz2);
-			printPzkContainer(pz3);
-			CYCLES_PRINT(sOneTime);
+			
+			for(i = 5; i < 9; i++) {
+				pz[i] = bilinear(pz[i-4], pwf);
+			}
+			for(i = 0; i < 9; i++) {
+				printPzkContainer(pz[i]);
+			}
+			CYCLES_PRINT(sOneTime);*/
+			w0 = 1;
+			for(i = 0; i < 7; i++) {
+				printf("%g -> %g\n", w0, getPrewarpFreq(w0) );
+				w0 *= 10;
+			}
 		}
 	}
 }

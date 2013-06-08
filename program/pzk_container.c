@@ -19,8 +19,9 @@ pzkContainer * createPzkContainer(uint np, uint nz) {
 		pzk->poles = NULL;
 	}
 	
-	pzk->amp		= 1.0;
+	pzk->amp			= 1.0;
 	pzk->wz			= 0.0;
+	pzk->pwf			= 0.0;
 	pzk->zSize		= nz;
 	pzk->pSize		= np;
 	pzk->nextPole	= 0;
