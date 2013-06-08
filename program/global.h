@@ -3,7 +3,7 @@
 
 
 //--------------------------------------------------------------------------------------------------------
-// Header files																			
+// Header files	and macros																	
 //--------------------------------------------------------------------------------------------------------
 #include "global_var.h"		// global variables
 #include "error.h"			// error handling
@@ -24,7 +24,9 @@
 //--------------------------------------------------------------------------------------------------------
 // Prototypes
 //--------------------------------------------------------------------------------------------------------
-// in file initialize.c
+
+// INITIALIZE.C	//----------------------------------------------------------------------------------------
+
 void Init_Flags(void);
 void Audio_Reset(void);
 void Init_Sport0(void);
@@ -34,11 +36,15 @@ void Init_Interrupts(void);
 void Enable_DMA_Sport0(void);
 void Init_Device(void);						// the previous functions aggregated
 
-// in file interrupts.c
+
+// INTERRUPTS.C	//----------------------------------------------------------------------------------------
+
 EX_INTERRUPT_HANDLER(Sport0_RX_ISR);
 EX_INTERRUPT_HANDLER(Uart0_RX_ISR);
 
-// in file ecomplex.c
+
+// ECOMPLEX.C	//----------------------------------------------------------------------------------------
+
 real cabs2(complex c);
 complex cmul2(real a, complex b);
 complex cadd2(real a, complex b);
@@ -50,15 +56,19 @@ uint cisreal(complex  c);
 uint cisimag(complex  c);
 uint cisequal(complex  a, complex b);
 
-// in file filters.c
-void resetFilter(void);
+
+// FILTERS.C	//----------------------------------------------------------------------------------------
+
 void fPassThrough(void);
 void fDirect1(void);
 
-// in file implement.c
+
+// IMPLEMENT.C	//----------------------------------------------------------------------------------------
+
 int createReferentFilter( filterInfo *fi );
 
-// in file pzk_container.c
+// PZK_CONTAINER.C	//------------------------------------------------------------------------------------
+
 pzkContainer *	createPzkContainer(uint np, uint nz);
 uint shrinkPzkContainer(pzkContainer * pzk, uint min);
 void deletePzkContainer(pzkContainer * pzk);
@@ -74,20 +84,24 @@ uint countPoles(pzkContainer * pzk);
 uint countZeros(pzkContainer * pzk);
 uint countBiquads(pzkContainer * pzk);
 
-// in file generate.c
+
+// GENERATE_IIR.C	//------------------------------------------------------------------------------------
+
+int createReferentFilter( filterInfo *fi );
+
 pzkContainer * createButterworth(uint n, real e0);
 pzkContainer * createChebyshev1(uint n, real e0);
 pzkContainer * createChebyshev2(uint n, real Os, real d2);
 
 iirParameters newIirParameters(void);
 int normalizeIirParameters(iirParameters *ip);
-int createReferentFilter( filterInfo *fi );
 
 int convertParametersForButterworth( iirParameters * ip );
 int convertParametersForChebyshev1( iirParameters * ip );
 int convertParametersForChebyshev2( iirParameters * ip );
 
-// in file transform.c
+// TRANSFORM.C	//----------------------------------------------------------------------------------------
+
 pzkContainer * t2lp(pzkContainer * pzk, real w0);
 pzkContainer * t2hp(pzkContainer * pzk, real w0);
 pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw);
@@ -101,7 +115,7 @@ int digitalizeFilter( filterInfo *fi );
 pzkContainer * bilinear(pzkContainer * pzk, real pwf);
 real getPrewarpFreq(real radps);
 
-// in file state.c
+// STATE.C	//--------------------------------------------------------------------------------------------
 filterInfo newFilterInfo(void);
 filterInfo copyFilterInfo(filterInfo * fi);
 void printFilterInfo( filterInfo * fi );

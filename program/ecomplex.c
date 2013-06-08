@@ -5,43 +5,32 @@
 #define cabs cabs_custom
 #endif
 
+// returns the square of the absolute value of a complex number
 real cabs2(complex c) {
 	return c.re * c.re + c.im * c.im;
 }
 
+// multiplies a real and a complex number
 complex cmul2(real a, complex b) {
 	b.re *= a;
 	b.im *= a;
 	return b;
 }
 
+// adds a real and a complex number
 complex cadd2(real a, complex b) {
 	b.re = a + b.re;
 	return b;
 }
 
+// subtracts a complex number from a real number
 complex csub2(real a, complex b) {
 	b.re = a - b.re;
 	b.im = -b.im;
 	return b;
 }
 
-uint cisnull(complex  c) {
-	return ( c.re == 0 && c.im == 0) ? 1 : 0;
-}
-
-uint cisreal(complex  c) {
-	return ( c.im == 0) ? 1 : 0;
-}
-
-uint cisimag(complex  c) {
-	return ( c.re == 0) ? 1 : 0;
-}
-
-uint cisequal(complex  a, complex b) {
-	return ( a.im == b.im && a.re == b.re ) ? 1 : 0;
-}
-
+// returns the square root of a complex number
 complex csqrt(complex c) {
 	complex ret;
 	real mag;
@@ -65,4 +54,24 @@ complex csqrt(complex c) {
 		return ret;
 	}
 	
+}
+
+// true if the complex number is zero
+uint cisnull(complex  c) {
+	return ( c.re == 0 && c.im == 0) ? 1 : 0;
+}
+
+// true if the imaginary part is zero => the number is real
+uint cisreal(complex  c) {
+	return ( c.im == 0) ? 1 : 0;
+}
+
+// true if the number is imaginary
+uint cisimag(complex  c) {
+	return ( c.re == 0) ? 1 : 0;
+}
+
+// true if the two complex numbers are equal
+uint cisequal(complex  a, complex b) {
+	return ( a.im == b.im && a.re == b.re ) ? 1 : 0;
 }
