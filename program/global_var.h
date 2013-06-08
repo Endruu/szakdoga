@@ -133,10 +133,11 @@ typedef struct {
 
 typedef enum {
 	sStart,
-	sIir,
+	sReferent,
 	sTransform,
 	sDigitalize,
-	sImplement
+	sImplement,
+	sRunning
 } filterState;
 
 typedef struct {
@@ -160,12 +161,13 @@ typedef struct {
 	iirParameters iirP;
 	transformParameters transformP;
 	pzkContainer	*iFilter,
-					*tFilter,
-					*dFilter;
+				*tFilter,
+				*dFilter;
 	void (*filter)(void);
 	real	wc;
-	filterType	type
-				subtype;
+	filterType	type			// LP, HP, BP, BS
+			subtype,		// butterworth, cheby, hanning, kaiser....
+			supertype;	// iir, fir
 	filterState	fState;
 	
 } filterInfo;

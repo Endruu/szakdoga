@@ -7,15 +7,26 @@ pzkContainer * createPzkContainer(uint np, uint nz) {
 	pzkContainer * pzk;
 	
 	pzk = (pzkContainer *) malloc(sizeof(pzkContainer));
+		error(0, NULL);
+	}
 	
 	if( nz != 0 ) {
-		pzk->zeros = (complex *) malloc(nz * sizeof(complex));	//hibakezelés jó lenne
+		pzk->zeros = (complex *) malloc(nz * sizeof(complex));
+		if( pzk->zeros == NULL ) {
+			free(pzk);
+			error(0, NULL);
+		}
 	} else {
 		pzk->zeros = NULL;
 	}
 	
 	if( np != 0 ) {
-		pzk->poles = (complex *) malloc(np * sizeof(complex));	//ide is
+		pzk->poles = (complex *) malloc(np * sizeof(complex));
+		if( pzk->poles == NULL ) {
+			free(pzk->zeros);
+			free(pzk);
+			error(0, NULL);
+		}
 	} else {
 		pzk->poles = NULL;
 	}

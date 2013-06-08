@@ -10,7 +10,7 @@ filterInfo newFilterInfo() {
 	r.dFilter		= NULL;
 	r.filter		= NULL;
 	r.wc			= 1;
-	r.type			= empty;
+	r.type		= empty;
 	r.subtype		= empty;
 	r.fState		= sStart;
 	return r;
@@ -25,7 +25,7 @@ filterInfo copyFilterInfo( filterInfo * fi ) {
 	r.dFilter		= NULL;
 	r.filter		= NULL;
 	r.wc			= 1;
-	r.type			= empty;
+	r.type		= empty;
 	r.subtype		= empty;
 	r.fState		= fi->fState;
 	return r;
@@ -42,32 +42,91 @@ int changeState(char code[]) {
 	int	tmp
 		chars_read = 0;
 	
-	filterInfo newFilter;
-	
-	
-	
-	if( stateVar == sStart && code[0] != 'G' ) {
-		//HIBA
-	}
-	if( stateVar == sIir && code[0] != 'G' ) {
-		//HIBA
-	}
+	filterInfo newFilter = copyFilterInfo( &filterR );
 	
 	while( code+chars_read != '\0' ) {
-		switch( code[0] ) {
+		switch( code[chars_read] ) {
 			case 'G':
-				if( code[1] == 'I' ) {
-					if( tmp = decodeIirInput( code+3 ) ) {
+				if( code[chars_read+1] == 'I' ) {
+					if( tmp = decodeIirInput( code+chars_read+3, &newFilter ) ) {
 						chars_read += tmp + 3;
-						stateVar = sIir;
+						newFilter.sState = sReferent;
 					} else {
-						//HIBA
+						error(0);
 					}
+				} else if( code[chars_read+1] == 'F' ) {
+					// FIR
+				} else {
+					error(0);
 				}
 				break;
 			case 'T':
-				if( tmp = changeToIir( code+3 ) ) {
+				if( tmp = decodeTransformInput( code+chars_read+2, &newFilter ) ) {
+					chars_read += tmp + 2;
+					if( newFilter.sState > sTransform ) {
+						newFilter.sState = sTransform;
+					}
+				} else {
+					error(0);
+				}
+				break;
+			default:
+				error(0);
 		}
+	}
+	
+	if( newFilter.supertype == iir ) {
+		switch( newFilter.sState ) {
+			case sReferent:
+				if( createReferentFilter( &newFilter );
+			case sTransform:
+				if( newFilter.iFilter == NULL ) {	
+					error(0);
+				}
+				if( !transformFilter( &newFilter ) ) {
+					deleteFilterInfo( &newFilter );
+					error(0);
+				}
+			case sDigitalize:
+				if( newFilter.tFilter == NULL ) {
+					deleteFilterInfo( &newFilter );
+					error(0); 
+				}
+				if( !digitalizeFilter( &newFilter ) ) {
+					deleteFilterInfo( &newFilter );
+					error(0);
+				}
+			case sImplement:
+				if( newFilter.dFilter == NULL ) {
+					deleteFilterInfo( &newFilter );
+					error(0); 
+				}
+				if( !implementFilter( &newFilter ) ) {
+					deleteFilterInfo( &newFilter );
+					error(0); 
+				}
+			break;
+		}
+		
+		switch( newFilter.sState ) {
+			case sTransform:
+				newFilter.iFilter = filterR.iFilter;
+				filterR.iFilter = NULL;
+			case sDigitalize:
+				newFilter.tFilter = filterR.tFilter;
+				filterR.tFilter = NULL;
+			case sImplement:
+				newFilter.dFilter = filterR.dFilter;
+				filterR.dFilter = NULL;
+			break;
+		}
+		deleteFilterInfo( &filterR );
+		filterR = newFilterInfo;
+		return chars_read;
+		
+	} else if( newFilter.supertype == fir ) {
+	} else {
+		error(0);
 	}
 	
 	
@@ -131,41 +190,10 @@ int decodeIirInput(char code[], filterInfo * fi) {
 	
 	if( !normalizeIirParameters( &ip ) ) {
 		error(0);
-	}	
-	
-	switch( filter ) {
-		case butterworth:
-			if( convertParametersForButterworth( &ip ) ) {
-				tmp_pzk = createButterworth(ip.n, ip.e0) );
-			} else {
-				//HIBA
-			}
-			break;
-			
-		case chebyshev1:
-			if( convertParametersForChebyshev1( &ip ) ) {
-				tmp_pzk = createChebyshev1(ip.n, ip.e0) );
-			} else {
-				//HIBA
-			}
-			break;
-		case chebyshev2:
-			if( convertParametersForChebyshev2( &ip ) ) {
-				tmp_pzk = createChebyshev2(ip.n, ip.ws, ip.as) );
-			} else {
-				//HIBA
-			}
-			break;
 	}
-	
-	if( tmp_pzk != NULL ) {
-		pzkList[0] = tmp_pzk;
-		fInfo.iirParameters = ip;
-		fInfo.subtype = filter;
-		fInfo.wc = tmp_double;
-	} else {
-		//HIBA
-	}
+
+	fi->iirP = ip;
+	fi->subtype = filter;
 	
 	return chars_read;
 }
