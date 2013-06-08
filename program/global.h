@@ -28,6 +28,7 @@
 void Init_Flags(void);
 void Audio_Reset(void);
 void Init_Sport0(void);
+void Init_UART(void);
 void Init_DMA(void);
 void Init_Interrupts(void);
 void Enable_DMA_Sport0(void);
@@ -35,6 +36,7 @@ void Init_Device(void);						// the previous functions aggregated
 
 // in file interrupts.c
 EX_INTERRUPT_HANDLER(Sport0_RX_ISR);
+EX_INTERRUPT_HANDLER(Uart0_RX_ISR);
 
 // in file ecomplex.c
 real cabs2(complex c);

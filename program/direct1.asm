@@ -39,6 +39,7 @@ _direct1:
 	W[I3++] = R0.L;											// y[k-1] = y[k]
 	LOOP_END main_loop;
 	
+	//A0 = R0.L * R2.L;
 	R0 = A0;												// full 1.31 output
 	RTS;
 

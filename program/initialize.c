@@ -55,7 +55,7 @@ void Init_Flags()
 	temp = *pPORTF_FER;
 	temp++;
     *pPORTF_FER = 0x0000;
-    *pPORTF_FER = 0x0000;
+    *pPORTF_FER = 0x0003;		// enable uart0 TX and RX
 
     // set PORTF direction register
     *pPORTFIO_DIR = 0x1FC0;
@@ -156,24 +156,77 @@ void Enable_DMA_Sport0()
 //--------------------------------------------------------------------------------------------------------
 // Function:	Init_Interrupts
 //
-// Description:	Initialize Interrupt for Sport0 RX
+// Description:	Initialize Interrupts
 //--------------------------------------------------------------------------------------------------------
 void Init_Interrupts()
 {
 	// Set Sport0 RX (DMA3) interrupt priority to 2 = IVG9 
-	*pSIC_IAR0 = 0xff2fffff;
-	*pSIC_IAR1 = 0xffffffff;
+	*pSIC_IAR0 = 0xff2fffff;	// ADC RX	=> ivg9
+	*pSIC_IAR1 = 0xffff3fff;	// UART0 RX	=> ivg10
 	*pSIC_IAR2 = 0xffffffff;
 	*pSIC_IAR3 = 0xffffffff;
 
 	// assign ISRs to interrupt vectors
+	
 	// Sport0 RX ISR -> IVG 9
 	register_handler(ik_ivg9, Sport0_RX_ISR);
+	
+	// UART0 RX ISR -> IVG 10
+	register_handler(ik_ivg10, Uart0_RX_ISR); 
 
-	// enable Sport0 RX interrupt
-	*pSIC_IMASK = 0x00000020;
+	// enable UART0 RX and Sport0 RX interrupts
+	*pSIC_IMASK = 0x00000820;
 }
 
+//--------------------------------------------------------------------------------------------------------
+// Function:	Init_UART
+//
+// Description:	Initialize UART0 for TX and RX
+//--------------------------------------------------------------------------------------------------------
+void Init_UART()
+{
+	unsigned int divisor;		// Used to hold the calculated divisor value
+	unsigned int msel;		// Multiplier MSEL[5:0] of PLL_CTL register[14:9]
+	unsigned int ssel;		// Divisor SSEL[3:0] of PLL_DIV register[3:0]
+
+	*pUART0_GCTL = UCEN;		// UART Clock enable
+	
+	// Line Control Setup : 8-bit data, no parity, 1 stop bit
+	*pUART0_LCR = 0x0003;
+
+
+	// Read the MSEL from PLL_CTL register
+	msel = (*pPLL_CTL)>>9;		// Read MSEL[5:0] from PLL_CTL
+	msel &= 0x3F;			// Clear all bits except msel[5:0]
+
+	// Read SSEL from PLL_DIV register
+	ssel = *pPLL_DIV;
+	ssel &= 0x0F;			// Clear all bits except ssel[3:0]
+
+	/* divisor calculation:
+		SCLK = (msel * CLKIN)/ssel if DF = 0
+		SCLK = (msel * CLKIN/2)/ssel if DF = 1
+		divisor = SCLK/(16 * BAUD_RATE)
+	*/
+	divisor = ((msel * CLKIN)/(ssel * 16 * BAUD_RATE));
+
+	if(*pPLL_CTL & 0x1) {		// If DF = 1, CLKIN/2 is going to PLL
+		divisor /= 2;		// Divide by 2
+	}
+
+
+	*pUART0_LCR |= DLAB;		// Enable Divisor Latch Access
+	*pUART0_DLL = divisor;
+	ssync();
+	*pUART0_DLH = (divisor>>8);
+	ssync();
+	*pUART0_LCR &= ~DLAB;		// Disable Divisor Latch Access
+	ssync();
+
+	*pUART0_IER =0x1;		//Enable interrupts for receive
+
+	ssync();
+}
 
 //--------------------------------------------------------------------------------------------------------
 // Function:	Init_All
@@ -185,6 +238,7 @@ void Init_Device()
 	Init_Flags();
 	Audio_Reset();
 	Init_Sport0();
+	Init_UART();
 	Init_DMA();
 	Init_Interrupts();
 	Enable_DMA_Sport0();

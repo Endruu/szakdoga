@@ -154,10 +154,15 @@ real implementFilter( filterInfo * fi ) {
 		k += 6;
 	}
 	
+	if( k+2 > COEFF_SIZE ) {
+		error(6);
+	}
+	
+	//coeffLineTemp[k] = float_to_fr16( (float)K );
+	
 	fi->stages = countBiquads(fi->dFilter);
 	fi->filter = &direct1;
 	
-	printf("%g\n", K);
 	return K;
 }
 

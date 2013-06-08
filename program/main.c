@@ -53,7 +53,7 @@ void main(void)
 #endif
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
-			strcpy(uart_buffer, "GI:BW:N5*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
+			strcpy(uart_buffer, "GI:BW:A0.7B0.01W5L0*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
 			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
 			/*CLI();
