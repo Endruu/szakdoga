@@ -2,6 +2,10 @@
 #include <math.h>
 #include <stdio.h>
 
+#ifndef _COMPILE_WITH_BLACKFIN
+#define cabs cabs_custom
+#endif
+
 #define MAX_FR16	0x7FFF
 #define m1pln2		-1.442695041
 
@@ -16,6 +20,84 @@
 #define fr16_to_fr32(p)		(int)((p)*32768)
 
 #endif
+
+real getInfNormScale(complex * z1, complex * z2, complex * p1, complex * p2) {
+	real op1, op2, oz1, oz2, tmp, K = 1;
+	
+	if( p2 == NULL ) {
+		op1 = op2 = cabs(cdiv(csub2(1,*p1),csub2(-1,*p1)));
+		K = (1-2*p1->re+cabs2(*p1))/4;
+	} else {
+		op1 = ( p1->re - 1 )/( p1->re + 1 );
+		op2 = ( p2->re - 1 )/( p2->re + 1 );
+		if( op1 > op2 ) {
+			tmp = op1;
+			op1 = op2;
+			op2 = tmp;
+		}
+		if( fabs(p1->re) != 1.0 ) {
+			K *=( p1->re - 1 )/2;
+		}
+		if( fabs(p2->re) != 1.0 ) {
+			K *=( p2->re - 1 )/2;
+		}
+	}
+	
+	if( z2 == NULL ) {
+		oz1 = oz2 = cabs(cdiv(csub2(1,*z1),csub2(-1,*z1)));
+		K /= 1-2*z1->re+cabs2(*z1)/4;
+	} else {
+		oz1 = ( z1->re - 1 )/( z1->re + 1 );
+		oz2 = ( z2->re - 1 )/( z2->re + 1 );
+		if( oz1 > oz2 ) {
+			tmp = oz1;
+			oz1 = oz2;
+			oz2 = tmp;
+		}
+		if( fabs(z1->re) != 1.0 ) {
+			K /=( z1->re - 1)/2;
+		}
+		if( fabs(z2->re) != 1.0 ) {
+			K /=( z2->re - 1)/2;
+		}
+	}
+	
+	if( z2 == NULL ) {
+		tmp = K*cabs2(csub2(-1, *z1));
+	} else {
+		tmp = K;
+		if( z1->re != -1 ) tmp *= (1+z1->re);
+		if( z2->re != -1 ) tmp *= (1+z2->re);
+	}
+	
+	if( p2 == NULL ) {
+		tmp /= cabs2(csub2(-1, *p1));
+		
+		if( tmp > 1.0 ) {
+			
+			return K/tmp;
+		} else {
+			
+			return K;
+		}
+			
+	} else {
+		if( (op1<=oz1 && oz2<=op2) || (oz2<=op1) || (oz1<=op1 && op1<=oz2 && oz2<=op2) ) {
+			
+			if( p1->re != -1 ) tmp /= (1+p1->re);
+			if( p2->re != -1 ) tmp /= (1+p2->re);
+			
+			if( tmp > 1.0 ) {
+				return K/tmp;
+			} else {
+				return K;
+			}
+		} else if( oz1<=op1 && op2<=oz2 ) {
+			//kell!
+		}
+	}
+	
+}
 
 real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1, complex * p2, int scale_mod ) {
 	real K = 1, tmp1, tmp2, tmp3, tmp4;

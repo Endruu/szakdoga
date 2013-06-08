@@ -89,8 +89,9 @@ int normalizeTransformParameters(transformParameters *tp) {
 				warn(0);
 			}
 			
-			tp->w0 = sqrt(tp->w1*tp->w0);
-			tp->w1 = tp->w1 - tp->w0;
+			tmp1 = tp->w0;
+			tp->w0 = sqrt(tp->w1*tmp1);
+			tp->w1 = tp->w1 - tmp1;
 			
 			if( tp->w1 < MIN_BANDWIDTH ) {
 				if( freq_changed ) {	//error: bandwidth should be shrunk but it is already minimal

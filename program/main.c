@@ -61,7 +61,7 @@ void main(void)
 		}
 	}
 #else
-	strcpy(uart_buffer, "GI:bw:N3*T:lp:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*
+	strcpy(uart_buffer, "GI:bw:A3N2*T:bp:A414B2414*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*
 	changeState(uart_buffer);
 
 	if( getErrors() ) {
