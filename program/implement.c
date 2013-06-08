@@ -10,8 +10,9 @@
 
 #else
 
-#define float_to_fr16(p)	(int)(32768.0*p)
-#define fr16_to_float(p)	((float)p)/32768.0
+#define float_to_fr16(p)	(int)(32768.0*(p))
+#define fr16_to_float(p)	((float)(p))/32768.0
+#define fr16_to_fr32(p)		(int)(p)
 
 #endif
 
@@ -112,7 +113,7 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 }
 
 real implementFilter( filterInfo * fi ) {
-	int i = 0, j = 0, k = 0;
+	int i = 0, j = 0, k = 1;
 	complex *p1, *p2, *z1, *z2;
 	complex zero;
 	real tmp;
@@ -124,6 +125,8 @@ real implementFilter( filterInfo * fi ) {
 
 	zero.re = 0;
 	zero.im = 0;
+	
+	coeffLineTemp[0] = countBiquads(fi->dFilter);
 	
 	sortDigitalPZ(fi->dFilter);
 	while( i < fi->dFilter->nextPole ) {
@@ -163,25 +166,56 @@ real implementFilter( filterInfo * fi ) {
 		k += 6;
 	}
 	
-	if( k+2 > COEFF_SIZE ) {
+	if( k+1 > COEFF_SIZE ) {
 		error(6);
 	}
 	
-	//coeffLineTemp[k] = float_to_fr16( (float)K );
+	coeffLineTemp[k] = float_to_fr16( (float)K );
 	
-	fi->stages = countBiquads(fi->dFilter);
 	fi->filter = &direct1;
 	
 	printf("fK = %g\n", K);
 	return K;
 }
 
-fract32 passThrough(fract16 * coeffs, fract16 * delays, uint count) {
-	return fr16_to_fr32( delays[0] );
-	//return delays[0];
+fract32 passThrough(fract16 input, fract16 * coeffs, fract16 * delays) {
+	return fr16_to_fr32( input );
 }
 
-/*
-fract32 direct1(fract16 * coeffs, fract16 * delays, uint count) {
-	return delays[0];
-}*/
+#ifndef _COMPILE_WITH_BLACKFIN
+fract32 _direct1(fract16 input, fract16 * coeffs, fract16 * delays) {
+	return input;
+}
+#endif
+
+fract32 direct1(fract16 input, fract16 * coeffs, fract16 * delays) {
+	int	i,
+		nextC = 1,
+		nextD = 0,
+		prevD = 0,
+		limit = coeffs[0];
+
+	double acc;
+	fract16	tmp = input;
+
+	for( i = 0; i < limit; i++ ) {
+		acc = 0;
+		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
+		delays[prevD++] = delays[nextD];
+		acc -= fr16_to_float(coeffs[nextC]) * fr16_to_float(delays[nextD]);
+		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
+		delays[prevD++] = tmp;
+		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(tmp);
+
+		acc *= pow( 2.0, fr16_to_float(coeffs[nextC++]) );
+
+		acc += fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
+		delays[prevD++] = delays[nextD];
+		acc -= fr16_to_float(coeffs[nextC]) * fr16_to_float(delays[nextD]);
+		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
+		tmp = float_to_fr16((float)acc);
+		delays[prevD++] = tmp;	
+	}
+
+	return fr16_to_fr32( float_to_fr16((float)( acc * fr16_to_float(coeffs[nextC]) ) ) );
+}

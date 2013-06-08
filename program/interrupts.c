@@ -32,8 +32,7 @@ EX_INTERRUPT_HANDLER(Sport0_RX_ISR)
 	// run filter
 	aLeftOut = aRightIn;
 	//aRightOut = aLeftIn;
-	delayLineR[0] = aRightIn >> 8;
-	aRightOut = (*filterR.filter)(coeffLineR, delayLineR, filterR.stages) >> 8;
+	aRightOut = (*filterR.filter)(aRightIn >> 8, coeffLineR, delayLineR) >> 8;
 
 }
 

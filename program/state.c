@@ -13,7 +13,6 @@ filterInfo newFilterInfo() {
 	r.subtype		= empty;
 	r.supertype	= empty;
 	r.fState		= sStart;
-	r.stages		= 0;
 	return r;
 }
 
@@ -29,7 +28,6 @@ filterInfo copyFilterInfo( filterInfo * fi ) {
 	r.subtype		= fi->subtype;
 	r.supertype		= fi->supertype;
 	r.fState		= fi->fState;
-	r.stages		= fi->stages;
 	return r;
 }
 
@@ -99,7 +97,12 @@ int changeState(char code[]) {
 					error(0);
 				}
 				break;
-				
+			
+			case '@':
+				toggleEcho();
+				chars_read++;
+				break;
+
 			default:
 				error(0);
 		}

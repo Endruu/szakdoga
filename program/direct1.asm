@@ -1,5 +1,5 @@
 /*
-	fract32 direct1(fract16 * coeffs, fract16 * delays, unsigned int count);
+	fract32 direct1(fract16 input, fract16 * coeffs, fract16 * delays);
 */
 
 .section L1_code;
@@ -8,17 +8,19 @@
 _direct1:
 
 	// init:
-	I0 = R0;												// address of next coeff
-	I1 = R1;												// address of next delay
-	LC0 = R2;												// counter
-	
+															// R0.L : x[k]
+	I0 = R1;												// address of next coeff
+	I1 = R2;												// address of next delay
 															// R2.L : next coefficient
 															// R1.L : next delayed value
-															// R0.L : x[k]														
-	R0.L = W[I1++];											// input: x[k] = delays[0]
+
+	R2.L = W[I0++];
+	LC0 = R2;												// counter
+
 	I3 = I1;												// address of previous delay
 	R2.L = W[I0++] || R1.L = W[I1++];						// load: b2, x[k-2]
-	
+
+
 	LOOP main_loop LC0;										// loop setup
 	LOOP_BEGIN main_loop;
 	A0 = 0;													// accumulator
@@ -38,7 +40,8 @@ _direct1:
 	R0.L = A0;												// acc(9.31) => R0.L(1.15) = output: y[k]
 	W[I3++] = R0.L;											// y[k-1] = y[k]
 	LOOP_END main_loop;
-	
+
+
 	//A0 = R0.L * R2.L;
 	R0 = A0;												// full 1.31 output
 	RTS;
