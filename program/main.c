@@ -60,8 +60,8 @@ void main(void)
 			printf("%d - %g\n", sizeof(pzkContainer), pwf);
 			//pz[0] = createChebyshev2(5, 10.0/6.0, 0.01778);
 			//pz[0] = createChebyshev1(5, 0.1);
-			//pz[0] = createButterworth(5, 1);
-			pz[0] = createPzkContainer(2, 0);
+			pz[0] = createButterworth(3, 1);
+			/*pz[0] = createPzkContainer(2, 0);
 			tmp.im = 0;
 			tmp.re = 1;
 			addPole(pz[0],tmp);
@@ -69,7 +69,7 @@ void main(void)
 			addPole(pz[0],tmp);
 			tmp.re = 0;
 			addZero(pz[0],tmp);
-			pz[0]->amp = 2;
+			pz[0]->amp = 2;*/
 
 			pz[1] = t2lp(pz[0] , w0);
 			pz[2] = t2hp(pz[0] , w0);

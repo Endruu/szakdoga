@@ -1,4 +1,4 @@
-//#define _COMPILE_WITH_BLACKFIN	// uncomment to compile with other compiler, some functions will be unavailable
+#define _COMPILE_WITH_BLACKFIN	// uncomment to compile with other compiler, some functions will be unavailable
 
 #ifndef  _GLOBAL_VAR_H
 #define _GLOBAL_VAR_H
