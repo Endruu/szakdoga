@@ -72,7 +72,7 @@ pzkContainer * createButterworth(uint n, real e0);
 pzkContainer * createChebyshev1(uint n, real e0);
 pzkContainer * createChebyshev2(uint n, real Os, real d2);
 
-iirParameters newIirParameters();
+iirParameters newIirParameters(void);
 real normalizeIirParameters(iirParameters *ip);
 
 int convertParametersForButterworth( iirParameters * ip );
@@ -84,6 +84,9 @@ pzkContainer * t2lp(pzkContainer * pzk, real w0);
 pzkContainer * t2hp(pzkContainer * pzk, real w0);
 pzkContainer * t2bp(pzkContainer * pzk, real w0, real dw);
 pzkContainer * t2bs(pzkContainer * pzk, real w0, real dw);
+
+transformParameters newTransformParameters(void);
+int normalizeTransformParameters(transformParameters *tp);
 
 pzkContainer * bilinear(pzkContainer * pzk, real Fs, real pwf);
 real getPrewarpFreq(real radps, real samplingTime);

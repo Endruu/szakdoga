@@ -26,6 +26,8 @@
 
 #endif
 
+#include "error.h"
+
 
 //--------------------------------------------------------------------------------------------------------
 // Symbolic constants
@@ -97,6 +99,8 @@ typedef double			real;
 typedef unsigned int	uint;
 
 typedef enum {
+	empty,
+
 	iir,
 	fir,
 
@@ -133,7 +137,7 @@ typedef enum {
 	sTransform,
 	sDigitalize,
 	sImplement
-} dspState;
+} filterState;
 
 typedef struct {
 	double	ac,		// max attenuation at corner freq
@@ -141,7 +145,8 @@ typedef struct {
 			ws,		// stop freq
 			e0,		// inner parameter
 	uint	n,		// filter order
-			inDb;	// 0 => abs; 1 => Db
+			inDb,	// 0 => abs; 1 => Db
+			fixWs;	// 0 => transforms relative to the corner freq; 1 => transforms relative to the stop freq
 } iirParameters;
 
 typedef struct {
@@ -158,9 +163,10 @@ typedef struct {
 					*tFilter,
 					*dFilter;
 	void (*filter)(void);
+	real	wc;
 	filterType	type
 				subtype;
-	real	wc;
+	filterState	fState;
 	
 } filterInfo;
 
@@ -201,6 +207,7 @@ extern cycle_stats_t sOneTime;
 // delay line, and coeff array
 extern DELAY_TYPE delayLineR[];
 extern COEFF_TYPE coeffLineR[];
+extern filterInfo filterR;
 
 #endif
 

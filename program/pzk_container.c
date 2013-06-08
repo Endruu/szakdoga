@@ -20,9 +20,9 @@ pzkContainer * createPzkContainer(uint np, uint nz) {
 		pzk->poles = NULL;
 	}
 	
-	pzk->amp			= 1.0;
+	pzk->amp		= 1.0;
 	pzk->wz			= 0.0;
-	pzk->pwf			= 0.0;
+	pzk->pwf		= 0.0;
 	pzk->zSize		= nz;
 	pzk->pSize		= np;
 	pzk->nextPole	= 0;
@@ -54,6 +54,10 @@ uint shrinkPzkContainer(pzkContainer * pzk, uint min) {
 }
 
 void deletePzkContainer(pzkContainer * pzk) {
+	if(pzk == NULL) {
+		warn(0);
+		return;
+	}
 	free(pzk->poles);
 	free(pzk->zeros);
 	free(pzk);

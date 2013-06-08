@@ -27,6 +27,7 @@ void (*filterFunction)();
 void *delayLine	= NULL;
 void *coefLine	= NULL;
 uint stages		= 0;
+filterInfo filterR = newFilterInfo();
 
 uint changeFilterRequest = 1;
 

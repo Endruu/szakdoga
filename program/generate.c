@@ -9,6 +9,7 @@ iirParameters newIirParameters() {
 	r.e0	= 0;
 	r.n		= 0;
 	r.inDb	= 1;
+	r.fixWs	= 0;
 	return r;
 }
 
@@ -16,44 +17,53 @@ iirParameters newIirParameters() {
 Checks and normalizes the input parameters for later use.
 Returns	0 if parameters can not be normalized
 		1 if parameters are OK
-		ws if ws<1, in this case ws has been normalized, so that
-			the corner freq. would be 1 and ws higher than this
-		-1 or -ws if some of the parameters were out of bounds (should warn)
 */
 real normalizeIirParameters(iirParameters *ip) {
 	real	tmp;
-	int		warn = 1;	// warn-ok cseréje belsõ warn-ra
-	//ac as csere ha fordítva adva
 	
-	if(ip->ac < 0) { ip->ac *= -1; warn = -1; }
-	if(ip->as < 0) { ip->as *= -1; warn = -1; }
+	if(ip->ac < 0) { ip->ac *= -1; warn(0); }
+	if(ip->as < 0) { ip->as *= -1; warn(0); }
 	
 	if( ip->inDb ) {
-		if(ip->ac > MAX_DB_INPUT) { ip->ac = MAX_DB_INPUT; warn = -1; }
-		if(ip->as > MAX_DB_INPUT) { ip->as = MAX_DB_INPUT; warn = -1; }
+		if(ip->ac > MAX_DB_INPUT) { ip->ac = MAX_DB_INPUT; warn(0); }
+		if(ip->as > MAX_DB_INPUT) { ip->as = MAX_DB_INPUT; warn(0); }
+		if( ip->ac ) {
+			if(ip->ac > ip->as) {
+				tmp = ip->ac;
+				ip->ac = ip->as;
+				ip->as = ip->ac;
+				warn(0);
+			}
+		}
 	} else {
-		if(ip->ac >= 1) return 0;
-		if(ip->as >= 1) return 0;
-		if( ip->ac && ip->ac < MIN_LIN_INPUT) { ip->ac = MIN_LIN_INPUT; warn = -1; }
-		if( ip->as && ip->as < MIN_LIN_INPUT) { ip->as = MIN_LIN_INPUT; warn = -1; }
-	}
-	
-	if( ip->ac && ip->ac == ip->as) return 0;
-	
-	if( ip->ws ) {
-		if(ip->ws < 0) { ip->ws *= -1; warn = -1; }
-		
-		if(ip->ws == 1) return 0;
-		if( ip->ws > MAX_WS_INPUT ) { ip->ws = MAX_WS_INPUT; warn = -1; }
-		if(ip->ws < 1) {
-			if( ip->ws < 1.0/MAX_WS_INPUT ) { ip->ws = 1/MAX_WS_INPUT; warn = -1; }
-			tmp = ip->ws;
-			ip->ws = 1 / ip->ws;
-			return (real)warn * tmp;
+		if(ip->ac >= 1) { error(0); }
+		if(ip->as >= 1) { error(0); }
+		if( ip->ac && ip->ac < MIN_LIN_INPUT) { ip->ac = MIN_LIN_INPUT; warn(0); }
+		if( ip->as && ip->as < MIN_LIN_INPUT) { ip->as = MIN_LIN_INPUT; warn(0); }
+		if( ip->ac ) {
+			if(ip->ac < ip->as) {
+				tmp = ip->ac;
+				ip->ac = ip->as;
+				ip->as = ip->ac;
+				warn(0);
+			}
 		}
 	}
 	
-	return (real)warn;
+	if( ip->ac && ip->ac == ip->as) { error(0); }
+	
+	if( ip->ws ) {
+		if(ip->ws < 0) { ip->ws *= -1; warn(0); }
+		
+		if(ip->ws == 1) { error(0); }
+		if( ip->ws > MAX_WS_INPUT ) { ip->ws = MAX_WS_INPUT; warn(0); }
+		if(ip->ws < 1) {
+			if( ip->ws < 1.0/MAX_WS_INPUT ) { ip->ws = 1/MAX_WS_INPUT; warn(0); }
+			ip->fixWs = 1;
+		}
+	}
+	
+	return 1;
 		
 }
 

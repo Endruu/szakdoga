@@ -1,9 +1,50 @@
 #include "global.h"
 #include <stdio.h>
 
+filterInfo newFilterInfo() {
+	filterInfo r;
+	r.iirP			= newIirParameters();
+	r.transformP	= newTransformParameters();
+	r.iFilter		= NULL;
+	r.tFilter		= NULL;
+	r.dFilter		= NULL;
+	r.filter		= NULL;
+	r.wc			= 1;
+	r.type			= empty;
+	r.subtype		= empty;
+	r.fState		= sStart;
+	return r;
+}
+
+filterInfo copyFilterInfo( filterInfo * fi ) {
+	filterInfo r;
+	r.iirP			= fi->iirP;
+	r.transformP	= fi->transformP;
+	r.iFilter		= NULL;
+	r.tFilter		= NULL;
+	r.dFilter		= NULL;
+	r.filter		= NULL;
+	r.wc			= 1;
+	r.type			= empty;
+	r.subtype		= empty;
+	r.fState		= fi->fState;
+	return r;
+}
+
+void deleteFilterInfo( filterInfo * fi ) {
+	if(fi->iFilter) deletePzkContainer(fi->iFilter);
+	if(fi->tFilter) deletePzkContainer(fi->tFilter);
+	if(fi->dFilter) deletePzkContainer(fi->dFilter);
+	fi->fState = sStart;
+}
+
 int changeState(char code[]) {
 	int	tmp
 		chars_read = 0;
+	
+	filterInfo newFilter;
+	
+	
 	
 	if( stateVar == sStart && code[0] != 'G' ) {
 		//HIBA
@@ -12,25 +53,30 @@ int changeState(char code[]) {
 		//HIBA
 	}
 	
-	switch( code[0] ) {
-		case 'G':
-			if( code[1] == 'I' ) {
-				if( chars_read = changeToIir( code+3 ) ) {
-					chars_read += 3;
-					stateVar = sIir;
-				} else {
-					//HIBA
+	while( code+chars_read != '\0' ) {
+		switch( code[0] ) {
+			case 'G':
+				if( code[1] == 'I' ) {
+					if( tmp = decodeIirInput( code+3 ) ) {
+						chars_read += tmp + 3;
+						stateVar = sIir;
+					} else {
+						//HIBA
+					}
 				}
-			}
-			break;
+				break;
+			case 'T':
+				if( tmp = changeToIir( code+3 ) ) {
+		}
 	}
+	
+	
 	return chars_read;
 }
 
-int changeToIir(char code[]) {
+int decodeIirInput(char code[], filterInfo * fi) {
 	char tmp_char;
 	float tmp_float;
-	double tmp_double;
 	int i, chars_scanned = 0, chars_read;
 	filterTypes filter;
 	iirParameters ip = newIirParameters();
@@ -83,14 +129,9 @@ int changeToIir(char code[]) {
 		//HIBA
 	}
 	
-	tmp_double = normalizeIirParameters( &ip );
-	if( tmp_double == 0 ) {
-		//HIBA
-	} else if( tmp_double < 0 ) {
-		//WARN
-		tmp_double *= -1;
-	}
-	
+	if( !normalizeIirParameters( &ip ) ) {
+		error(0);
+	}	
 	
 	switch( filter ) {
 		case butterworth:
