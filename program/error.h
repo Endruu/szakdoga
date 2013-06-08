@@ -10,5 +10,6 @@
 void setError(int error_num);
 void clearErrors(void);
 int printErrors(char buffer[], int length);
+int getErrors(void);
 
 #endif

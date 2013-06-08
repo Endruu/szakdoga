@@ -22,7 +22,7 @@ pzkContainer pzkList[3];
 
 char uart_buffer[UART_BUF_SIZE];
 
-uint uartRequest = 1;
+uint uartRequest = 0;
 
 filterInfo filterR;
 #ifdef _COMPILE_WITH_BLACKFIN
@@ -176,6 +176,14 @@ void Init_Interrupts()
 
 	// enable UART0 RX and Sport0 RX interrupts
 	*pSIC_IMASK = 0x00000820;
+}
+
+void enableAudio() {
+	*pSIC_IMASK |= 0x00000020;
+}
+
+void disableAudio() {
+	*pSIC_IMASK &= 0xFFFFFFDF;
 }
 
 //--------------------------------------------------------------------------------------------------------

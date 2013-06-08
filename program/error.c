@@ -49,3 +49,7 @@ int printErrors(char buffer[], int length) {
 	}
 	return ptr + 11;
 }
+
+int getErrors() {
+	return _errors_occurred;
+}

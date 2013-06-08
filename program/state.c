@@ -65,12 +65,13 @@ int changeState(char code[]) {
 						newFilter.fState = sReferent;
 						newFilter.supertype = iir;
 					} else {
-						error(0);
+						error(23);
 					}
 				} else if( code[chars_read+1] == 'F' || code[chars_read+1] == 'f') {
 					// FIR
+					error(24);
 				} else {
-					error(0);
+					error(25);
 				}
 				break;
 				
@@ -82,7 +83,7 @@ int changeState(char code[]) {
 						newFilter.fState = sTransform;
 					}
 				} else {
-					error(0);
+					error(26);
 				}
 				break;
 			
@@ -94,17 +95,16 @@ int changeState(char code[]) {
 						newFilter.fState = sDigitalize;
 					}
 				} else {
-					error(0);
+					error(27);
 				}
 				break;
 			
 			case '@':
 				toggleEcho();
 				chars_read++;
-				break;
-
+				return 1;
 			default:
-				error(0);
+				error(28);
 		}
 	}
 	
@@ -112,34 +112,33 @@ int changeState(char code[]) {
 		switch( newFilter.fState ) {
 			case sReferent:
 				if( !createReferentFilter( &newFilter ) ) {
-					error(0);
+					error(29);
 				}
 			case sTransform:
 				if( newFilter.iFilter == NULL ) {	
-					error(0);
+					error(30);
 				}
 				if( !transformFilter( &newFilter ) ) {
 					deleteFilterInfo( &newFilter );
-					error(0);
+					error(31);
 				}
 			case sDigitalize:
 				if( newFilter.tFilter == NULL ) {
 					deleteFilterInfo( &newFilter );
-					error(0); 
+					error(32); 
 				}
 				if( !digitalizeFilter( &newFilter ) ) {
 					deleteFilterInfo( &newFilter );
-					error(0);
+					error(33);
 				}
 			case sImplement:
 				if( newFilter.dFilter == NULL ) {
 					deleteFilterInfo( &newFilter );
-					error(0); 
+					error(34); 
 				}
-				printFilterInfo(&newFilter);
 				if( !implementFilter( &newFilter ) ) {
 					deleteFilterInfo( &newFilter );
-					error(0); 
+					error(35); 
 				}
 			break;
 		}
@@ -158,23 +157,24 @@ int changeState(char code[]) {
 		}
 		
 		// set the new filter in an atomic way
-		CLI();
+		//CLI();
+		disableAudio();
 		deleteFilterInfo( &filterR );
 		filterR = newFilter;
 		tmp_ptr = coeffLineR;
 		coeffLineR = coeffLineTemp;
 		coeffLineTemp = tmp_ptr;
-		STI();
+		enableAudio();
+		//STI();
 		
 		return chars_read;
 		
 	} else if( newFilter.supertype == fir ) {
+		error(11);
 	} else {
-		error(0);
+		error(10);
 	}
 	
-	
-	return chars_read;
 }
 
 int decodeDigitalizationInput(char code[], filterInfo * fi) {
@@ -212,16 +212,16 @@ int decodeDigitalizationInput(char code[], filterInfo * fi) {
 				}
 				break;
 			default:
-				error(0);
+				error(12);
 		}
 		if( code[chars_read] == CODE_DELIMITER ) {
 			fi->warping = tmp_float*2.0*PI;
 			return chars_read+1;
 		} else {
-			error(0);
+			error(13);
 		}
 	} else {
-		error(0);
+		error(14);
 	}
 }
 
@@ -252,7 +252,7 @@ int decodeTransformInput(char code[], filterInfo * fi) {
 		filter = bandstop;
 		for_end++;
 	} else {
-		error(0);
+		error(15);
 	}
 	
 	chars_read = 3;
@@ -266,20 +266,20 @@ int decodeTransformInput(char code[], filterInfo * fi) {
 				case 'b' :
 				case 'B' :
 					if( filter == lowpass || filter == highpass ) {
-						error(0);
+						warn(0);
 					}
 					tp.w1 = tmp_float; tp.isDw = 0; break;
 				case 'c' :
 				case 'C' :
 					if( filter == lowpass || filter == highpass ) {
-						error(0);
+						warn(0);
 					}
 					tp.w1 = tmp_float; tp.isDw = 1; break;
 				case 'w' :
 				case 'W' :
 					tp.inHz = 0; break;
 				default:
-					error(0);
+					error(16);
 			}
 			chars_read += chars_scanned;
 			chars_scanned = 1;
@@ -287,12 +287,12 @@ int decodeTransformInput(char code[], filterInfo * fi) {
 			chars_read += chars_scanned;
 			break;
 		} else {
-			error(0);
+			error(17);
 		}
 	}
 	
 	if( !normalizeTransformParameters( &tp ) ) {
-		error(0);
+		error(18);
 	}
 	
 	fi->transformP = tp;
@@ -319,7 +319,7 @@ int decodeIirInput(char code[], filterInfo * fi) {
 	} else if(code[0] == 'C' && code[1] == '2') {
 		filter = chebyshev2;
 	} else {
-		error(0);
+		error(19);
 	}
 	
 	chars_read = 3;
@@ -343,7 +343,7 @@ int decodeIirInput(char code[], filterInfo * fi) {
 				case 'L' :
 					ip.inDb = 0; break;
 				default:
-					error(0);
+					error(20);
 			}
 			chars_read += chars_scanned;
 			chars_scanned = 1;	// if only %c was read
@@ -351,12 +351,12 @@ int decodeIirInput(char code[], filterInfo * fi) {
 			chars_read += chars_scanned;
 			break;
 		} else {
-			error(0);
+			error(21);
 		}
 	}
 	
 	if( !normalizeIirParameters( &ip ) ) {
-		error(0);
+		error(22);
 	}
 
 	fi->iirP = ip;

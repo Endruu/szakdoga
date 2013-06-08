@@ -36,6 +36,8 @@ void Init_Interrupts(void);
 void Enable_DMA_Sport0(void);
 void Init_Device(void);						// the previous functions aggregated
 
+void enableAudio(void);
+void disableAudio(void);
 
 // INTERRUPTS.C	//----------------------------------------------------------------------------------------
 
@@ -123,6 +125,7 @@ complex prewarpPZ(complex pz);
 
 // UART.C	//--------------------------------------------------------------------------------------------
 uint toggleEcho(void);
+uint sendChar(char c);
 uint receiveString(void);
 
 

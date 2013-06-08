@@ -15,6 +15,7 @@ _direct1:
 															// R1.L : next delayed value
 
 	R2.L = W[I0++];
+	R2.H = 0;
 	LC0 = R2;												// counter
 
 	I3 = I1;												// address of previous delay
@@ -42,7 +43,7 @@ _direct1:
 	LOOP_END main_loop;
 
 
-	//A0 = R0.L * R2.L;
+	A0 = R0.L * R2.L;
 	R0 = A0;												// full 1.31 output
 	RTS;
 

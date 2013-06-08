@@ -13,3 +13,30 @@
 101	: Amplification at stop frequency is greater than one, must be less than one
 102	: Amplification at corner and stop frequency are equal
 103	: Corner and stop frequency are equal
+
+10	: Filter's type is not defined
+11	: FIR not implemented yet
+12	: Error in the digitalization section of the input command
+13	: Delimiter not found at the digitalization section of the input command
+14	: Error in the digitalization section of the input command
+15	: Not a valid filter type in the transform section of the input command (try: LP, HP, BP, BS)
+16	: Error in the transform section of the input command
+17	: Delimiter not found at the transform section of the input command
+18	: Error while normalizing transform parameters
+19	: Not a valid filter type in the generate section of the input command (try: BW, C1, C2)
+20	: Error in the generate IIR section of the input command
+21	: Delimiter not found at the generate IIR section of the input command
+22	: Error while normalizing generate IIR parameters
+23	: Error while decoding generate IIR section of the input command
+24	: FIR not implemented yet
+25	: Not a valid filter type in the generate section of the input command (try: GI, GF)
+26	: Error while decoding transform section of the input command
+27	: Error while decoding digitalization section of the input command
+28	: Error while decoding input command
+29	: Error while creating referent filter
+30	: Referent filter is missing
+31	: Error while transforming referent filter
+32	: Transformed filter is missing
+33	: Error while digitalizing transformed filter
+34	: Digitalized filter is missing
+35	: Error while implementing digitalized filter

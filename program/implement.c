@@ -67,8 +67,6 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 			}
 		}
 	}
-
-	printf("K = %g\n", K);
 	
 	if( !cisreal(*z1) ) {
 		if( z2 != z1 && z2 != NULL ) {
@@ -190,7 +188,7 @@ real implementFilter( filterInfo * fi ) {
 	
 	fi->filter = &direct1;
 	
-	printf("fK = %g\n", K);
+	//printf("fK = %g\n", K);
 	return K;
 }
 
@@ -199,12 +197,12 @@ fract32 passThrough(fract16 input, fract16 * coeffs, fract16 * delays) {
 }
 
 #ifndef _COMPILE_WITH_BLACKFIN
-fract32 _direct1(fract16 input, fract16 * coeffs, fract16 * delays) {
+fract32 direct1(fract16 input, fract16 * coeffs, fract16 * delays) {
 	return input;
 }
 #endif
 
-fract32 direct1(fract16 input, fract16 * coeffs, fract16 * delays) {
+fract32 direct1_double(fract16 input, fract16 * coeffs, fract16 * delays) {
 	int	i,
 		nextC = 1,
 		nextD = 0,
