@@ -1,7 +1,105 @@
 #include "global.h"
-#include <stdio.h>
 #include <math.h>
 
+iirParameters newIirParameters() {
+	iirParameters r;
+	r.ac	= 0;
+	r.as	= 0;
+	r.ws	= 0;
+	r.e0	= 0;
+	r.n		= 0;
+	r.inDb	= 1;
+	return r;
+}
+
+/*
+Checks and normalizes the input parameters for later use.
+Returns	0 if parameters can not be normalized
+		1 if parameters are OK
+		ws if ws<1, in this case ws has been normalized, so that
+			the corner freq. would be 1 and ws higher than this
+		-1 or -ws if some of the parameters were out of bounds (should warn)
+*/
+real normalizeIirParameters(iirParameters *ip) {
+	real	tmp;
+	int		warn = 1;	// warn-ok cseréje belsõ warn-ra
+	//ac as csere ha fordítva adva
+	
+	if(ip->ac < 0) { ip->ac *= -1; warn = -1; }
+	if(ip->as < 0) { ip->as *= -1; warn = -1; }
+	
+	if( ip->inDb ) {
+		if(ip->ac > MAX_DB_INPUT) { ip->ac = MAX_DB_INPUT; warn = -1; }
+		if(ip->as > MAX_DB_INPUT) { ip->as = MAX_DB_INPUT; warn = -1; }
+	} else {
+		if(ip->ac >= 1) return 0;
+		if(ip->as >= 1) return 0;
+		if( ip->ac && ip->ac < MIN_LIN_INPUT) { ip->ac = MIN_LIN_INPUT; warn = -1; }
+		if( ip->as && ip->as < MIN_LIN_INPUT) { ip->as = MIN_LIN_INPUT; warn = -1; }
+	}
+	
+	if( ip->ac && ip->ac == ip->as) return 0;
+	
+	if( ip->ws ) {
+		if(ip->ws < 0) { ip->ws *= -1; warn = -1; }
+		
+		if(ip->ws == 1) return 0;
+		if( ip->ws > MAX_WS_INPUT ) { ip->ws = MAX_WS_INPUT; warn = -1; }
+		if(ip->ws < 1) {
+			if( ip->ws < 1.0/MAX_WS_INPUT ) { ip->ws = 1/MAX_WS_INPUT; warn = -1; }
+			tmp = ip->ws;
+			ip->ws = 1 / ip->ws;
+			return (real)warn * tmp;
+		}
+	}
+	
+	return (real)warn;
+		
+}
+
+int convertParametersForButterworth( iirParameters * ip ) {
+	// createButterworth uses n and e0 parameters
+	if( ip->ac ) {
+		if( ip->inDb ) {
+			ip->e0 = sqrt( alog10(ip->ac/10.0) - 1 );
+		} else {
+			ip->e0 = sqrt( 1/( ip->ac * ip->ac ) - 1 );
+		}
+	}
+	
+	if( ip->n ) {
+		if( ip->e0 ) {
+			return;
+		} else {
+			if( ip->ws && ip->as ) {
+				if( ip->inDb ) {
+					ip->e0 = sqrt( alog10(ip->as/10.0) - 1 );
+				} else {
+					ip->e0 = sqrt( 1/( ip->as * ip->as ) - 1 );	//átírni
+				}
+				ip->e0 /= pow( ip->ws, ip->n );
+			} else {
+				if( ip->ws || ip->as ) {
+					//HIBA
+				} else {
+					ip->e0 = DEFAULT_BW_E0;
+				}
+			}
+		}
+	} else {
+		if( ip->e0 && ip->ws && ip->as ) {
+			if( ip->inDb ) {
+				ip->n = (uint)ceil(log(sqrt( alog10(ip->as/10.0) - 1 )/ip->e0)/log(ip->ws));
+			} else {
+				ip->n = (uint)ceil(log(sqrt( 1/( ip->as * ip->as ) - 1 )/ip->e0)/log(ip->ws));
+			}
+		} else {
+			//HIBA
+		}
+	}
+	
+	return 1;
+}
 
 pzkContainer * createButterworth(uint n, real e0) {
 	pzkContainer * filt = createPzkContainer((n+1)/2, 0);
@@ -29,6 +127,56 @@ pzkContainer * createButterworth(uint n, real e0) {
 	filt->type = lowpass;
 	
 	return filt;
+}
+
+
+int convertParametersForChebyshev1( iirParameters * ip ) {
+	// createChebyshev1 uses n and e0 parameters
+	real as, tmp;
+	
+	if( ip->ac ) {
+		if( ip->inDb ) {
+			ip->e0 = sqrt( alog10(ip->ac/10.0) - 1 );
+		} else {
+			ip->e0 = sqrt( 1/( ip->ac * ip->ac ) - 1 );
+		}
+	}
+	
+	if( ip->n ) {
+		if( ip->e0 ) {
+			return;
+		} else {
+			if( ip->ws && ip->as ) {
+				if( ip->inDb ) {
+					as = alog10(ip->as/10.0);
+				} else {
+					as = 1/( ip->as * ip->as );
+				}
+				tmp = pow( ip->ws + sqrt(ip->ws*ip->ws - 1), n);
+				ip->e0 = sqrt(2*tmp*sqrt(as-1) - 1) / tmp;
+			} else {
+				if( ip->ws || ip->as ) {
+					//HIBA
+				} else {
+					ip->e0 = DEFAULT_C1_E0;
+				}
+			}
+		}
+	} else {
+		if( ip->e0 && ip->ws && ip->as ) {
+			if( ip->inDb ) {
+				as = alog10(ip->as/10.0);
+			} else {
+				as = 1/( ip->as * ip->as );
+			}
+			tmp = (as-1)/(ip->e0*ip->e0);
+			ip->n = (uint)ceil(log( sqrt(tmp) + sqrt(tmp-1) )/log( ip->ws + sqrt(ip->ws*ip->ws - 1) ));
+		} else {
+			//HIBA
+		}
+	}
+	
+	return 1;
 }
 
 pzkContainer * createChebyshev1(uint n, real e0) {
@@ -63,6 +211,55 @@ pzkContainer * createChebyshev1(uint n, real e0) {
 	}
 	
 	return filt;
+}
+
+
+int convertParametersForChebyshev2( iirParameters * ip ) {
+	// createChebyshev1 uses n, ws and as (linear) parameters
+	real tmp;
+	
+	if( ip->inDb ) {
+		if( ip->as ) {
+			ip->as = alog( -ip->as / 20 );
+		}
+		if( ip->ac ) {
+			ip->ac = alog( -ip->ac / 20 );
+		}
+		ip->inDb = 0;
+	}
+	
+	if( ip->n ) {
+		if( ip->ws && ip->as) {
+				return;
+		} else {
+			if( ip->ac ) {
+				ip->e0 = 1/(ip->ac*ip->ac)-1;
+			} else {
+				ip->e0 = DEFAULT_C2_E0;
+			}
+				
+			if( ip->ws ) {
+				tmp = pow(ip->ws + sqrt(ip->ws*ip->ws - 1), ip->n);
+				tmp = (ip->e0*tmp*tmp+1)/(2*tmp);
+				ip->as = sqrt( 1/(tmp*tmp+1) );
+			} else if( ip->as ) {
+				ip->e0 = (1/(ip->as*ip->as)-1)/ip->e0;
+				tmp = pow(sqrt(ip->e0) + sqrt(ip->e0-1), 1.0/(real)ip->n);
+				ip->ws = (tmp*tmp+1)/(2*tmp);
+			} else {
+				//HIBA
+			}
+		}
+	} else {
+		if( ip->ac && ip->ws && ip->as ) {
+			ip->e0 = (1/(ip->as*ip->as)-1)/(1/(ip->ac*ip->ac)-1);
+			ip->n = (uint)ceil(log( sqrt(ip->e0) + sqrt(ip->e0-1) )/log( ip->ws + sqrt(ip->ws*ip->ws - 1) ));
+		} else {
+			//HIBA
+		}
+	}
+	
+	return 1;
 }
 
 pzkContainer * createChebyshev2(uint n, real Os, real d2) {
@@ -105,19 +302,6 @@ pzkContainer * createChebyshev2(uint n, real Os, real d2) {
 	return filt;
 }
 
-/*
-real transformA2E(real a0, filterType type) {
-	switch( type  ) {
-		case butterworth:
-		case chebyshev1: 
-			a0 = sqrt(alog(a0/10.0)-1);
-			break;
-		case chebyshev2:
-			a0 = sqrt(1)
-	}
-	return a0;
-}
-*/
 void decodeInput(char in[]) {
 	filterType type, subtype, shape;
 	float wz = 0.0, az, amp = 1.0,  a0 = 0.0, w0, dw;

@@ -5,6 +5,102 @@
 #define cabs cabs_custom
 #endif
 
+transformParameters newTransformParameters() {
+	transformParameters r;
+	r.w0	= 0;
+	r.w1	= 0;
+	r.inHz	= 1;
+	r.isDw	= 0;
+	return r;
+}
+
+int normalizeTransformParameters(transformParameters *tp) {
+	double tmp1, tmp2;
+	int	bw_minimal = 0,
+		freq_changed = 0;
+	
+	if( tp->inHz ) {
+		tp->w0 *= 2*PI;
+		tp->w1 *= 2*PI;
+		tp->inHz = 0;
+	}
+	
+	if( tp->w0 < MIN_FREQUENCY ) {
+		//WARN
+		tp->w0 = MIN_FREQUENCY;
+	} else if( tp->w0 > MAX_FREQUENCY ) {
+		//WARN
+		tp->w0 = MAX_FREQUENCY;
+	}
+	
+	if( tp->w1 ) {
+		if( tp->isDw ) {
+			if( tp->w1 < MIN_BANDWIDTH ) {
+				tp->w1 = MIN_BANDWIDTH;
+				//WARN
+				bw_minimal++;
+			}
+			tmp1 = (sqrt(tp->w1*tp->w1+4*tp->w0*tp->w0) - tp->w1) / 2;
+			tmp2 = tmp1 + tp->w1;
+			
+			if( tmp1 < MIN_FREQUENCY ) {
+				if( bw_minimal ) {	//error: bandwidth should be shrunk but it is already minimal
+					//HIBA
+				} else {
+					tmp1 = MIN_FREQUENCY;
+					freq_changed++;
+				}
+			}
+			if( tmp2 > MAX_FREQUENCY ) {
+				if( bw_minimal ) {	//error: bandwidth should be shrunk but it is already minimal
+					//HIBA
+				} else {
+					tmp2 = MAX_FREQUENCY;
+					freq_changed++;
+				}
+			}
+			
+			if( freq_changed ) {
+				//WARN
+				tp->w0 = sqrt(tmp1, tmp2);
+				tp->dw = tmp2 - tmp1;
+			}
+			
+		} else {
+			if( tp->w0 > tp->w1) {
+				tmp1 = tp->w0;
+				tp->w0 = tp->w1;
+				tp->w1 = tmp1;
+			}
+			if( tp->w0 < MIN_FREQUENCY ) {
+				tp->w0 = MIN_FREQUENCY;
+				freq_changed++;
+				//WARN
+			}
+			if( tp->w1 > MAX_FREQUENCY ) {
+				tp->w1 = MAX_FREQUENCY;
+				freq_changed++;
+				//WARN
+			}
+			
+			tp->w0 = sqrt(tp->w1, tp->w0);
+			tp->dw = tp->w1 - tp->w0;
+			
+			if( tp->w1 < MIN_BANDWIDTH ) {
+				if( freq_changed ) {	//error: bandwidth should be shrunk but it is already minimal
+					//HIBA
+				} else {
+					tp->w1 = MIN_BANDWIDTH;
+					//WARN
+				}
+			}
+		}
+	}
+	
+	return 1;
+}
+
+
 pzkContainer * t2lp(pzkContainer * pzk, real w0) {
 	pzkContainer * f = createPzkContainer(pzk->nextPole, pzk->nextZero);
 	uint i;

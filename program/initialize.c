@@ -8,6 +8,8 @@
 //--------------------------------------------------------------------------------------------------------
 // Definition of global variables
 //--------------------------------------------------------------------------------------------------------
+dspState stateVar = sStart;
+
 int aLeftIn;
 int aRightIn;
 int aLeftOut		= 0;
@@ -16,6 +18,8 @@ int aRightOut		= 0;
 int aRxBuffer[AUDIO_BUF_SIZE];
 int aTxBuffer[AUDIO_BUF_SIZE];
 int channelDelay	= 0;
+
+pzkContainer pzkList[3];
 
 char uart_buffer[UART_BUF_SIZE];
 

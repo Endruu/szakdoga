@@ -53,9 +53,9 @@ void iDirect1(pzkContainer * pzk);
 
 // in file pzk_container.c
 pzkContainer *	createPzkContainer(uint np, uint nz);
-uint	shrinkPzkContainer(pzkContainer * pzk, uint min);
-void	deletePzkContainer(pzkContainer * pzk);
-void	printPzkContainer(pzkContainer * pzk);
+uint shrinkPzkContainer(pzkContainer * pzk, uint min);
+void deletePzkContainer(pzkContainer * pzk);
+void printPzkContainer(pzkContainer * pzk);
 void print4Matlab(pzkContainer * pzk);
 void sortPzkContainer(pzkContainer * pzk);
 void sortPZ(complex * list, uint num);
@@ -71,6 +71,13 @@ uint countBiquads(pzkContainer * pzk);
 pzkContainer * createButterworth(uint n, real e0);
 pzkContainer * createChebyshev1(uint n, real e0);
 pzkContainer * createChebyshev2(uint n, real Os, real d2);
+
+iirParameters newIirParameters();
+real normalizeIirParameters(iirParameters *ip);
+
+int convertParametersForButterworth( iirParameters * ip );
+int convertParametersForChebyshev1( iirParameters * ip );
+int convertParametersForChebyshev2( iirParameters * ip );
 
 // in file transform.c
 pzkContainer * t2lp(pzkContainer * pzk, real w0);
