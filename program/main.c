@@ -47,17 +47,19 @@ void main(void)
 {
 	filterR = newFilterInfo();
 #ifdef _COMPILE_WITH_BLACKFIN
-	//resetFilter();
 	Init_Device();
 
 	while(1) {
 #endif
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
-			strcpy(uart_buffer, "GI:C2:N5W2B0.001L0*T:LP:A1000W0*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
+			strcpy(uart_buffer, "GI:BW:N5*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
 			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
-			printErrors(uart_buffer, UART_BUF_SIZE);
+			/*CLI();
+			printf("HALT!\n");
+			STI();*/
+			/*printErrors(uart_buffer, UART_BUF_SIZE);
 			printf("Errors:\n");
 			printf(uart_buffer);
 			printFilterInfo(&filterR);
@@ -69,7 +71,7 @@ void main(void)
 			//pz[0] = createChebyshev2(5, 10.0/6.0, 0.01778);
 			//pz[0] = createChebyshev1(5, 0.1);
 			//pz[0] = createButterworth(3, 1);
-			/*pz[0] = createPzkContainer(2, 0);
+			pz[0] = createPzkContainer(2, 0);
 			tmp.im = 0;
 			tmp.re = 1;
 			addPole(pz[0],tmp);

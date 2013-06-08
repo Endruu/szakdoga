@@ -160,13 +160,14 @@ typedef struct {
 	pzkContainer		*iFilter,
 						*tFilter,
 						*dFilter;
-	void (*filter)(void);
+	fract32 (*filter)(fract16 * coeffs, fract16 * delays, uint count);
 	real		warping;
 	filterType	type,			// LP, HP, BP, BS
 				subtype,		// butterworth, cheby, hanning, kaiser....
 				supertype;		// iir, fir
 	filterState	fState;
-	uint options;
+	uint 	options,
+				stages;
 	
 } filterInfo;
 

@@ -8,11 +8,12 @@ filterInfo newFilterInfo() {
 	r.iFilter		= NULL;
 	r.tFilter		= NULL;
 	r.dFilter		= NULL;
-	r.filter		= NULL;
+	r.filter		= &passThrought;
 	r.type		= empty;
 	r.subtype		= empty;
 	r.supertype	= empty;
 	r.fState		= sStart;
+	r.stages		= 0;
 	return r;
 }
 
@@ -28,6 +29,7 @@ filterInfo copyFilterInfo( filterInfo * fi ) {
 	r.subtype		= fi->subtype;
 	r.supertype		= fi->supertype;
 	r.fState		= fi->fState;
+	r.stages		= fi->stages;
 	return r;
 }
 

@@ -80,11 +80,11 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 	}
 	
 	tmp1 = -K;
-	if( tmp2 < tmp1 ) tmp1 = tmp2;
-	if( tmp3 < tmp1 ) tmp1 = tmp3;				// tmp1 = min
+	if( tmp2 < tmp1 || tmp1 == 0 ) tmp1 = tmp2;
+	if( tmp3 < tmp1 || tmp1 == 0 ) tmp1 = tmp3;				// tmp1 = min
 	tmp4 = tmp3;
-	if( tmp2 > tmp4 ) tmp4 = tmp2;
-	if(  -K  > tmp1 ) tmp1 =  -K ;				// tmp4 = max
+	if( tmp2 > tmp4 || tmp4 == 0 ) tmp4 = tmp2;
+	if(  -K  > tmp4 || tmp4 == 0 ) tmp4 =  -K ;				// tmp4 = max
 	
 	tmp1 = floor( log(fabs(tmp1)) * m1pln2 );
 	tmp4 = ceil( log(fabs(tmp4)) * m1pln2 );
@@ -117,7 +117,6 @@ real implementFilter( filterInfo * fi ) {
 	zero.im = 0;
 	
 	sortDigitalPZ(fi->dFilter);
-	printPzkContainer(fi->dFilter);	
 	while( i < fi->dFilter->nextPole ) {
 		if( k+6 > COEFF_SIZE ) {
 			error(4);
@@ -147,7 +146,6 @@ real implementFilter( filterInfo * fi ) {
 			j++;
 		}
 		tmp = direct1_biquad(coeffLineTemp+k, z1, z2, p1, p2, 0);
-		printf("%g\n", tmp);
 		if(tmp) {
 			K /= tmp;
 		} else {
@@ -156,5 +154,13 @@ real implementFilter( filterInfo * fi ) {
 		k += 6;
 	}
 	
+	fi->stages = countBiquads(fi->dFilter);
+	fi->filter = &direct1;
+	
+	printf("%g\n", K);
 	return K;
+}
+
+fract32 passThrought(fract16 * coeffs, fract16 * delays, uint count) {
+		return fr16_to_fr32( delays[0] );
 }

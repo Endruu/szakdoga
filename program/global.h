@@ -116,6 +116,8 @@ void sortDigitalPZ(pzkContainer * pzk);
 int preSortDigitalZeros(pzkContainer * pzk);
 int sortDigitalPoles(pzkContainer * pzk);
 
+fract32 direct1(fract16 * coeffs, fract16 * delays, uint count);
+fract32 passThrought(fract16 * coeffs, fract16 * delays, uint count);
 
 #endif
 

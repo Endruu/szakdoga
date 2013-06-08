@@ -186,7 +186,7 @@ void Init_Device()
 	Audio_Reset();
 	Init_Sport0();
 	Init_DMA();
-	//Init_Interrupts();
+	Init_Interrupts();
 	Enable_DMA_Sport0();
 }
 
