@@ -25,11 +25,22 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 		}
 		coeffs[4] = float_to_fr16( (float)( -cabs2(*p1) ) );
 		coeffs[5] = float_to_fr16( (float)( p1->re ) );
+		
+		K *= 1-2*p1->re+cabs2(*p1);
+		
 	} else {
 		tmp1 = -p1->re * p2->re;
 		tmp2 = -(p1->re + p2->re)/2;
+		
+		if( fabs(p1->re) != 1.0 ) {
+			K *=( 1 - p1->re );
+		}
+		if( fabs(p2->re) != 1.0 ) {
+			K *=( 1 - p2->re );
+		}
+		
 		if( tmp1 == 1 ) {								// if -p1*p2 = 1	: fract16 can only store [-1,1)
-			warn(0);
+			warn(1);
 			if( 1 )	{									// abs p1 and p2 both decreased minimally
 				coeffs[4] = MAX_FR16;
 				coeffs[5] = 0;
@@ -43,10 +54,10 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 			}
 		} else {
 			if( tmp2 == 1 ) {							// if p1 = p2 = -1	: fract16 can only store [-1,1)
-				warn(0);
+				warn(2);
 				coeffs[5] = MAX_FR16;
 				if( 1 )	{
-					coeffs[4] = MAX_FR16 - 1;	// p1 decreased, p2 maintained
+					coeffs[4] = MAX_FR16 - 1;			// p1 decreased, p2 maintained
 				}										// else: abs(p1)=abs(p2) p1 = conj(p2)
 			} else {
 				coeffs[4] = float_to_fr16( (float)tmp1 );
@@ -54,24 +65,22 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 			}
 		}
 	}
-	tmp1 = fr16_to_float( 1-2*coeffs[5]-coeffs[4] );
-	if(tmp1 != 0) K *= tmp1; 
+
+	printf("K = %g\n", K);
 	
 	if( !cisreal(*z1) ) {
 		if( z2 != z1 && z2 != NULL ) {
 			error(2);									// if z1 is complex then z2 is assumed to be its conjugate
 		}
-		tmp1= fabs(1-2*z1->re+cabs2(*z1));
-		if(tmp1 != 0) K /= tmp1;
+		K /= fabs( 1-2*z1->re+cabs2(*z1) );
 		tmp3 = -K*cabs2(*z1);
 		tmp2 = K*z1->re;
-		tmp1 = -K;
 	} else {
-		if( z1->re != 1 ) {
-			K /= 1 - z1->re;
+		if( fabs(z1->re) != 1.0 ) {
+			K /=( 1 - z1->re );
 		}
-		if( z1->re != 1 ) {
-			K /= 1 - z2->re;
+		if( fabs(z2->re) != 1.0 ) {
+			K /=( 1 - z2->re );
 		}
 		K = fabs(K);
 		
@@ -163,15 +172,16 @@ real implementFilter( filterInfo * fi ) {
 	fi->stages = countBiquads(fi->dFilter);
 	fi->filter = &direct1;
 	
+	printf("fK = %g\n", K);
 	return K;
 }
 
 fract32 passThrough(fract16 * coeffs, fract16 * delays, uint count) {
-		//return fr16_to_fr32( delays[0] );
-	return delays[0];
+	return fr16_to_fr32( delays[0] );
+	//return delays[0];
 }
 
-
+/*
 fract32 direct1(fract16 * coeffs, fract16 * delays, uint count) {
 	return delays[0];
-}
+}*/

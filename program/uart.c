@@ -4,7 +4,7 @@
 
 #include <blackfin.h>
 
-uint _echo = 0;
+uint _echo = 1;
 int _buffer_index = 0;
 
 uint switchEcho() {

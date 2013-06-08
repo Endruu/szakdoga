@@ -49,11 +49,13 @@ void main(void)
 	while(1) {
 #endif
 		if( uartRequest ) {
-			strcpy(uart_buffer, "GI:C1:N5B40W5*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
+			strcpy(uart_buffer, "GI:BW:N2A3*T:LP:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
 			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
 			//printPzkContainer(filterR.tFilter);
-			printFilterInfo(&filterR);
+			printErrors(uart_buffer, UART_BUF_SIZE);
+			printf("%s\n", uart_buffer);
+			//printFilterInfo(&filterR);
 			/*CLI();
 			printf("HALT!\n");
 			STI();*/
@@ -61,8 +63,8 @@ void main(void)
 			printf("Errors:\n");
 			printf(uart_buffer);*/
 			
-			for(i=0; i<COEFF_SIZE; i++) {
-					printf("%d - %d\n", delayLineR[i], coeffLineR[i]);
+			for(i=0; i<10; i++) {
+					//printf("%g\n", (float)coeffLineR[i]/32768.0);
 			}
 			uartRequest = 0;
 		}

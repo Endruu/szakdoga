@@ -59,8 +59,9 @@ int changeState(char code[]) {
 	
 	while( code[chars_read] != '\0' ) {
 		switch( code[chars_read] ) {
+			case 'g':
 			case 'G':
-				if( code[chars_read+1] == 'I' ) {
+				if( code[chars_read+1] == 'I' || code[chars_read+1] == 'i') {
 					if( tmp = decodeIirInput( code+chars_read+3, &newFilter ) ) {
 						chars_read += tmp + 3;
 						newFilter.fState = sReferent;
@@ -68,13 +69,14 @@ int changeState(char code[]) {
 					} else {
 						error(0);
 					}
-				} else if( code[chars_read+1] == 'F' ) {
+				} else if( code[chars_read+1] == 'F' || code[chars_read+1] == 'f') {
 					// FIR
 				} else {
 					error(0);
 				}
 				break;
 				
+			case 't':
 			case 'T':
 				if( tmp = decodeTransformInput( code+chars_read+2, &newFilter ) ) {
 					chars_read += tmp + 2;
@@ -85,7 +87,8 @@ int changeState(char code[]) {
 					error(0);
 				}
 				break;
-				
+			
+			case 'd':	
 			case 'D':
 				if( tmp = decodeDigitalizationInput( code+chars_read+2, &newFilter ) ) {
 					chars_read += tmp + 2;
@@ -227,6 +230,13 @@ int decodeTransformInput(char code[], filterInfo * fi) {
 	transformParameters tp = newTransformParameters();
 	
 	for_end = 3;
+	
+	if( code[0] == 'h' ) code[0] = 'H';
+	if( code[0] == 'l' ) code[0] = 'L';
+	if( code[0] == 'b' ) code[0] = 'B';
+	if( code[1] == 'p' ) code[1] = 'P';
+	if( code[1] == 's' ) code[1] = 'S';
+	
 	if(code[0] == 'L' && code[1] == 'P') {
 		filter = lowpass;
 	} else if(code[0] == 'H' && code[1] == 'P') {
@@ -293,6 +303,10 @@ int decodeIirInput(char code[], filterInfo * fi) {
 	int i, chars_scanned = 0, chars_read;
 	filterType filter;
 	iirParameters ip = newIirParameters();
+	
+	if( code[0] == 'b' ) code[0] = 'B';
+	if( code[0] == 'c' ) code[0] = 'C';
+	if( code[1] == 'w' ) code[1] = 'W';
 	
 	if(code[0] == 'B' && code[1] == 'W') {
 		filter = butterworth;
