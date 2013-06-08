@@ -178,14 +178,6 @@ void Init_Interrupts()
 	*pSIC_IMASK = 0x00000820;
 }
 
-void enableAudio() {
-	*pSIC_IMASK |= 0x00000020;
-}
-
-void disableAudio() {
-	*pSIC_IMASK &= 0xFFFFFFDF;
-}
-
 //--------------------------------------------------------------------------------------------------------
 // Function:	Init_UART
 //
@@ -253,3 +245,15 @@ void Init_Device()
 }
 
 #endif
+
+void enableAudio() {
+#ifdef _COMPILE_WITH_BLACKFIN
+	*pSIC_IMASK |= 0x00000020;
+#endif
+}
+
+void disableAudio() {
+#ifdef _COMPILE_WITH_BLACKFIN
+	*pSIC_IMASK &= 0xFFFFFFDF;
+#endif
+}

@@ -48,12 +48,8 @@ void main(void)
 	Init_Device();
 
 	while(1) {
-#endif
 		if( uartRequest ) {
-			//strcpy(uart_buffer, "GI:bw:N3*T:bs:A1000B20000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
-			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
-			//printPzkContainer(filterR.tFilter);
 			if( getErrors() ) {
 				printErrors(uart_buffer, UART_BUF_SIZE);
 				printf("%s\n", uart_buffer);
@@ -61,26 +57,32 @@ void main(void)
 			} else {
 				printf("OK\n");
 			}
-			//printFilterInfo(&filterR);
-			/*CLI();
-			printf("HALT!\n");
-			STI();*/
-			/*printErrors(uart_buffer, UART_BUF_SIZE);
-			printf("Errors:\n");
-			printf(uart_buffer);*/
-/*
-			f = fopen("pulse.txt","w");
-			fprintf(f, "%d\n", (*filterR.filter)(0x7FFF, coeffLineR, delayLineR) >> 8);
-			for(i=0; i<2047; i++) {
-				fprintf(f, "%d\n", (*filterR.filter)(0, coeffLineR, delayLineR) >> 8);
-			}
-			fclose(f);
-			for(i=0; i<30; i++) {
-				printf("%g\n", (float)coeffLineR[i]/32768.0);
-			}*/
 			uartRequest = 0;
 		}
-#ifdef _COMPILE_WITH_BLACKFIN
 	}
+#else
+	strcpy(uart_buffer, "GI:bw:N3*T:lp:A1000*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*
+	changeState(uart_buffer);
+
+	if( getErrors() ) {
+		printErrors(uart_buffer, UART_BUF_SIZE);
+		printf("%s\n", uart_buffer);
+		clearErrors();
+	} else {
+		printf("OK\n");
+	}
+
+	f = fopen("pulse.txt","w");
+	fprintf(f, "%d\n", (*filterR.filter)(0x7FFF, coeffLineR, delayLineR));
+	for(i=0; i<2047; i++) {
+		fprintf(f, "%d\n", (*filterR.filter)(0, coeffLineR, delayLineR));
+	}
+	fclose(f);
+	for(i=0; i<30; i++) {
+		printf("%g\n", (float)coeffLineR[i]/32768.0);
+	}
+
+	printFilterInfo(&filterR);
+
 #endif
 }
