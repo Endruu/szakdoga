@@ -109,7 +109,7 @@ int decodeTransformInput(char code[], filterInfo * fi);
 int decodeIirInput(char code[], filterInfo * fi);
 
 int changeState(char code[]);
-int implementFilter(filterInfo * fi);
+real implementFilter(filterInfo * fi);
 
 int compare1(complex c1, complex c2);
 void sortDigitalPZ(pzkContainer * pzk);

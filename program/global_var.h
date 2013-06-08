@@ -76,7 +76,7 @@
 #define MAX_WS_INPUT			1200.0		// usable freq range: 20-24000Hz
 
 #define MIN_BANDWIDTH			100			// ~16Hz hasraütve
-#define MIN_FREQUENCY			125			// ~20Hz
+#define MIN_FREQUENCY			0.001	//125			// ~20Hz
 #define MAX_FREQUENCY			150000		// ~24kHz
 
 #define CODE_DELIMITER			'*'

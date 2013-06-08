@@ -277,9 +277,9 @@ void sortPzkContainer(pzkContainer * pzk) {
 
 int compare1(complex c1, complex c2) {
 	real a1, a2;
-	if( cisreal(c1) ) { a1 = abs(c1.re); }
+	if( cisreal(c1) ) { a1 = fabs(c1.re); }
 	else { a1 = cabs(c1); }
-	if( cisreal(c2) ) { a1 = abs(c2.re); }
+	if( cisreal(c2) ) { a2 = fabs(c2.re); }
 	else { a2 = cabs(c2); }
 	
 	if( a1 < a2 ) return 1;						// if a1 is closer to 1
@@ -319,7 +319,7 @@ void sortDigitalPZ(pzkContainer * pzk) {
 				mind = MAX_REAL;
 				for( j=l; j < pzk->nextZero; j++ ) {
 					for( k=l; j < pzk->nextZero; k++ ) {
-						tmp_mind = cabs(csub(pzk->poles[i], pzk->zeros[j])) + abs( pzk->zeros[j].re - pzk->zeros[j].re);
+						tmp_mind = cabs(csub(pzk->poles[i], pzk->zeros[j])) + fabs( pzk->zeros[j].re - pzk->zeros[j].re);
 						if( mind > tmp_mind && j != k ) {
 							mind = tmp_mind;
 							tmp.re = j;
@@ -398,10 +398,10 @@ void sortDigitalPZ(pzkContainer * pzk) {
 	}
 	
 	for( ; i < pzk->nextPole; i++ ) {
-		mind = abs(pzk->poles[i].re - pzk->zeros[l].re);
+		mind = fabs(pzk->poles[i].re - pzk->zeros[l].re);
 		k = l;
 		for( j=l+1; j < pzk->nextZero; j++ ) {
-			tmp_mind = abs(pzk->poles[i].re - pzk->zeros[l].re);
+			tmp_mind = fabs(pzk->poles[i].re - pzk->zeros[l].re);
 			if( mind > tmp_mind ) {
 				mind = tmp_mind;
 				k = j;
@@ -502,7 +502,7 @@ void sortPZ(complex * list, uint num) {
 	complex tmp;
 			
     while( pos < num ) {
-        if (abs(list[pos].re) > abs(list[pos-1].re)) {	//lehet h -1* kellene abs helyett
+        if (fabs(list[pos].re) > fabs(list[pos-1].re)) {	//lehet h -1* kellene abs helyett
             if (last != 0) {
                 pos = last;
                 last = 0;
@@ -510,7 +510,7 @@ void sortPZ(complex * list, uint num) {
             pos++;
 		}
 		
-		else if (abs(list[pos].re) == abs(list[pos-1].re)) {
+		else if (fabs(list[pos].re) == fabs(list[pos-1].re)) {
 			if (list[pos].im >= list[pos-1].im) {
 				if (last != 0) {
 					pos = last;

@@ -54,7 +54,7 @@ void main(void)
 #endif
 		if( changeFilterRequest ) {
 			changeFilterRequest = 0;
-			strcpy(uart_buffer, "GI:BW:N5*T:LP:A1000W0*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*
+			strcpy(uart_buffer, "GI:C2:N5W2B0.001L0*T:LP:A1000W0*D:M*");	//GI:BW:A3w2B40*T:BP:A1000B5000*D:M*	
 			/*decodeInput(uart_buffer);*/
 			changeState(uart_buffer);
 			printErrors(uart_buffer, UART_BUF_SIZE);

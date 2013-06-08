@@ -1,0 +1,15 @@
+0	: general error
+		implement.c:
+	direct1_biquad:
+1	: First pole is complex, assuming it has a conjugate pair, therefore second pole should not be defined
+2	: First zero is complex, assuming it has a conjugate pair, therefore second zero should not be defined
+	implementFilter:
+3	: The number of zeros and poles must be equal
+4	: The buffer for coefficients is full
+5	: Error in direct1_biquad()
+		generate.c
+	normalizeIirParameters:
+100	: Amplification at corner frequency is greater than one, must be less than one
+101	: Amplification at stop frequency is greater than one, must be less than one
+102	: Amplification at corner and stop frequency are equal
+103	: Corner and stop frequency are equal

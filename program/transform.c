@@ -102,23 +102,19 @@ int normalizeTransformParameters(transformParameters *tp) {
 
 int transformFilter( filterInfo *fi ) {
 	pzkContainer * pzk;
-	real w0;
-	
-	w0 = fi->transformP.w0;
-	if( fi->iirP.fixWs ) w0 /= fi->iirP.ws;
 
 	switch( fi->type ) {
 		case lowpass:
-			pzk = t2lp(fi->iFilter, w0);
+			pzk = t2lp(fi->iFilter, fi->transformP.w0);
 			break;
 		case highpass:
-			pzk = t2hp(fi->iFilter, w0);
+			pzk = t2hp(fi->iFilter, fi->transformP.w0);
 			break;
 		case bandpass:
-			pzk = t2bp(fi->iFilter, w0, fi->transformP.w1);
+			pzk = t2bp(fi->iFilter, fi->transformP.w0, fi->transformP.w1);
 			break;
 		case bandstop:
-			pzk = t2bp(fi->iFilter, w0, fi->transformP.w1);
+			pzk = t2bp(fi->iFilter, fi->transformP.w0, fi->transformP.w1);
 			break;
 		default:
 			error(0);
@@ -484,7 +480,7 @@ pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 	}
 	f = createPzkContainer(i, i);
 	
-	f->no_wz = DIGITAL_FILTER;
+	f->no_wz = 0;
 	f->wz = DIGITAL_FILTER;
 	
 	if( auto_pwf ) pwf = getPrewarpFreq( pzk->wz );

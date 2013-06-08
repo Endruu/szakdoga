@@ -21,46 +21,45 @@ Returns	0 if parameters can not be normalized
 int normalizeIirParameters(iirParameters *ip) {
 	real	tmp;
 	
-	if(ip->ac < 0) { ip->ac *= -1; warn(0); }
-	if(ip->as < 0) { ip->as *= -1; warn(0); }
-	
+	if(ip->ac < 0) { ip->ac *= -1; warn(101); }
+	if(ip->as < 0) { ip->as *= -1; warn(102); }
+	if( ip->ac && ip->ac == ip->as) { error(102); }
+
 	if( ip->inDb ) {
-		if(ip->ac > MAX_DB_INPUT) { ip->ac = MAX_DB_INPUT; warn(0); }
-		if(ip->as > MAX_DB_INPUT) { ip->as = MAX_DB_INPUT; warn(0); }
-		if( ip->ac ) {
+		if(ip->ac > MAX_DB_INPUT) { ip->ac = MAX_DB_INPUT; warn(103); }
+		if(ip->as > MAX_DB_INPUT) { ip->as = MAX_DB_INPUT; warn(104); }
+		if( ip->ac && ip->as) {
 			if(ip->ac > ip->as) {
 				tmp = ip->ac;
 				ip->ac = ip->as;
-				ip->as = ip->ac;
-				warn(0);
+				ip->as = tmp;
+				warn(105);
 			}
 		}
 	} else {
-		if(ip->ac >= 1) { error(0); }
-		if(ip->as >= 1) { error(0); }
-		if( ip->ac && ip->ac < MIN_LIN_INPUT) { ip->ac = MIN_LIN_INPUT; warn(0); }
-		if( ip->as && ip->as < MIN_LIN_INPUT) { ip->as = MIN_LIN_INPUT; warn(0); }
-		if( ip->ac ) {
+		if(ip->ac >= 1) { error(100); }
+		if(ip->as >= 1) { error(101); }
+		if( ip->ac && ip->ac < MIN_LIN_INPUT) { ip->ac = MIN_LIN_INPUT; warn(106); }
+		if( ip->as && ip->as < MIN_LIN_INPUT) { ip->as = MIN_LIN_INPUT; warn(107); }
+		if( ip->ac && ip->as) {
 			if(ip->ac < ip->as) {
 				tmp = ip->ac;
 				ip->ac = ip->as;
 				ip->as = ip->ac;
-				warn(0);
+				warn(108);
 			}
 		}
 	}
 	
-	if( ip->ac && ip->ac == ip->as) { error(0); }
-	
 	if( ip->ws ) {
-		if(ip->ws < 0) { ip->ws *= -1; warn(0); }
+		if(ip->ws < 0) { ip->ws *= -1; warn(109); }
 		
-		if(ip->ws == 1) { error(0); }
-		if( ip->ws > MAX_WS_INPUT ) { ip->ws = MAX_WS_INPUT; warn(0); }
+		if(ip->ws == 1) { error(103); }
+		if( ip->ws > MAX_WS_INPUT ) { ip->ws = MAX_WS_INPUT; warn(110); }
 		if(ip->ws < 1) {
 			if( ip->ws < 1.0/MAX_WS_INPUT ) {
 				ip->ws = 1/MAX_WS_INPUT;
-				warn(0);
+				warn(111);
 			} else {
 				ip->ws = 1/ip->ws;
 			}
@@ -128,7 +127,7 @@ pzkContainer * createButterworth(uint n, real e0) {
 	}
 	
 	if( e0 != 1.0 ) {
-		filt->amp = pow(e0, -(real)n);
+		filt->amp = pow(e0, -1.0/(real)n);
 	}
 	
 	for( i = 0; i < n/2; i++ ) {
@@ -242,7 +241,7 @@ int convertParametersForChebyshev2( iirParameters * ip ) {
 			ip->as = alog( -ip->as / 20 );
 		}
 		if( ip->ac ) {
-			ip->ac = alog( -ip->ac / 20 );
+			ip->ac = alog( -ip->ac / 20 );	//valszeg csak 10-zel kell osztani
 		}
 		ip->inDb = 0;
 	}
@@ -322,7 +321,7 @@ pzkContainer * createChebyshev2(uint n, real Os, real d2) {
 }
 
 int createReferentFilter( filterInfo *fi ) {
-	pzkContainer * pzk;
+	pzkContainer *pzk, *tmp;
 
 	switch( fi->subtype ) {
 		case butterworth:
@@ -354,8 +353,16 @@ int createReferentFilter( filterInfo *fi ) {
 	if( pzk == NULL ) {
 		error(0);
 	} else {
-		fi->iFilter = pzk;
-		return 1;
+		if( fi->iirP.fixWs ) {
+			tmp = t2lp(pzk,1/fi->iirP.ws);
+			if( tmp != NULL ) {
+				fi->iFilter = tmp;
+			} else {
+				error(0);
+			}
+		} else {
+			fi->iFilter = pzk;
+		}
 	}
-	
+	return 1;
 }
