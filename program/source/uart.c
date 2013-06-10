@@ -1,4 +1,4 @@
-#include "global.h"
+#include "../headers/global.h"
 
 #define MAX_SEND_TRIES	1000
 

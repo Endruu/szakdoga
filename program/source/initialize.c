@@ -1,4 +1,4 @@
-#include "global.h"		//prototypes
+#include "../headers/global.h"		//prototypes
 
 #ifdef _COMPILE_WITH_BLACKFIN
 #include <blackfin.h>	//symbolic register names

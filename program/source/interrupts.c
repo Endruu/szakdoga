@@ -1,4 +1,4 @@
-#include "global.h"
+#include "../headers/global.h"
 
 #ifdef _COMPILE_WITH_BLACKFIN
 

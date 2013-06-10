@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "global.h"
+#include "../headers/global.h"
 
 #ifndef _COMPILE_WITH_BLACKFIN
 #define cabs cabs_custom
