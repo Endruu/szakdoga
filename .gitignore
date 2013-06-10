@@ -1,3 +1,6 @@
 *.svg
 *.png
 *.gif
+/program/hpdf_vs/Debug
+/program/hpdf_vs/ipch
+/program/hpdf_vs/*.opensdf

@@ -1,4 +1,4 @@
-#include "global.h"
+#include "../headers/global.h"
 #include <stdio.h>
 
 filterInfo newFilterInfo() {
