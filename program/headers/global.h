@@ -20,6 +20,8 @@
 
 #endif
 
+#include "diagnostics.h"
+
 
 //--------------------------------------------------------------------------------------------------------
 // Prototypes
@@ -74,8 +76,6 @@ int createReferentFilter( filterInfo *fi );
 pzkContainer * createPzkContainer(uint np, uint nz);
 uint shrinkPzkContainer(pzkContainer * pzk, uint min);
 void deletePzkContainer(pzkContainer * pzk);
-void printPzkContainer(pzkContainer * pzk);
-void print4Matlab(pzkContainer * pzk);
 void sortPzkContainer(pzkContainer * pzk);
 void sortPZ(complex * list, uint num);
 

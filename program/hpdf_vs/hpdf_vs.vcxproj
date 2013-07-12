@@ -40,6 +40,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <EmbedManifest>false</EmbedManifest>
+    <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -52,10 +53,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Program Files\MATLAB\workspace\szakdoga_c\szakdoga\program\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ShowProgress>NotSet</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -78,6 +81,7 @@
   <ItemGroup>
     <ClCompile Include="..\main_vs.c" />
     <ClCompile Include="..\source\bilinear.c" />
+    <ClCompile Include="..\source\diagnostics.c" />
     <ClCompile Include="..\source\ecomplex.c" />
     <ClCompile Include="..\source\error.c" />
     <ClCompile Include="..\source\generate_iir.c" />
@@ -91,6 +95,7 @@
     <ClCompile Include="..\source\uart.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\headers\diagnostics.h" />
     <ClInclude Include="..\headers\error.h" />
     <ClInclude Include="..\headers\global.h" />
     <ClInclude Include="..\headers\global_var.h" />
