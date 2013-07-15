@@ -145,8 +145,11 @@ typedef struct {
 				subtype,		// butterworth, cheby, hanning, kaiser....
 				supertype;		// iir, fir
 	filterState	fState;
-	uint 	options,
-				stages;
+	uint 		options,
+				stages,
+				mem_delay,		// bytes used from delay buffer
+				mem_coeff,		// bytes used from coeff buffer
+				ticks;			// no. of clock ticks while filtering
 	
 } filterInfo;
 
