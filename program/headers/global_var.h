@@ -181,6 +181,8 @@ extern COEFF_TYPE * coeffLineR;
 extern COEFF_TYPE * coeffLineTemp;
 extern filterInfo filterR;
 
+extern char channelSelect;	// 0: right, 1: left
+
 extern unsigned int interruptBackup;
 
 #endif

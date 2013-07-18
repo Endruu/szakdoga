@@ -95,6 +95,7 @@
     <ClCompile Include="..\source\uart.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\headers\config.h" />
     <ClInclude Include="..\headers\diagnostics.h" />
     <ClInclude Include="..\headers\error.h" />
     <ClInclude Include="..\headers\global.h" />

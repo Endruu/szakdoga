@@ -22,7 +22,8 @@ pzkContainer pzkList[3];
 
 char uart_buffer[UART_BUF_SIZE];
 
-uint uartRequest = 0;
+uint uartRequest	= 0;
+char channelSelect	= 0;		// default: right
 
 filterInfo filterR;
 #ifdef _COMPILE_WITH_BLACKFIN

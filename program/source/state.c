@@ -1,6 +1,9 @@
 #include "../headers/global.h"
 #include <stdio.h>
 
+//--------------------------------------------------------------------------------------------------------
+// filterInfo functions
+//--------------------------------------------------------------------------------------------------------
 filterInfo newFilterInfo() {
 	filterInfo r;
 	r.iirP			= newIirParameters();
@@ -48,18 +51,28 @@ void printFilterInfo( filterInfo * fi ) {
 	print4Matlab(fi->dFilter);
 }
 
+//--------------------------------------------------------------------------------------------------------
+// State machine
+//--------------------------------------------------------------------------------------------------------
 int changeState(char code[]) {
-	int	tmp,
+	int	tmp = 0,
 		chars_read = 0;
 	COEFF_TYPE * tmp_ptr;
 	
 	filterInfo newFilter = copyFilterInfo( &filterR );
 	
+	// to upper
+	while( code[tmp] != '\0' ) {
+		if( code[tmp] >= 'a' && code[tmp] <= 'z' ) {
+			code[tmp] = code[tmp] - 32;
+		}
+		tmp++;
+	}
+	
 	while( code[chars_read] != '\0' ) {
 		switch( code[chars_read] ) {
-			case 'g':
 			case 'G':
-				if( code[chars_read+1] == 'I' || code[chars_read+1] == 'i') {
+				if( code[chars_read+1] == 'I' ) {
 					if( tmp = decodeIirInput( code+chars_read+3, &newFilter ) ) {
 						chars_read += tmp + 3;
 						newFilter.fState = sReferent;
@@ -67,7 +80,7 @@ int changeState(char code[]) {
 					} else {
 						error(23);
 					}
-				} else if( code[chars_read+1] == 'F' || code[chars_read+1] == 'f') {
+				} else if( code[chars_read+1] == 'F' ) {
 					// FIR
 					error(24);
 				} else {
@@ -181,6 +194,10 @@ int changeState(char code[]) {
 	
 }
 
+
+//--------------------------------------------------------------------------------------------------------
+// Decoder functions
+//--------------------------------------------------------------------------------------------------------
 int decodeDigitalizationInput(char code[], filterInfo * fi) {
 	char tmp_char;
 	float tmp_float = -1;
@@ -188,13 +205,11 @@ int decodeDigitalizationInput(char code[], filterInfo * fi) {
 
 	if( sscanf(code, "%c", &tmp_char) ) {
 		switch(tmp_char) {
-			case 'b' :
 			case 'B' :
 				if( tmp_float ) { warn(0); }
 				tmp_float = WARP_NORMAL;
 				chars_read++;
 				break;
-			case 'm' :
 			case 'M' :
 				chars_read++;
 				chars_scanned = 1;
@@ -206,7 +221,7 @@ int decodeDigitalizationInput(char code[], filterInfo * fi) {
 					chars_read += chars_scanned;
 					chars_scanned = 1;
 					if( sscanf(code+chars_read, "%c", &tmp_char) ) {
-						if( tmp_char == 'w' || tmp_char == 'W' ) {
+						if( tmp_char == 'W' ) {
 							chars_read ++;
 							tmp_float /= 2.0*PI;
 						}
@@ -239,12 +254,6 @@ int decodeTransformInput(char code[], filterInfo * fi) {
 	
 	for_end = 3;
 	
-	if( code[0] == 'h' ) code[0] = 'H';
-	if( code[0] == 'l' ) code[0] = 'L';
-	if( code[0] == 'b' ) code[0] = 'B';
-	if( code[1] == 'p' ) code[1] = 'P';
-	if( code[1] == 's' ) code[1] = 'S';
-	
 	if(code[0] == 'L' && code[1] == 'P') {
 		filter = lowpass;
 	} else if(code[0] == 'H' && code[1] == 'P') {
@@ -264,22 +273,18 @@ int decodeTransformInput(char code[], filterInfo * fi) {
 	for(i=0; i < for_end; i++) {
 		if( sscanf(code + chars_read, "%c%g%n", &tmp_char, &tmp_float, &chars_scanned) == 2 ) {
 			switch(tmp_char) {
-				case 'a' :
 				case 'A' :
 					tp.w0 = tmp_float; break;
-				case 'b' :
 				case 'B' :
 					if( filter == lowpass || filter == highpass ) {
 						warn(0);
 					}
 					tp.w1 = tmp_float; tp.isDw = 0; break;
-				case 'c' :
 				case 'C' :
 					if( filter == lowpass || filter == highpass ) {
 						warn(0);
 					}
 					tp.w1 = tmp_float; tp.isDw = 1; break;
-				case 'w' :
 				case 'W' :
 					tp.inHz = 0; break;
 				default:
@@ -312,10 +317,6 @@ int decodeIirInput(char code[], filterInfo * fi) {
 	filterType filter;
 	iirParameters ip = newIirParameters();
 	
-	if( code[0] == 'b' ) code[0] = 'B';
-	if( code[0] == 'c' ) code[0] = 'C';
-	if( code[1] == 'w' ) code[1] = 'W';
-	
 	if(code[0] == 'B' && code[1] == 'W') {
 		filter = butterworth;
 	} else if(code[0] == 'C' && code[1] == '1') {
@@ -331,19 +332,14 @@ int decodeIirInput(char code[], filterInfo * fi) {
 	for(i=0; i < 6; i++) {
 		if( sscanf(code + chars_read, "%c%g%n", &tmp_char, &tmp_float, &chars_scanned) == 2 ) {
 			switch(tmp_char) {
-				case 'n' :
 				case 'N' :
 					ip.n = (uint)tmp_float; break;
-				case 'a' :
 				case 'A' :
 					ip.ac = tmp_float; break;
-				case 'b' :
 				case 'B' :
 					ip.as = tmp_float; break;
-				case 'w' :
 				case 'W' :
 					ip.ws = tmp_float; break;
-				case 'l' :
 				case 'L' :
 					ip.inDb = 0; break;
 				default:
