@@ -163,3 +163,18 @@ void printMem( filterInfo * fi ) {
 	sprintf( buffer, "Coeff: %d bytes - %f.2%%\n", fi->mem_coeff, (float)(fi->mem_coeff * 100)/(float)(COEFF_SIZE));
 	out(buffer);
 }
+
+//--------------------------------------------------------------------------------------------------------
+// Other
+//--------------------------------------------------------------------------------------------------------
+
+void printActualChannel() {
+	char buffer[25];
+	
+	sprintf( buffer, "Actual channel: %d\n", channelSelect);
+	out(buffer);
+}
+
+void printCodeWord() {
+}
+

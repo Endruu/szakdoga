@@ -28,8 +28,13 @@ void setMem( filterInfo * fi, int mem_delay, int mem_coeff );
 void printMem( filterInfo * fi );
 
 //--------------------------------------------------------------------------------------------------------
-// Global variables
+// Other
 //--------------------------------------------------------------------------------------------------------
+
+void printActualChannel();
+void printCodeWord();
+
+
 
 void printPzkContainer(pzkContainer * pzk);
 void print4Matlab(pzkContainer * pzk);
