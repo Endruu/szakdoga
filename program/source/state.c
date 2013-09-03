@@ -16,6 +16,9 @@ filterInfo newFilterInfo() {
 	r.subtype		= empty;
 	r.supertype	= empty;
 	r.fState		= sStart;
+	r.ticks			= 0;
+	r.mem_coeff		= 0;
+	r.mem_delay		= 0;
 	return r;
 }
 

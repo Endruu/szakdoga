@@ -1,5 +1,5 @@
 #include "../headers/global.h"
-
+#include <stdio.h>
 void simulateFilter(const filterInfo * fi, const char * simfile ) {
 
 }
@@ -107,4 +107,59 @@ void print4Matlab(pzkContainer * pzk) {
 		}
 	}
 	printf("];\n\n");
+}
+
+//--------------------------------------------------------------------------------------------------------
+// Time
+//--------------------------------------------------------------------------------------------------------
+
+void calibrateClock() {
+	unsigned int sum =0, i;
+	tickDelay = 0;
+	
+	for( i = 0; i < CLOCK_CALIBRATION_LENGTH; i++ ) {
+		startClock();
+		stopClock();
+		sum += tickCounter;
+	}
+	
+	tickDelay = sum / CLOCK_CALIBRATION_LENGTH;
+}
+
+void startClock() {
+	tickCounter = clock();
+}
+void stopClock() {
+	tickCounter =  clock() - tickCounter - tickDelay;
+}
+
+void setTick( filterInfo * fi ) {
+	fi->ticks = ( fi->ticks + tickCounter ) / 2;
+}
+
+void printTick( filterInfo * fi ) {
+	char buffer[50];	
+	
+	sprintf( buffer, "CPU usage: %d ticks - %.2f%%%%\n", fi->ticks, (float)(fi->ticks * 100)*F_SAMPLING/(float)(CPU_FREQ) );
+	out( buffer );
+}
+
+//--------------------------------------------------------------------------------------------------------
+// Memory usage
+//--------------------------------------------------------------------------------------------------------
+
+void setMem( filterInfo * fi, int mem_delay, int mem_coeff ) {
+	fi->mem_delay = mem_delay;
+	fi->mem_coeff = mem_coeff;
+}
+
+void printMem( filterInfo * fi ) {
+	char buffer[50];
+	
+	sprintf( buffer, "Memory usage:\n");
+	out(buffer);
+	sprintf( buffer, "Delay: %d bytes - %f.2%%\n", fi->mem_delay, (float)(fi->mem_delay * 100)/(float)(DELAY_SIZE));
+	out(buffer);
+	sprintf( buffer, "Coeff: %d bytes - %f.2%%\n", fi->mem_coeff, (float)(fi->mem_coeff * 100)/(float)(COEFF_SIZE));
+	out(buffer);
 }

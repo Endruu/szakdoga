@@ -57,6 +57,9 @@
     <ClCompile Include="..\source\diagnostics.c">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\communication.c">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\headers\error.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\headers\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\headers\communication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -31,4 +31,6 @@
 
 #define BAUD_RATE				57600
 
+#define CPU_FREQ				600000000
+
 #endif

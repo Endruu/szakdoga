@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClCompile Include="..\main_vs.c" />
     <ClCompile Include="..\source\bilinear.c" />
+    <ClCompile Include="..\source\communication.c" />
     <ClCompile Include="..\source\diagnostics.c" />
     <ClCompile Include="..\source\ecomplex.c" />
     <ClCompile Include="..\source\error.c" />
@@ -95,6 +96,7 @@
     <ClCompile Include="..\source\uart.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\headers\communication.h" />
     <ClInclude Include="..\headers\config.h" />
     <ClInclude Include="..\headers\diagnostics.h" />
     <ClInclude Include="..\headers\error.h" />
