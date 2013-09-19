@@ -1,11 +1,8 @@
 #include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "../headers/global.h"
 
-#ifndef _COMPILE_WITH_BLACKFIN
-#define cabs cabs_custom
-#endif
+#include "../headers/pzk_container.h"
+#include "../headers/error.h"
+#include "../headers/emath.h"
 
 pzkContainer * createPzkContainer(uint np, uint nz) {
 	pzkContainer * pzk;
@@ -78,6 +75,7 @@ void deletePzkContainer(pzkContainer * pzk) {
 	pzk = NULL;
 }
 
+
 uint addPole(pzkContainer * pzk, complex pole) {
 	if( cisnull(pole) && pzk->wz == 0.0 ) {
 		pzk->no_wz--;
@@ -111,6 +109,7 @@ uint addZero(pzkContainer * pzk, complex zero) {
 		return 0;
 	}
 }
+
 
 uint countPoles(pzkContainer * pzk) {
 	uint np = pzk->nextPole;	// number of poles	
@@ -164,10 +163,67 @@ uint countBiquads(pzkContainer * pzk) {
 	
 }
 
+
+void sortPZ(complex * list, uint num) {
+    uint	pos = 1,
+			last = 0;
+	complex tmp;
+			
+    while( pos < num ) {
+        if (fabs(list[pos].re) > fabs(list[pos-1].re)) {	//lehet h -1* kellene abs helyett
+            if (last != 0) {
+                pos = last;
+                last = 0;
+            }
+            pos++;
+		}
+		
+		else if (fabs(list[pos].re) == fabs(list[pos-1].re)) {
+			if (list[pos].im >= list[pos-1].im) {
+				if (last != 0) {
+					pos = last;
+					last = 0;
+				}
+				pos++;
+			}
+			else {
+				tmp = list[pos];
+				list[pos] = list[pos-1];
+				list[pos-1] = tmp;
+				if (pos > 1) {
+					if (last == 0) {
+						last = pos;
+					}
+					pos--;
+				}
+				else {
+					pos++;
+				}
+			}
+		}
+		
+        else {
+            tmp = list[pos];
+			list[pos] = list[pos-1];
+			list[pos-1] = tmp;
+            if (pos > 1) {
+                if (last == 0) {
+                    last = pos;
+                }
+                pos--;
+			}
+            else {
+                pos++;
+            }
+        }
+    }
+}
+
 void sortPzkContainer(pzkContainer * pzk) {
 	sortPZ(pzk->zeros, pzk->nextZero);
 	sortPZ(pzk->poles, pzk->nextPole);
 }
+
 
 int compare1(complex c1, complex c2) {
 	real a1, a2;
@@ -308,7 +364,6 @@ void sortDigitalPZ(pzkContainer * pzk) {
 	}
 }
 
-
 int preSortDigitalZeros(pzkContainer * pzk) {
 	int gaps[] = { 132, 57, 23, 10, 4, 1 };
 	int i, j, g;
@@ -336,7 +391,6 @@ int preSortDigitalZeros(pzkContainer * pzk) {
 	return g;
 }
 	
-
 int sortDigitalPoles(pzkContainer * pzk) {
 	int gaps[] = { 132, 57, 23, 10, 4, 1 };
 	int i, j, g;
@@ -388,59 +442,4 @@ int sortDigitalPoles(pzkContainer * pzk) {
 		}
 	}
 	return g;
-}
-
-void sortPZ(complex * list, uint num) {
-    uint	pos = 1,
-			last = 0;
-	complex tmp;
-			
-    while( pos < num ) {
-        if (fabs(list[pos].re) > fabs(list[pos-1].re)) {	//lehet h -1* kellene abs helyett
-            if (last != 0) {
-                pos = last;
-                last = 0;
-            }
-            pos++;
-		}
-		
-		else if (fabs(list[pos].re) == fabs(list[pos-1].re)) {
-			if (list[pos].im >= list[pos-1].im) {
-				if (last != 0) {
-					pos = last;
-					last = 0;
-				}
-				pos++;
-			}
-			else {
-				tmp = list[pos];
-				list[pos] = list[pos-1];
-				list[pos-1] = tmp;
-				if (pos > 1) {
-					if (last == 0) {
-						last = pos;
-					}
-					pos--;
-				}
-				else {
-					pos++;
-				}
-			}
-		}
-		
-        else {
-            tmp = list[pos];
-			list[pos] = list[pos-1];
-			list[pos-1] = tmp;
-            if (pos > 1) {
-                if (last == 0) {
-                    last = pos;
-                }
-                pos--;
-			}
-            else {
-                pos++;
-            }
-        }
-    }
 }

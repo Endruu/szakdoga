@@ -80,29 +80,40 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\main_vs.c" />
-    <ClCompile Include="..\source\bilinear.c" />
     <ClCompile Include="..\source\communication.c" />
+    <ClCompile Include="..\source\debug.c" />
     <ClCompile Include="..\source\diagnostics.c" />
-    <ClCompile Include="..\source\ecomplex.c" />
+    <ClCompile Include="..\source\emath.c" />
     <ClCompile Include="..\source\error.c" />
-    <ClCompile Include="..\source\generate_iir.c" />
-    <ClCompile Include="..\source\implement.c" />
-    <ClCompile Include="..\source\initialize.c" />
-    <ClCompile Include="..\source\interrupts.c" />
-    <ClCompile Include="..\source\other_complex.c" />
+    <ClCompile Include="..\source\filterinfo.c" />
+    <ClCompile Include="..\source\iir_digitalize.c" />
+    <ClCompile Include="..\source\iir_filters.c" />
+    <ClCompile Include="..\source\iir_generator.c" />
+    <ClCompile Include="..\source\iir_implement.c" />
+    <ClCompile Include="..\source\iir_referent.c" />
+    <ClCompile Include="..\source\iir_transform.c" />
+    <ClCompile Include="..\source\logging.c" />
+    <ClCompile Include="..\source\out.c" />
     <ClCompile Include="..\source\pzk_container.c" />
-    <ClCompile Include="..\source\state.c" />
-    <ClCompile Include="..\source\transform.c" />
-    <ClCompile Include="..\source\uart.c" />
+    <ClCompile Include="..\source\variables.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\headers\communication.h" />
-    <ClInclude Include="..\headers\config.h" />
+    <ClInclude Include="..\headers\constants.h" />
+    <ClInclude Include="..\headers\debug.h" />
     <ClInclude Include="..\headers\diagnostics.h" />
+    <ClInclude Include="..\headers\emath.h" />
     <ClInclude Include="..\headers\error.h" />
+    <ClInclude Include="..\headers\filterinfo.h" />
     <ClInclude Include="..\headers\global.h" />
-    <ClInclude Include="..\headers\global_var.h" />
-    <ClInclude Include="..\headers\other_complex.h" />
+    <ClInclude Include="..\headers\iir_filters.h" />
+    <ClInclude Include="..\headers\iir_functions.h" />
+    <ClInclude Include="..\headers\logging.h" />
+    <ClInclude Include="..\headers\out.h" />
+    <ClInclude Include="..\headers\pzk_container.h" />
+    <ClInclude Include="..\headers\types.h" />
+    <ClInclude Include="..\headers\type_converters.h" />
+    <ClInclude Include="..\headers\variables.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

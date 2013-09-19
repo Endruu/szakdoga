@@ -1,25 +1,17 @@
-#include "../headers/global.h"
-#include <math.h>
-#include <stdio.h>
+#include "../headers/pzk_container.h"		// pzk functions
+#include "../headers/diagnostics.h"			// for setting memory usage
+#include "../headers/iir_filters.h"			// filtering functions
+#include "../headers/iir_functions.h"		// function prototypes
+#include "../headers/emath.h"				// math functions
+#include "../headers/type_converters.h"		// as name says
 
+/*
 #ifndef _COMPILE_WITH_BLACKFIN
 #define cabs cabs_custom
 #endif
-
+*/
 #define MAX_FR16	0x7FFF
 #define m1pln2		-1.442695041
-
-#ifdef _COMPILE_WITH_BLACKFIN
-
-#include <fract2float_conv.h>
-
-#else
-
-#define float_to_fr16(p)	(int)(32768.0*(p))
-#define fr16_to_float(p)	((float)(p))/32768.0
-#define fr16_to_fr32(p)		(int)((p)*32768)
-
-#endif
 
 real getInfNormScale(complex * z1, complex * z2, complex * p1, complex * p2) {
 	real op1, op2, oz1, oz2, tmp, K = 1;
@@ -208,31 +200,31 @@ real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1,
 	}
 }
 
-real implementFilter( filterInfo * fi ) {
+real implementFilter( filterInfo * fi, pzkContainer * digitalized ) {
 	int i = 0, j = 0, k = 1;
 	complex *p1, *p2, *z1, *z2;
 	complex zero;
 	real tmp;
-	real K = fi->dFilter->amp;
+	real K = digitalized->amp;
 	
-	if(countZeros(fi->dFilter) != countPoles(fi->dFilter)) {
+	if(countZeros(digitalized) != countPoles(digitalized)) {
 		error(3);
 	}
 
 	zero.re = 0;
 	zero.im = 0;
 	
-	coeffLineTemp[0] = countBiquads(fi->dFilter);
+	coeffLines[tmpFilter][0] = countBiquads(digitalized);
 	
-	sortDigitalPZ(fi->dFilter);
-	while( i < fi->dFilter->nextPole ) {
+	sortDigitalPZ(digitalized);
+	while( i < digitalized->nextPole ) {
 		if( k+6 > COEFF_SIZE ) {
 			error(4);
 		}
-		p1 = &fi->dFilter->poles[i];
+		p1 = &digitalized->poles[i];
 		if( cisreal( *p1 ) ) {
-			if( i+1 < fi->dFilter->nextPole ) {
-				p2 = &fi->dFilter->poles[i+1];
+			if( i+1 < digitalized->nextPole ) {
+				p2 = &digitalized->poles[i+1];
 			} else {
 				p2 = &zero;
 			}
@@ -241,10 +233,10 @@ real implementFilter( filterInfo * fi ) {
 			p2 = NULL;
 			i++;
 		}
-		z1 = &fi->dFilter->zeros[j];
+		z1 = &digitalized->zeros[j];
 		if( cisreal( *z1 ) ) {
-			if( j+1 < fi->dFilter->nextZero ) {
-				z2 = &fi->dFilter->zeros[j+1];
+			if( j+1 < digitalized->nextZero ) {
+				z2 = &digitalized->zeros[j+1];
 			} else {
 				z2 = &zero;
 			}
@@ -253,7 +245,7 @@ real implementFilter( filterInfo * fi ) {
 			z2 = NULL;
 			j++;
 		}
-		tmp = direct1_biquad(coeffLineTemp+k, z1, z2, p1, p2, 0);
+		tmp = direct1_biquad(coeffLines[tmpFilter]+k, z1, z2, p1, p2, 0);
 		if(tmp) {
 			K /= tmp;
 		} else {
@@ -266,55 +258,10 @@ real implementFilter( filterInfo * fi ) {
 		error(6);
 	}
 	
-	coeffLineTemp[k] = float_to_fr16( (float)K );
+	coeffLines[tmpFilter][k] = float_to_fr16( (float)K );
 	
 	fi->filter = &direct1;
 	
 	//printf("fK = %g\n", K);
 	return K;
-}
-
-fract32 passThrough(fract16 input, fract16 * coeffs, fract16 * delays) {
-	return fr16_to_fr32( input );
-}
-
-#ifndef _COMPILE_WITH_BLACKFIN
-fract32 direct1(fract16 input, fract16 * coeffs, fract16 * delays) {
-	return input;
-}
-#endif
-
-fract32 direct1_float(fract16 input, fract16 * coeffs, fract16 * delays) {
-	int	i,
-		nextC = 1,
-		nextD = 0,
-		prevD = 0,
-		limit = coeffs[0];
-
-	float acc;
-	fract16	tmp = input;
-
-	for( i = 0; i < limit; i++ ) {
-		acc = 0;
-		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
-		delays[prevD++] = delays[nextD];
-		acc -= fr16_to_float(coeffs[nextC]) * fr16_to_float(delays[nextD]);
-		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
-		delays[prevD++] = tmp;
-		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(tmp);
-
-		acc *= pow( 2.0, (float)(coeffs[nextC++]) );
-
-		
-		acc += fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
-		delays[prevD++] = delays[nextD];
-		acc -= fr16_to_float(coeffs[nextC]) * fr16_to_float(delays[nextD]);
-		acc -= fr16_to_float(coeffs[nextC++]) * fr16_to_float(delays[nextD++]);
-		tmp = float_to_fr16((float)acc);
-		delays[prevD++] = tmp;	
-	}
-
-	acc *= fr16_to_float(coeffs[nextC]);
-	tmp = float_to_fr16( acc );
-	return fr16_to_fr32( tmp );
 }

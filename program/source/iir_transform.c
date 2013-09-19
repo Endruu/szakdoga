@@ -1,23 +1,8 @@
-#include "../headers/global.h"
-#include <math.h>
-
-#ifndef _COMPILE_WITH_BLACKFIN
-#define cabs cabs_custom
-#endif
+#include "../headers/iir_functions.h"
 
 //--------------------------------------------------------------------------------------------------------
 // Frequency transform parameters preprocessing
 //--------------------------------------------------------------------------------------------------------
-
-// creates a new default parameterset for the frequency transform
-transformParameters newTransformParameters() {
-	transformParameters r;
-	r.w0	= 0;
-	r.w1	= 0;
-	r.inHz	= 1;
-	r.isDw	= 0;
-	return r;
-}
 
 // checks and normalizes the input parameters
 int normalizeTransformParameters(transformParameters *tp) {
@@ -111,31 +96,30 @@ int normalizeTransformParameters(transformParameters *tp) {
 // Frequency transform the filter
 //--------------------------------------------------------------------------------------------------------
 
-int transformFilter( filterInfo *fi ) {
+pzkContainer * transformFilter( filterInfo *fi, pzkContainer * referent ) {
 	pzkContainer * pzk;
 
 	switch( fi->type ) {
 		case lowpass:
-			pzk = t2lp(fi->iFilter, fi->transformP.w0);
+			pzk = t2lp(referent, fi->transformP.w0);
 			break;
 		case highpass:
-			pzk = t2hp(fi->iFilter, fi->transformP.w0);
+			pzk = t2hp(referent, fi->transformP.w0);
 			break;
 		case bandpass:
-			pzk = t2bp(fi->iFilter, fi->transformP.w0, fi->transformP.w1);
+			pzk = t2bp(referent, fi->transformP.w0, fi->transformP.w1);
 			break;
 		case bandstop:
-			pzk = t2bs(fi->iFilter, fi->transformP.w0, fi->transformP.w1);
+			pzk = t2bs(referent, fi->transformP.w0, fi->transformP.w1);
 			break;
 		default:
-			error(43);
+			errorR(43, NULL);
 	}
 	
 	if( pzk == NULL ) {
-		error(44);
+		errorR(44, NULL);
 	} else {
-		fi->tFilter = pzk;
-		return 1;
+		return pzk;
 	}
 }
 

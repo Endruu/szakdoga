@@ -1,17 +1,26 @@
-#include "headers/global.h"
+#include "headers/variables.h"
+#include "headers/communication.h"
 
 #ifndef _COMPILE_WITH_BLACKFIN
 
-//#include <string.h>
+/*#include <string.h>
 #include <stdio.h>
-clock_t st;
+clock_t st;*/
+
+char buff[100];	// = ">gi:Rf:BW:N4*DP:B*TP:LP:C1000";
 
 void main(void)
 {
-	filterR = newFilterInfo();
+
+	while(1) {
+		scanf("%s", buff);
+		parseInput(buff, 100);
+	}
+	/*filterR = newFilterInfo();
+	
 	
 
-	/*while(1) {
+	while(1) {
 		scanf("%s", uart_buffer);
 		if( uart_buffer[1] == ':') {
 			if ( uart_buffer[0] == 'f') {
@@ -36,18 +45,20 @@ void main(void)
 		} else {
 			printf("ERROR: Input should start with 's:', 'f:', or 'x:'!\n");
 		}
-	}*/
+	}
 
 	calibrateClock();
 	startClock();
 	st = clock();
-	/*while( clock() - st < 5000 ) {
+	while( clock() - st < 5000 ) {
 		printf(".");
-	}*/
+	}
 	stopClock();
 	printf("\n%d\n", clock() - st);
 	setTick(&filterR);
 	printTick(&filterR);
+	
+	*/
 }
 
 #endif

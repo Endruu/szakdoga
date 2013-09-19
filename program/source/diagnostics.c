@@ -1,5 +1,9 @@
-#include "../headers/global.h"
-#include <stdio.h>
+#include "../headers/variables.h"
+#include "../headers/diagnostics.h"
+
+clock_t tickCounter, tickDelay;
+
+/*
 void simulateFilter(const filterInfo * fi, const char * simfile ) {
 
 }
@@ -108,7 +112,7 @@ void print4Matlab(pzkContainer * pzk) {
 	}
 	printf("];\n\n");
 }
-
+*/
 //--------------------------------------------------------------------------------------------------------
 // Time
 //--------------------------------------------------------------------------------------------------------
@@ -133,12 +137,14 @@ void stopClock() {
 	tickCounter =  clock() - tickCounter - tickDelay;
 }
 
-void setTick( filterInfo * fi ) {
+void setTick() {
+	filterInfo * fi = &filterBank[actualFilter];
 	fi->ticks = ( fi->ticks + tickCounter ) / 2;
 }
 
-void printTick( filterInfo * fi ) {
-	char buffer[50];	
+void printCpuUsage() {
+	char buffer[50];
+	filterInfo * fi = &filterBank[actualFilter];	
 	
 	sprintf( buffer, "CPU usage: %d ticks - %.2f%%%%\n", fi->ticks, (float)(fi->ticks * 100)*F_SAMPLING/(float)(CPU_FREQ) );
 	out( buffer );
@@ -148,13 +154,15 @@ void printTick( filterInfo * fi ) {
 // Memory usage
 //--------------------------------------------------------------------------------------------------------
 
-void setMem( filterInfo * fi, int mem_delay, int mem_coeff ) {
+void setMem( int mem_delay, int mem_coeff ) {
+	filterInfo * fi = &filterBank[actualFilter];
 	fi->mem_delay = mem_delay;
 	fi->mem_coeff = mem_coeff;
 }
 
-void printMem( filterInfo * fi ) {
+void printMemoryUsage() {
 	char buffer[50];
+	filterInfo * fi = &filterBank[actualFilter];
 	
 	sprintf( buffer, "Memory usage:\n");
 	out(buffer);
@@ -168,13 +176,19 @@ void printMem( filterInfo * fi ) {
 // Other
 //--------------------------------------------------------------------------------------------------------
 
+/*
 void printActualChannel() {
 	char buffer[25];
 	
 	sprintf( buffer, "Actual channel: %d\n", channelSelect);
 	out(buffer);
 }
+*/
 
-void printCodeWord() {
+int printCodeWord() {
+	return 0;
 }
 
+int debugFilterInfo() {
+	return 0;
+}

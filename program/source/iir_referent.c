@@ -1,22 +1,8 @@
-#include "../headers/global.h"
-#include <math.h>
+#include "../headers/iir_functions.h"
 
 //--------------------------------------------------------------------------------------------------------
 // IIR parameters preprocessing
 //--------------------------------------------------------------------------------------------------------
-
-// creates a new default parameterset for an IIR filter
-iirParameters newIirParameters() {
-	iirParameters r;
-	r.ac	= 0;
-	r.as	= 0;
-	r.ws	= 0;
-	r.e0	= 0;
-	r.n		= 0;
-	r.inDb	= 1;
-	r.fixWs	= 0;
-	return r;
-}
 
 /*
 Checks and normalizes the input parameters for later use.
@@ -80,7 +66,7 @@ int normalizeIirParameters(iirParameters *ip) {
 // Creates the referent filter
 //--------------------------------------------------------------------------------------------------------
 
-int createReferentFilter( filterInfo *fi ) {
+pzkContainer * createReferentFilter( filterInfo *fi ) {
 	pzkContainer *pzk, *tmp;
 
 	switch( fi->subtype ) {
@@ -88,7 +74,7 @@ int createReferentFilter( filterInfo *fi ) {
 			if( convertParametersForButterworth( &fi->iirP ) ) {
 				pzk = createButterworth(fi->iirP.n, fi->iirP.e0);
 			} else {
-				error(104);
+				errorR(104, NULL);
 			}
 			break;
 			
@@ -96,35 +82,37 @@ int createReferentFilter( filterInfo *fi ) {
 			if( convertParametersForChebyshev1( &fi->iirP ) ) {
 				pzk = createChebyshev1(fi->iirP.n, fi->iirP.e0);
 			} else {
-				error(105);
+				errorR(105, NULL);
 			}
 			break;
 		case chebyshev2:
 			if( convertParametersForChebyshev2( &fi->iirP ) ) {
 				pzk = createChebyshev2(fi->iirP.n, fi->iirP.ws, fi->iirP.as);
 			} else {
-				error(106);
+				errorR(106, NULL);
 			}
 			break;
 		default:
-			error(107);
+			errorR(107, NULL);
 	}
 	
 	if( pzk == NULL ) {
-		error(108);
+		errorR(108, NULL);
 	} else {
 		if( fi->iirP.fixWs ) {
-			tmp = t2lp(pzk,1/fi->iirP.ws);
+			tmp = t2lp( pzk, 1.0/fi->iirP.ws );
 			if( tmp != NULL ) {
-				fi->iFilter = tmp;
+				deletePzkContainer( pzk );
+				return tmp;
 			} else {
-				error(109);
+				deletePzkContainer( pzk );
+				errorR(109, NULL);
 			}
-		} else {
-			fi->iFilter = pzk;
 		}
 	}
-	return 1;
+	
+	return pzk;
+	
 }
 
 //--------------------------------------------------------------------------------------------------------

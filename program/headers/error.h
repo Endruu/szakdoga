@@ -1,6 +1,8 @@
 #ifndef _ERROR_H
 #define _ERROR_H
 
+#include "out.h"
+
 #define ERROR_BUFFER_SIZE	10
 
 #define error(e_num)			setError(e_num); return 0
@@ -9,7 +11,7 @@
 
 void setError(int error_num);
 void clearErrors(void);
-int printErrors(char buffer[], int length);
+void printErrors(void);
 int getErrors(void);
 
 #endif

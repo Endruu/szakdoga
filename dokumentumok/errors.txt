@@ -69,4 +69,35 @@
 43	: Not a valid filter type for filter transformation (try: LP, HP, BP, BS)
 44	: Error while transforming referent filter
 
+45	: Error while reading warping frequency
+46	: Error while reading warping frequency
+47	: Error in the digitalization section of the input command
 
+48	: Referent filter parameter list is too short
+49	: Missing ':' in referent filter parameter list
+50	: Error while reading the order of the referent filter
+51	: Error while reading the corner frequency of the referent filter
+52	: Error while reading the stop attenuation of the referent filter
+53	: Error while reading the stop frequency of the referent filter
+54	: Error in the referent filter section of the input command
+
+55	: Transform parameter list is too short
+56	: Missing ':' in transform parameter list
+57	: Error while reading the corner frequency of the filter
+58	: Error while reading the center frequency of the filter
+59	: Error while reading the bandwidth of the filter
+60	: Error while reading the lower cut frequency of the filter
+61	: Error while reading the upper cut frequency of the filter
+62	: Error in the transform parameter section of the input command
+63	: Mixed parameter usage (use C-D for center freq. and bandwidth or L-U for lower and upper cut frequency)
+
+64	: Error while parsing referent filter section
+65	: Error while parsing transform parameter section
+66	: Error while parsing digitalization parameter section
+67	: Error while parsing IIR filter parameters
+
+68	: Can't open testcase
+69	: Error while reading from testcase
+70	: Testcase max call depth reached
+
+71	: Missing transform parameter

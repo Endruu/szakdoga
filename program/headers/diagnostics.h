@@ -1,8 +1,6 @@
 #ifndef _DIAGNOSTICS_H
 #define _DIAGNOSTICS_H
 
-#include "global_var.h"
-
 //--------------------------------------------------------------------------------------------------------
 // Time
 //--------------------------------------------------------------------------------------------------------
@@ -11,33 +9,34 @@
 
 #include <time.h>
 
-clock_t tickCounter, tickDelay;
-
 void calibrateClock();
 void startClock();
 void stopClock();
 
-void setTick( filterInfo * fi );
-void printTick( filterInfo * fi );
+void setTick();
+void printCpuUsage();
 
 //--------------------------------------------------------------------------------------------------------
 // Memory usage
 //--------------------------------------------------------------------------------------------------------
 
-void setMem( filterInfo * fi, int mem_delay, int mem_coeff );
-void printMem( filterInfo * fi );
+void setMem( int mem_delay, int mem_coeff );
+void printMemoryUsage();
 
 //--------------------------------------------------------------------------------------------------------
 // Other
 //--------------------------------------------------------------------------------------------------------
 
-void printActualChannel();
-void printCodeWord();
+//void printActualFilter();
+//printRoutingInfo();
+int printCodeWord();
 
 
-
+/*
 void printPzkContainer(pzkContainer * pzk);
 void print4Matlab(pzkContainer * pzk);
-void simulateFilter(const filterInfo * fi, const char * simfile);
+void simulateFilter(const filterInfo * fi, const char * simfile);*/
+
+int debugFilterInfo();
 
 #endif

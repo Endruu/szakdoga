@@ -1,11 +1,6 @@
-#include "../headers/global.h"
-#include <math.h>
+#include "../headers/iir_functions.h"
 
-#ifndef _COMPILE_WITH_BLACKFIN
-#define cabs cabs_custom
-#endif
-
-int digitalizeFilter( filterInfo *fi ) {
+pzkContainer * digitalizeFilter( filterInfo *fi, pzkContainer * transformed ) {
 	pzkContainer * pzk;
 	real pwf;
 	
@@ -19,13 +14,12 @@ int digitalizeFilter( filterInfo *fi ) {
 		pwf = getPrewarpFactor( fi->warping );
 	}
 	
-	pzk = bilinear(fi->tFilter, pwf);
+	pzk = bilinear(transformed, pwf);
 	
 	if( pzk == NULL ) {
-		error(36);
+		errorR(36, NULL);
 	} else {
-		fi->dFilter = pzk;
-		return 1;
+		return pzk;
 	}
 }
 
