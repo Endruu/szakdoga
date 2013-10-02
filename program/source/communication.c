@@ -97,16 +97,14 @@ int parseInputInfo( char * s, int l ) {
 
 int parseInputDebug( char * s, int l ) {
 	
-	if( l > 3 ) {
-		//warn
-	} else if ( l == 3 && s[2] != CODE_DELIMITER ) {
+	if( l < 4 ) {
 		//hiba
 	}
 	
 	convertToUpper(s, l);
 
 	if ( s[0] == 'F' && s[1] == 'I' ) {
-		// debugFilterInfo();
+		debugFilterInfo( s+3, l-3 );
 	}
 	else {
 		//hiba

@@ -5,5 +5,5 @@
 #define	TC_CALL_MAX_DEPTH	3
 
 int runTestcase( char * tcname );
-
+int debugFilterInfo(char * s, int l );
 #endif

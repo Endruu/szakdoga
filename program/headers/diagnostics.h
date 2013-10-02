@@ -32,11 +32,10 @@ void printMemoryUsage();
 int printCodeWord();
 
 
-/*
+
 void printPzkContainer(pzkContainer * pzk);
+/*
 void print4Matlab(pzkContainer * pzk);
 void simulateFilter(const filterInfo * fi, const char * simfile);*/
-
-int debugFilterInfo();
 
 #endif

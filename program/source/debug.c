@@ -1,6 +1,8 @@
 #include "../headers/variables.h"
 #include "../headers/communication.h"
 #include "../headers/debug.h"
+#include "../headers/iir_functions.h"
+#include "../headers/diagnostics.h"
 
 FILE * tcBuffer[TC_CALL_MAX_DEPTH];
 int tcDepth = 0;
@@ -86,6 +88,75 @@ int runTestcase( char * tcname ) {
 	fclose(tc);
 	tc = NULL;
 	tcDepth--;
+	return 1;
+
+}
+
+int debugFilterInfo(char * s, int l ) {
+	pzkContainer *pzk1 = NULL, *pzk2;
+	int level = 0, i;
+	filterInfo * fi = &filterBank[actualFilter];
+
+	for( i = 0; i < l; i++ ) {
+		switch( s[i] ) {
+			case 'R' :
+				level |= 0x001;
+				break;
+			case 'T' :
+				level |= 0x010;
+				break;
+			case 'D' :
+				level |= 0x100;
+				break;
+			case 'A' :
+				level |= 0x111;
+				break;
+			default:
+				;//warn
+		}
+	}
+
+	if( level > 0x001 ) {
+		if( pzk1 = createReferentFilter( fi ) ) {
+			if( level & 0x001 ) {
+				out("\n-- Referent filter: ---------------------------\n\n");
+				printPzkContainer( pzk1 );
+			}
+
+			if( level > 0x010 ) {
+				if( pzk2 = transformFilter( fi, pzk1 ) ) {
+					sortPzkContainer( pzk2, SORT_BY_MAGNITUDE, ORDER_UP );
+					if( level & 0x010 ) {
+						out("\n-- Transformed filter: -----------------------\n\n");
+						printPzkContainer( pzk2 );
+					}
+
+					if( level > 0x010 ) {
+						deletePzkContainer( pzk1 );
+						if( pzk1 = digitalizeFilter( fi, pzk2 ) ) {
+							out("\n-- Digital filter: ---------------------------\n\n");
+							printPzkContainer( pzk1 );
+						} else {
+							deletePzkContainer( pzk2 );
+							error(75);
+						}
+					}
+
+					deletePzkContainer( pzk2 );
+				} else {
+					deletePzkContainer( pzk1 );
+					error(74);
+				}
+			}
+
+			deletePzkContainer( pzk1 );
+		} else {
+			error(73);
+		}
+	} else {
+		error(72);
+	}
+
 	return 1;
 
 }

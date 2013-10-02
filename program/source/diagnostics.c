@@ -1,58 +1,72 @@
 #include "../headers/variables.h"
 #include "../headers/diagnostics.h"
+#include "../headers/pzk_container.h"
 
 clock_t tickCounter, tickDelay;
 
-/*
-void simulateFilter(const filterInfo * fi, const char * simfile ) {
-
-}
-
 void printPzkContainer(pzkContainer * pzk) {
 	unsigned int i;
+	char bfr[60];
 
 	if(pzk == NULL) {
 		return;
 	}
 
-	printf("Amplification: %g\n", pzk->amp);
+	sprintf(bfr, "Amplification: %g\n", pzk->amp);
+	out(bfr);
 
 	if(pzk->nextZero) {
-		printf("Zeros: (%u)\n", countZeros(pzk));
+		sprintf(bfr, "Zeros: (%u)\n", countZeros(pzk));
+		out(bfr);
 		for(i=0; i<pzk->nextZero;i++) {
-			printf("  %10g + %gi\n", pzk->zeros[i].re, pzk->zeros[i].im);
+			sprintf(bfr, "  %10g + %gi\n", pzk->zeros[i].re, pzk->zeros[i].im);
+			out(bfr);
 		}
 	}
 
 	if(pzk->nextPole) {
-		printf("Poles: (%u)\n", countPoles(pzk));
+		sprintf(bfr, "Poles: (%u)\n", countPoles(pzk));
+		out(bfr);
 		for(i=0; i<pzk->nextPole;i++) {
-			printf("  %10g + %gi\n", pzk->poles[i].re, pzk->poles[i].im);
+			sprintf(bfr, "  %10g + %gi\n", pzk->poles[i].re, pzk->poles[i].im);
+			out(bfr);
 		}
 	}
 	
-	printf("Biquads: %u\n", countBiquads(pzk));
+	sprintf(bfr, "Biquads: %u\n", countBiquads(pzk));
+	out(bfr);
 
 	if( pzk->wz == DIGITAL_FILTER ) {
-		printf("DIGITAL\n");
+		out("DIGITAL\n");
 	} else {
 		if(pzk->wz == 0.0) {
-			if(pzk->no_wz > 0)
-				printf("Number of differentiators: %d\n", pzk->no_wz);
+			if(pzk->no_wz > 0) {
+				sprintf(bfr, "Number of differentiators: %d\n", pzk->no_wz);
+				out(bfr);
+			}
 			else if(pzk->no_wz < 0) {
-				printf("Number of integrators: %d\n", -pzk->no_wz);
+				sprintf(bfr, "Number of integrators: %d\n", -pzk->no_wz);
+				out(bfr);
 			}
 		}
 		else {
 			if(pzk->no_wz > 0) {
-				printf("Number of j%g conjugate zeros: %d\n", pzk->wz, pzk->no_wz);
+				sprintf(bfr, "Number of j%g conjugate zeros: %d\n", pzk->wz, pzk->no_wz);
+				out(bfr);
 			} else if(pzk->no_wz < 0) {
-				printf("Number of j%g conjugate poles: %d\n", pzk->wz, pzk->no_wz);
+				sprintf(bfr, "Number of j%g conjugate poles: %d\n", pzk->wz, pzk->no_wz);
+				out(bfr);
 			}
 		}
 	}
 
-	printf("---------------------------------------------------------\n");
+	out("\n----------------------------------------------\n");
+}
+
+
+/*
+void simulateFilter(const filterInfo * fi, const char * simfile ) {
+
 }
 
 void print4Matlab(pzkContainer * pzk) {
@@ -186,9 +200,5 @@ void printActualChannel() {
 */
 
 int printCodeWord() {
-	return 0;
-}
-
-int debugFilterInfo() {
 	return 0;
 }
