@@ -7,8 +7,11 @@ pzkContainer * createPzkContainer(uint np, uint nz);
 uint shrinkPzkContainer(pzkContainer * pzk, uint min);
 void deletePzkContainer(pzkContainer * pzk);
 
-void sortPZ(complex * list, uint num);
-void sortPzkContainer(pzkContainer * pzk);
+int compareMagnitude( complex c1, complex c2 );
+int compareQFactor( complex c1, complex c2 );
+void reverseComplexList(complex * list, const uint num);
+void sortComplexList(complex * list, uint num, char method);
+void sortPzkContainer(pzkContainer * pzk, char sort, char order);
 
 uint addPole(pzkContainer * pzk, complex pole);
 uint addZero(pzkContainer * pzk, complex zero);

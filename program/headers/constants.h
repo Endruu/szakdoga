@@ -95,4 +95,14 @@
 
 #define LOGGING_ENABLED
 
+
+#define SORT_BY_MAGNITUDE	0
+#define SORT_BY_QFACTOR		1
+
+#define ORDER_UP			0
+#define ORDER_DOWN			1
+
+#define PAIR_POLES_TO_ZEROS	0
+#define PAIR_ZEROS_TO_POLES	1
+
 #endif

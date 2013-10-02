@@ -10,6 +10,7 @@ filterInfo defaultIirFilterInfo() {
 	
 	r.iirP			= defaultIirParameters();
 	r.transformP	= defaultTransformParameters();
+	r.implementP	= defaultImplementParameters();
 	r.filter		= &passThrough;
 	r.type			= empty;
 	r.subtype		= empty;
@@ -26,6 +27,7 @@ filterInfo copyFilterInfo( filterInfo * fi ) {
 	
 	r.iirP			= fi->iirP;
 	r.transformP	= fi->transformP;
+	r.implementP	= fi->implementP;
 	r.filter		= &passThrough;
 	r.type			= fi->type;
 	r.subtype		= fi->subtype;
@@ -61,4 +63,13 @@ iirParameters defaultIirParameters() {
 	r.inDb	= 1;
 	r.fixWs	= 0;
 	return r;
+}
+
+// creates a new default parameterset for an IIR filter
+implementParameters defaultImplementParameters() {
+	implementParameters r;
+
+	r.pair	= PAIR_POLES_TO_ZEROS;
+	r.sort	= SORT_BY_QFACTOR;
+	r.order	= ORDER_UP;	
 }

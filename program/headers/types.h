@@ -78,14 +78,26 @@ typedef struct {
 } transformParameters;
 
 typedef struct {
+	char	pair,
+			sort,
+			order;
+} implementParameters;
+
+typedef struct {
 	iirParameters		iirP;
 	transformParameters	transformP;
+	implementParameters implementP;
+
 	fract32 (*filter)(fract16 input, fract16 * coeffs, fract16 * delays);
+
 	real		warping;
+
 	filterType	type,			// LP, HP, BP, BS
 				subtype,		// butterworth, cheby, hanning, kaiser....
 				supertype;		// iir, fir
+
 	filterState	fState;
+
 	uint 		options,
 				stages,
 				mem_delay,		// bytes used from delay buffer

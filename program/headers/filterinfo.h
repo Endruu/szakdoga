@@ -8,5 +8,6 @@ filterInfo copyFilterInfo( filterInfo * fi );
 
 transformParameters defaultTransformParameters();
 iirParameters defaultIirParameters();
+implementParameters defaultImplementParameters();
 
 #endif

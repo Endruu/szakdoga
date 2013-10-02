@@ -112,38 +112,38 @@ uint addZero(pzkContainer * pzk, complex zero) {
 
 
 uint countPoles(pzkContainer * pzk) {
-	uint np = pzk->nextPole;	// number of poles	
+	uint np = pzk->nextPole;				// number of poles	
 	int i;
 	
 	for( i = 0; i < pzk->nextPole; i++ ) {
 		if( !cisreal(pzk->poles[i]) ) {
-			np++;						// complex means two poles
+			np++;							// complex means two poles
 		}
 	}
 	
 	if( pzk->no_wz < 0 ) {
-		np += -pzk->no_wz;
+		np -= pzk->no_wz;
 		if( pzk->wz != 0.0 ) {
-			np += -pzk->no_wz;	// not null means complex => 2 poles
+			np -= pzk->no_wz;				// not null means complex => 2 poles
 		}
 	}
 	return np;
 }
 
 uint countZeros(pzkContainer * pzk) {
-	uint nz = pzk->nextZero;	// number of zeros
+	uint nz = pzk->nextZero;				// number of zeros
 	int i;
 	
 	for( i = 0; i < pzk->nextZero; i++ ) {
 		if( !cisreal(pzk->zeros[i]) ) {
-			nz++;						// complex means two zeros
+			nz++;							// complex means two zeros
 		}
 	}
 	
 	if( pzk->no_wz > 0 ) {
 		nz += pzk->no_wz;
 		if( pzk->wz != 0 ) {
-			nz += pzk->no_wz;	// not null means complex => 2 zeros
+			nz += pzk->no_wz;				// not null means complex => 2 zeros
 		}
 	}
 	return nz;
@@ -163,14 +163,67 @@ uint countBiquads(pzkContainer * pzk) {
 	
 }
 
+int compareMagnitude( complex c1, complex c2 ) {
+	// return	1 if c1 is greater (abs)
+	//			0 if equal
+	//			-1 if c1 is less
 
-void sortPZ(complex * list, uint num) {
+	if( cabs(c1) > cabs(c2) ) {
+		return 1;
+	}
+	if( cabs(c1) < cabs(c2) ) {
+		return -1;
+	}
+	return 0;
+}
+
+int compareQFactor( complex c1, complex c2 ) {
+	// return	1 if c1 is greater (Q)
+	//			0 if equal
+	//			-1 if c1 is less
+
+	real q1, q2;
+	q1 = cabs(c1) / fabs(c1.re);
+	q2 = cabs(c2) / fabs(c2.re);
+
+	if( q1 > q2 ) {
+		return 1;
+	}
+	if( q1 < q2 ) {
+		return -1;
+	}
+	return 0;
+}
+
+void reverseComplexList(complex * list, const uint num) {
+	complex tmp;
+	int i;
+
+	for( i = 0; i < num/2; i++ ) {
+		tmp = list[i];
+		list[i] = list[num-i-1];
+		list[num-i-1] = tmp;
+	}
+}
+
+void sortComplexList(complex * list, uint num, char method) {
+	// order: up
     uint	pos = 1,
 			last = 0;
 	complex tmp;
-			
+	int (*primary)(complex c1, complex c2);
+	int (*secondary)(complex c1, complex c2);
+
+	if( method == SORT_BY_MAGNITUDE ) {
+		primary = &compareMagnitude;
+		secondary = &compareQFactor;
+	} else if( method == SORT_BY_MAGNITUDE ) {
+		primary = &compareQFactor;
+		secondary = &compareMagnitude;
+	}
+
     while( pos < num ) {
-        if (fabs(list[pos].re) > fabs(list[pos-1].re)) {	//lehet h -1* kellene abs helyett
+        if ( primary(list[pos], list[pos-1]) == 1 ) {
             if (last != 0) {
                 pos = last;
                 last = 0;
@@ -178,8 +231,8 @@ void sortPZ(complex * list, uint num) {
             pos++;
 		}
 		
-		else if (fabs(list[pos].re) == fabs(list[pos-1].re)) {
-			if (list[pos].im >= list[pos-1].im) {
+		else if ( primary(list[pos], list[pos-1]) == 0 ) {
+			if ( secondary(list[pos], list[pos-1]) >= 0 ) {
 				if (last != 0) {
 					pos = last;
 					last = 0;
@@ -219,14 +272,20 @@ void sortPZ(complex * list, uint num) {
     }
 }
 
-void sortPzkContainer(pzkContainer * pzk) {
-	sortPZ(pzk->zeros, pzk->nextZero);
-	sortPZ(pzk->poles, pzk->nextPole);
+void sortPzkContainer(pzkContainer * pzk, char sort, char order) {
+	sortComplexList(pzk->zeros, pzk->nextZero, sort);
+	sortComplexList(pzk->poles, pzk->nextPole, sort);
+	if( order == ORDER_DOWN ) {
+		reverseComplexList( pzk->zeros, pzk->nextZero );
+		reverseComplexList( pzk->poles, pzk->nextPole );
+	}
 }
 
 
+// returns 0 if c2 is closer to 1
+// returns 1 if c1 is closer to 1
 int compare1(complex c1, complex c2) {
-	real a1, a2;
+	real a1, a2;								// magnitudes
 	if( cisreal(c1) ) { a1 = fabs(c1.re); }
 	else { a1 = cabs(c1); }
 	if( cisreal(c2) ) { a2 = fabs(c2.re); }
