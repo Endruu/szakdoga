@@ -1,6 +1,7 @@
 #include "../headers/variables.h"
 #include "../headers/diagnostics.h"
 #include "../headers/pzk_container.h"
+#include "../headers/emath.h"
 
 clock_t tickCounter, tickDelay;
 
@@ -21,6 +22,14 @@ void printPzkContainer(pzkContainer * pzk) {
 		for(i=0; i<pzk->nextZero;i++) {
 			sprintf(bfr, "  %10g + %gi\n", pzk->zeros[i].re, pzk->zeros[i].im);
 			out(bfr);
+			if( pzk->wz >= 0 ) {
+				if( pzk->zeros[i].re != 0 ) {
+					sprintf(bfr, "\tabs: %3g - Q: %3g\n", cabs(pzk->zeros[i]), cabs(pzk->zeros[i]) / fabs(pzk->zeros[i].re));
+				} else {
+					sprintf(bfr, "\tabs: %3g - Q: INF\n", cabs(pzk->zeros[i]));
+				}
+				out(bfr);
+			}
 		}
 	}
 
@@ -30,34 +39,45 @@ void printPzkContainer(pzkContainer * pzk) {
 		for(i=0; i<pzk->nextPole;i++) {
 			sprintf(bfr, "  %10g + %gi\n", pzk->poles[i].re, pzk->poles[i].im);
 			out(bfr);
+			if( pzk->wz >= 0 ) {
+				if( pzk->poles[i].re != 0 ) {
+					sprintf(bfr, "\tabs: %3g - Q: %3g\n", cabs(pzk->poles[i]), cabs(pzk->poles[i]) / fabs(pzk->poles[i].re));
+				} else {
+					sprintf(bfr, "\tabs: %3g - Q: INF\n", cabs(pzk->poles[i]));
+				}
+				out(bfr);
+			}
 		}
 	}
 	
 	sprintf(bfr, "Biquads: %u\n", countBiquads(pzk));
 	out(bfr);
 
-	if( pzk->wz == DIGITAL_FILTER ) {
-		out("DIGITAL\n");
-	} else {
-		if(pzk->wz == 0.0) {
+	if( pzk->wz != 0 ) {
+		out("Number of ");
+		if(pzk->wz == 0.0 || pzk->wz == DIGITAL_ZERO ) {
 			if(pzk->no_wz > 0) {
-				sprintf(bfr, "Number of differentiators: %d\n", pzk->no_wz);
-				out(bfr);
+				sprintf(bfr, "differentiators: %d\n", pzk->no_wz);
 			}
 			else if(pzk->no_wz < 0) {
-				sprintf(bfr, "Number of integrators: %d\n", -pzk->no_wz);
-				out(bfr);
+				sprintf(bfr, "integrators: %d\n", -pzk->no_wz);
+			}
+		} else {
+			if( pzk->wz < 0 ) {			// DIGITAL
+				if(pzk->no_wz > 0) {
+					sprintf(bfr, "e^j%g conjugate zero pairs: %d\n", -pzk->wz, pzk->no_wz);
+				} else {
+					sprintf(bfr, "e^j%g conjugate pole pairs: %d\n", -pzk->wz, pzk->no_wz);
+				}
+			} else {
+				if(pzk->no_wz > 0) {
+					sprintf(bfr, "j%g conjugate zero pairs: %d\n", pzk->wz, pzk->no_wz);
+				} else {
+					sprintf(bfr, "j%g conjugate pole pairs: %d\n", pzk->wz, pzk->no_wz);
+				}
 			}
 		}
-		else {
-			if(pzk->no_wz > 0) {
-				sprintf(bfr, "Number of j%g conjugate zeros: %d\n", pzk->wz, pzk->no_wz);
-				out(bfr);
-			} else if(pzk->no_wz < 0) {
-				sprintf(bfr, "Number of j%g conjugate poles: %d\n", pzk->wz, pzk->no_wz);
-				out(bfr);
-			}
-		}
+		out(bfr);
 	}
 
 	out("\n----------------------------------------------\n");
