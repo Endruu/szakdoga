@@ -10,8 +10,9 @@ void deletePzkContainer(pzkContainer * pzk);
 int compareMagnitude( complex c1, complex c2 );
 int compareQFactor( complex c1, complex c2 );
 void reverseComplexList(complex * list, const uint num);
+uint findInsertionPoint(real im, complex * list, uint num, char method);
 void sortComplexList(complex * list, uint num, char method);
-void sortPzkContainer(pzkContainer * pzk, char sort, char order);
+uint sortPzkContainer(pzkContainer * pzk, char sort, char order);
 
 uint addPole(pzkContainer * pzk, complex pole);
 uint addZero(pzkContainer * pzk, complex zero);

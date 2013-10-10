@@ -81,8 +81,9 @@
 
 #define CODE_DELIMITER			'*'
 
-#define WARP_AUTO				-1.0
-#define WARP_NORMAL				-2.0
+#define WARP_AUTO_FIX			-1.0
+#define WARP_FACTOR				-2.0
+#define WARP_FREQUENCY			-3.0
 
 #define DIGITAL_FILTER			-1
 
@@ -99,10 +100,18 @@
 #define SORT_BY_MAGNITUDE	0
 #define SORT_BY_QFACTOR		1
 
-#define ORDER_UP			0
+#define ORDER_UP			2
 #define ORDER_DOWN			1
 
 #define PAIR_POLES_TO_ZEROS	0
 #define PAIR_ZEROS_TO_POLES	1
+#define EMPTY_PAIR	-1
+#define WZ_PAIR		-2
+#define CRR_ENABLED	0x02
+#define RRC_ENABLED	0x04
+
+#define INFINITY_IN_SEQUENCE	0
+#define INFINITY_FIRST			1
+#define INFINITY_LAST			2
 
 #endif

@@ -80,7 +80,8 @@ typedef struct {
 typedef struct {
 	char	pair,
 			sort,
-			order;
+			order,
+			infinity;
 } implementParameters;
 
 typedef struct {
@@ -106,4 +107,7 @@ typedef struct {
 	
 } filterInfo;
 
+typedef struct {
+	char p1, p2, z1, z2;
+} biquad;
 #endif

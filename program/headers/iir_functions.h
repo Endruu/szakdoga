@@ -51,5 +51,6 @@ complex prewarpPZ(complex pz);
 real getInfNormScale(complex * z1, complex * z2, complex * p1, complex * p2);
 real direct1_biquad( fract16 coeffs[], complex * z1, complex * z2, complex * p1, complex * p2, int scale_mod );
 real implementFilter( filterInfo * fi, pzkContainer * digitalized );
+biquad * pairPZ( pzkContainer * pzk, uint insert, char options );
 
 #endif

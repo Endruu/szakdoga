@@ -183,6 +183,10 @@ int compareQFactor( complex c1, complex c2 ) {
 	//			-1 if c1 is less
 
 	real q1, q2;
+
+	if( cisnull(c1) ) return -1;
+	if( cisnull(c2) ) return 1;
+
 	q1 = cabs(c1) / fabs(c1.re);
 	q2 = cabs(c2) / fabs(c2.re);
 
@@ -206,6 +210,32 @@ void reverseComplexList(complex * list, const uint num) {
 	}
 }
 
+uint findInsertionPoint(real im, complex * list, uint num, char method) {
+	uint i, pos = num;
+
+	if( im == 0 || num == 0) { return 0; }
+
+	if( method == SORT_BY_QFACTOR ) {
+		for( i = num-1; i >= 0; i-- ) {
+			if( list[i].re == 0  &&  list[i].im > im ) {
+				pos--;
+			} else {
+				return pos;
+			}
+		}
+	}
+	else if( method == SORT_BY_MAGNITUDE ) {
+		for( i = num-1; i >= 0; i-- ) {
+			if( cabs( list[i] ) > im ) {
+				pos--;
+			} else {
+				return pos;
+			}
+		}
+	}
+	return pos;
+}
+
 void sortComplexList(complex * list, uint num, char method) {
 	// order: up
     uint	pos = 1,
@@ -217,7 +247,7 @@ void sortComplexList(complex * list, uint num, char method) {
 	if( method == SORT_BY_MAGNITUDE ) {
 		primary = &compareMagnitude;
 		secondary = &compareQFactor;
-	} else if( method == SORT_BY_MAGNITUDE ) {
+	} else if( method == SORT_BY_QFACTOR ) {
 		primary = &compareQFactor;
 		secondary = &compareMagnitude;
 	}
@@ -272,15 +302,31 @@ void sortComplexList(complex * list, uint num, char method) {
     }
 }
 
-void sortPzkContainer(pzkContainer * pzk, char sort, char order) {
+uint sortPzkContainer(pzkContainer * pzk, char sort, char order) {
+	uint ip = 0;
+
 	sortComplexList(pzk->zeros, pzk->nextZero, sort);
 	sortComplexList(pzk->poles, pzk->nextPole, sort);
+
+	if( pzk->no_wz > 0 ) {
+		ip = findInsertionPoint( pzk->wz, pzk->zeros, pzk->nextZero, sort );
+	} else if( pzk->no_wz < 0 ) {
+		ip = findInsertionPoint( pzk->wz, pzk->poles, pzk->nextPole, sort );
+	}
+
 	if( order == ORDER_DOWN ) {
 		reverseComplexList( pzk->zeros, pzk->nextZero );
 		reverseComplexList( pzk->poles, pzk->nextPole );
+		if( pzk->no_wz > 0 ) {
+			ip = pzk->nextZero - ip;
+		} else if( pzk->no_wz < 0 ) {
+			ip = pzk->nextPole - ip;
+		}
 	}
+	return ip;
 }
 
+//postSortComplexList(complex * list, uint num, char method, char order) {}
 
 // returns 0 if c2 is closer to 1
 // returns 1 if c1 is closer to 1

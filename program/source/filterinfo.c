@@ -71,5 +71,8 @@ implementParameters defaultImplementParameters() {
 
 	r.pair	= PAIR_POLES_TO_ZEROS;
 	r.sort	= SORT_BY_QFACTOR;
-	r.order	= ORDER_UP;	
+	r.order	= ORDER_UP;
+	r.infinity	= INFINITY_IN_SEQUENCE;
+
+	return r;
 }
