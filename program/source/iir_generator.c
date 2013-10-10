@@ -8,10 +8,13 @@ int parseIirDigitalizationParameters( char * s, int l, filterInfo * fi ) {
 	
 	switch( s[0] ) {
 		case 'B' :
-			fi->warping = WARP_NORMAL;
+			fi->warping = WARP_FACTOR;
+			break;
+		case 'P' :
+			fi->warping = WARP_FREQUENCY;
 			break;
 		case 'C' :
-			fi->warping = WARP_AUTO;
+			fi->warping = WARP_AUTO_FIX;
 			break;
 		case 'F' :
 			if ( sscanf( s + 1, "%g", &tmp ) == 1 ) {
@@ -266,7 +269,7 @@ int cmdGenerateIir( char * s, int l, int modify ) {
 	if( pzk1 = createReferentFilter( newFilter ) ) {
 		if( pzk2 = transformFilter( newFilter, pzk1 ) ) {
 			deletePzkContainer( pzk1 );
-			if( pzk1 = digitalizeFilter( newFilter, pzk2 ) ) {
+			if( pzk1 = digitalizeFilter( newFilter, pzk2, 0 ) ) {
 				deletePzkContainer( pzk2 );
 				if( implementFilter( newFilter, pzk1 ) ) {
 					deletePzkContainer( pzk1 );

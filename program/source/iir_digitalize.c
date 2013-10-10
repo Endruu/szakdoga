@@ -2,16 +2,18 @@
 
 pzkContainer * digitalizeFilter( filterInfo *fi, pzkContainer * transformed ) {
 	pzkContainer * pzk;
-	real pwf;
+	real pwf;										// PreWarp Factor
 	
-	if( fi->warping == WARP_AUTO ) {
+	if( fi->warping == WARP_AUTO_FIX ) {			// fix pwf according to important frequency
 		pwf = fi->transformP.w0;
 		if( fi->iirP.fixWs ) pwf /= fi->iirP.ws;
 		pwf = getPrewarpFactor( pwf );
-	} else if( fi->warping == WARP_NORMAL ) {
-		pwf = WARP_NORMAL;
+	} else if( fi->warping == WARP_FACTOR ) {		// dynamic pwf for each pole/zero
+		pwf = WARP_FACTOR;
+	} else if( fi->warping == WARP_FREQUENCY ) {	// fix pwf (2/Ts), but prewarps the pole/zero
+		pwf = WARP_FREQUENCY;
 	} else {
-		pwf = getPrewarpFactor( fi->warping );
+		pwf = getPrewarpFactor( fi->warping );		// fix pwf, supplied by user
 	}
 	
 	pzk = bilinear(transformed, pwf);
@@ -35,88 +37,97 @@ complex prewarpPZ(complex pz) {
 
 pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 	pzkContainer * f;
-	uint i, auto_pwf = 0;
-	int no_1z;
-	complex denom, tmp, one;
+	uint i;
+	char auto_pwf = 0;
+	complex denom, tmp, one, pz;
 	
-	if( pwf == WARP_NORMAL ) auto_pwf = 1;
+	if( pwf == WARP_FACTOR ) {
+		auto_pwf = 1;
+	} else if( pwf == WARP_FREQUENCY ) {
+		auto_pwf = 2;
+		pwf = getPrewarpFactor(0);
+	}
 	
-	one.re = -1.0;
-	one.im = 0.0;
+	f = createPzkContainer(pzk->nextPole, pzk->nextZero );
 	
-	no_1z = (int)countPoles(pzk) - (int)countZeros(pzk);
+	f->no_wz = pzk->no_wz;
 
-	i = countPoles(pzk);
-	if( i < countZeros(pzk) ) {
-		i = countZeros(pzk);
+	pz.re = 0;
+	pz.im = pzk->wz;
+
+	if( auto_pwf == 2 ) {
+		pz = prewarpPZ(pz);
+		if( pzk->wz != 0 ) {
+			f->amp = pzk->amp * pow((pzk->wz*pzk->wz)/(pz.im*pz.im), (real)pzk->no_wz);
+		}
 	}
-	f = createPzkContainer(i, i);
-	
-	f->no_wz = 0;
-	f->wz = DIGITAL_FILTER;
-	
-	if( auto_pwf ) pwf = getPrewarpFactor( pzk->wz );
+
+	if( auto_pwf == 1 ) pwf = getPrewarpFactor( pzk->wz );
 	if( pzk->wz == 0 ) {
-		f->amp = pzk->amp * pow(pwf, (real)pzk->no_wz);
-		tmp.re = 1;
-		tmp.im = 0;
+		f->amp	= pzk->amp * pow(pwf, (real)pzk->no_wz);
+		f->wz	= -0;
 	} else {
-		f->amp = pzk->amp * pow(pwf*pwf + pzk->wz*pzk->wz, (real)(pzk->no_wz));
-		tmp.re = pwf;
-		tmp.im = pzk->wz;
-		tmp = cdiv(tmp,conj(tmp));
-	}
-	
-	if( pzk->no_wz >= 0 ) {
-		for( i = 0; i < pzk->no_wz; i++ ) {
-			addZero(f, tmp);
-		}
-	} else {
-		for( i = 0; i < -pzk->no_wz; i++ ) {
-			addPole(f, tmp);
-		}
-	}
-	
-	if(  no_1z >= 0 ) {
-		for( i = 0; i < no_1z; i++ ) {
-			addZero(f, one);
-		}
-	} else {					// should not be the case
-		for( i = 0; i < -no_1z; i++ ) {
-			addPole(f, one);
-		}
+		tmp.re = pwf * pwf;
+		tmp.im = pz.im * pz.im;
+		f->amp	= pzk->amp * pow(tmp.re + tmp.im, (real)(pzk->no_wz));
+		f->wz	= -acos((tmp.re - tmp.im)/(tmp.re + tmp.im));
 	}
 
 	one.re = 1.0;
+	one.im = 0.0;
 
 	for( i = 0; i < pzk->nextZero; i++ ) {
-		if( cisreal(pzk->zeros[i]) ) {
-			if( auto_pwf ) pwf = getPrewarpFactor( pzk->zeros[i].re );
-			denom.re = pwf - pzk->zeros[i].re;
+		pz = pzk->zeros[i];
+
+		if( cisreal(pz) ) {
+			if( auto_pwf == 2 ) {
+				f->amp *= pz.re;
+				pz = prewarpPZ(pz);
+				f->amp /= pz.re;
+			}
+			if( auto_pwf == 1 ) pwf = getPrewarpFactor( pz.re );
+			denom.re = pwf - pz.re;
 			f->amp *= denom.re;
-			tmp.re = (pwf + pzk->zeros[i].re) / denom.re;
+			tmp.re = (pwf + pz.re) / denom.re;
 			tmp.im = 0.0;
 		} else {
-			if( auto_pwf ) pwf = getPrewarpFactor( cabs(pzk->zeros[i]) );
-			denom = csub2(pwf, pzk->zeros[i]);
+			if( auto_pwf == 2 ) {
+				f->amp *= cabs2(pz);
+				pz = prewarpPZ(pz);
+				f->amp /= cabs2(pz);
+			}
+			if( auto_pwf == 1) pwf = getPrewarpFactor( cabs(pz) );
+			denom = csub2(pwf, pz);
 			f->amp *= cabs2(denom);
-			tmp = cdiv( cadd2(pwf, pzk->zeros[i]), denom );
+			tmp = cdiv( cadd2(pwf, pz), denom );
 		}
 		addZero(f, tmp);
 	}
 	
 	for( i = 0; i < pzk->nextPole; i++ ) {
-		if( cisreal(pzk->poles[i]) ) {
-			if( auto_pwf ) pwf = getPrewarpFactor( pzk->poles[i].re );
-			denom.re = 1 / ( pwf - pzk->poles[i].re );
+		pz = pzk->poles[i];
+
+		if( cisreal(pz) ) {
+			if( auto_pwf == 2 ) {
+				f->amp /= pz.re;
+				pz = prewarpPZ(pz);
+				f->amp *= pz.re;
+			}
+			if( auto_pwf == 1 ) pwf = getPrewarpFactor( pz.re );
+			denom.re = 1 / ( pwf - pz.re );
 			f->amp *= denom.re;
-			tmp.re = (pwf + pzk->poles[i].re) * denom.re;
+			tmp.re = (pwf + pz.re) * denom.re;
 			tmp.im = 0.0;
 		} else {
-			if( auto_pwf ) pwf = getPrewarpFactor( cabs(pzk->poles[i]) );
-			denom = cdiv( one, csub2(pwf, pzk->poles[i]) );
+			if( auto_pwf == 2 ) {
+				f->amp /= cabs2(pz);
+				pz = prewarpPZ(pz);
+				f->amp *= cabs2(pz);
+			}
+			if( auto_pwf == 1 ) pwf = getPrewarpFactor( cabs(pz) );
+			denom = cdiv( one, csub2(pwf, pz) );
 			f->amp *= cabs2(denom);
-			tmp = cmlt( cadd2(pwf, pzk->poles[i]), denom );
+			tmp = cmlt( cadd2(pwf, pz), denom );
 		}
 		addPole(f, tmp);
 	}
