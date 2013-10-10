@@ -99,9 +99,12 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 	biquad * bList;
 	complex cwz;
 	int ip, iz, ib, b = 0;
-	int wz_used = 0;
+	int wz_used = 0, remainingPoles;
 	real dist, min;
 	uint bmax = countBiquads(pzk);
+
+	remainingPoles = pzk->nextPole;
+	if( pzk->no_wz < 0 ) remainingPoles -= pzk->no_wz;
 
 	if( countPoles(pzk) < countZeros(pzk) ) {
 		errorR(75, NULL);		// there should not be less poles than zeros
@@ -117,7 +120,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 
 	if( options | PAIR_ZEROS_TO_POLES ) {
 
-		for( iz=0; iz < pzk->nextZero; iz++ ) {
+		for( iz=0; (iz < pzk->nextZero) || (insert == 0 && (pzk->no_wz - wz_used) > 0); iz++ ) {
 
 			if( b == bmax ) {
 				free(bList);
@@ -128,6 +131,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 			bList[b].z2 = EMPTY_PAIR;		// zero1 is empty by default
 			bList[b].p1 = EMPTY_PAIR;		// pole1 is empty by default
 			bList[b].p2 = EMPTY_PAIR;		// pole2 is empty by default
+			min = DBL_MAX;					// min distance, deault: infinity
 
 			if( iz == insert && pzk->no_wz > 0 ) {		// if wz insert point is reached and no_wz indicates zeros 
 				if( wz_used < pzk->no_wz ) {			// and there are unused ones
@@ -168,32 +172,32 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 				for( ip = iz; ip < pzk->nextZero; ip++ ) {		// loop through remaining zeros
 					if( ip == insert && pzk->no_wz > 0 ) {		// if wz insert point is reached and no_wz indicates zeros 
 						if( wz_used < pzk->no_wz ) {			// and there are unused ones
-							if( pzk->wz == 0 ) {				// if real
+							if( pzk->wz == 0 ) {				// and if real
 								bList[b].z2 = WZ_PAIR;			// use wz for z2
 								wz_used++;						// count used wz
+								break;							// exit loop
 							}
 						}
 					}
-					if( bList[b].z2 == EMPTY_PAIR ) {							// if z2 is still empty (wz was not paired) 
-						if( !cisreal(pzk->zeros[ip]) ) {						// search for real zeros
-							continue;											// ignore complex
+
+					// if z2 is still empty (wz was not paired) 
+					if( !cisreal(pzk->zeros[ip]) ) {						// search for real zeros
+						continue;											// ignore complex
+					}
+					for( ib=0; ib < b; ib++ ) {								// loop through previous biquads
+						if( bList[ib].z1 == ip || bList[ib].z2 == ip ) {	// already taken
+							ib = -1;										// signal that zero already taken
+							break;
 						}
-						for( ib=0; ib < b; ib++ ) {								// loop through biquads
-							if( bList[ib].z1 == ip || bList[ib].z2 == ip ) {	// already taken
-								ib = -1;										// signal that zero already taken
-								break;
-							}
-						}
-						if( ib == -1 ) {										// if zero is already taken
-							continue;											// continue with next zero
-						} else {
-							bList[b].z2 = ip;									// else: use this zero
-						}
+					}
+					if( ip == bList[ib].z1 ) continue;						// actual biquad
+					if( ib != -1 ) {										// if zero is not taken
+						bList[b].z2 = ip;									// use this zero
+						break;												// exit loop
 					}
 				}
 
 				// search for nearest pole
-				min = DBL_MAX;												// min deault: infinity
 				for( ip=0; ip < pzk->nextPole; ip++ ) {						// loop through poles
 					for( ib=0; ib < b; ib++ ) {								// loop through biquads
 						if( bList[ib].p1 == ip || bList[ib].p2 == ip ) {	// already taken
@@ -235,7 +239,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 
 				if( bList[b].p1 != EMPTY_PAIR ) {				// if p1 is not empty
 					if( !cisreal(pzk->poles[bList[b].p1]) ) {	// and is complex
-						bList[b].p2 = ip;						// p2 becomes the same
+						bList[b].p2 = bList[b].p1;				// p2 becomes the same
 					}
 				}
 
@@ -263,6 +267,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 				}
 
 				// if p1 is not empty but p2 is, then try to find another real pole
+				min = DBL_MAX;
 				if( bList[b].p1 != EMPTY_PAIR && bList[b].p2 == EMPTY_PAIR ) {
 					for( ip=0; ip < pzk->nextPole; ip++ ) {						// loop through poles
 						if( !cisreal(pzk->poles[ip]) ) {						// if pole is complex
@@ -274,6 +279,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 								break;
 							}
 						}
+						if( bList[ib].p1 == ip ) continue;						// actual biquad (not included in for loop)
 						if( ib != -1 ) {														// if pole is not yet taken
 							if( bList[b].z2 != EMPTY_PAIR ) {									// if there is z2
 								dist = cabs( csub(pzk->zeros[bList[b].z2], pzk->poles[ip]) );	// use that to calculate distance
@@ -325,8 +331,8 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 					}
 				}	// ip loop
 
-				if( !cisreal(pzk->poles[ip]) ) {	// if pole is complex
-					bList[b].p2 = ip;				// p2 becomes the same
+				if( !cisreal(pzk->poles[bList[b].p1]) ) {	// if pole is complex
+					bList[b].p2 = bList[b].p1;				// p2 becomes the same
 				}
 
 				// check if wz can be used and nearer than the previously found
@@ -342,6 +348,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 				}
 
 				// if p1 is not empty but p2 is, then try to find another real pole
+				min = DBL_MAX;
 				if( bList[b].p1 != EMPTY_PAIR && bList[b].p2 == EMPTY_PAIR ) {
 					for( ip=0; ip < pzk->nextPole; ip++ ) {						// loop through poles
 						if( !cisreal(pzk->poles[ip]) ) {						// if pole is complex
@@ -353,8 +360,13 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 								break;
 							}
 						}
+						if( bList[ib].p1 == ip ) continue;						// actual biquad (not included in for loop)
 						if( ib != -1 ) {													// if pole is not yet taken
-							dist = cabs( csub(pzk->zeros[bList[b].z1], pzk->poles[ip]) );	// calculate distance
+							if( bList[b].z1 == WZ_PAIR ) {										// if z1 is wz
+								dist = cabs( csub(cwz, pzk->poles[ip]) );						// then calculate distance from wz
+							} else {
+								dist = cabs( csub(pzk->zeros[bList[b].z1], pzk->poles[ip]) );	// else: calculate distance from z1
+							}
 							if( dist < min ) {												// if new distance is smaller than the actual minimal
 								min = dist;													// new distance becomes the actual minimal
 								bList[b].p2 = ip;											// use this pole
@@ -374,6 +386,13 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 
 			} // z1 is complex
 
+			if( bList[b].p1 != EMPTY_PAIR ) {
+				remainingPoles--;
+				if( bList[b].p2 != EMPTY_PAIR && bList[b].p2 != bList[b].p1 ) {
+					// if p2 is not empty and is different from p1 (meaning not complex)
+					remainingPoles--;		// then two poles were used
+				}
+			}
 			b++;	// next biquad
 
 		} // iz loop
@@ -382,7 +401,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 	// pair poles
 	// if there are reamaining poles they will be assigned here
 	// if the zeros were not paired prior, then all poles remain
-	for( ip=0; ip < pzk->nextPole; ip++ ) {
+	for( ip=0; remainingPoles; ip++ ) {
 
 		if( b == bmax ) {
 			free(bList);
@@ -393,6 +412,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 		bList[b].p2 = EMPTY_PAIR;		// pole2 is empty by default
 		bList[b].z1 = EMPTY_PAIR;		// zero1 is empty by default
 		bList[b].z2 = EMPTY_PAIR;		// zero2 is empty by default
+		min = DBL_MAX;					// min distance, deault: infinity
 
 		if( ip == insert && pzk->no_wz < 0 ) {		// if wz insert point is reached and no_wz indicates poles 
 			if( wz_used < -pzk->no_wz ) {			// and there are unused ones
@@ -436,25 +456,31 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 						if( pzk->wz == 0 ) {				// if real
 							bList[b].p2 = WZ_PAIR;			// use wz for p2
 							wz_used++;						// count used wz
+							break;							// exit loop
 						}
 					}
 				}
-				if( bList[b].p2 == EMPTY_PAIR ) {							// if p2 is still empty (wz was not paired) 
-					if( !cisreal(pzk->poles[iz]) ) {						// search for real poles
-						continue;											// ignore complex
-					}
-					for( ib=0; ib < b; ib++ ) {								// loop through biquads
-						if( bList[ib].p1 == iz || bList[ib].p2 == iz ) {	// already taken
-							ib = -1;										// signal that pole already taken
-							break;
-						}
-					}
-					if( ib == -1 ) {										// if pole is already taken
-						continue;											// continue with next pole
-					} else {
-						bList[b].p2 = iz;									// else: use this pole
+				// if p2 is still empty (wz was not paired) 
+				if( !cisreal(pzk->poles[iz]) ) {						// search for real poles
+					continue;											// ignore complex
+				}
+				for( ib=0; ib < b; ib++ ) {								// loop through previous biquads
+					if( bList[ib].p1 == iz || bList[ib].p2 == iz ) {	// already taken
+						ib = -1;										// signal that pole already taken
+						break;
 					}
 				}
+				if( bList[ib].p1 == iz ) continue;						// actual biquad
+				if( ib != -1 ) {										// if pole is not taken
+					bList[b].p2 = iz;									// use this pole
+					break;												// exit loop
+				}
+			}
+
+			remainingPoles--;
+			if( bList[b].p2 != EMPTY_PAIR && bList[b].p2 != bList[b].p1 ) {
+				// if p2 is not empty and is different from p1 (meaning not complex)
+				remainingPoles--;		// then two poles were used
 			}
 
 			if( options | PAIR_ZEROS_TO_POLES ) {			// if zeros were exhausted
@@ -463,7 +489,6 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 			}
 
 			// search for nearest zero
-			min = DBL_MAX;												// min deault: infinity
 			for( iz=0; iz < pzk->nextZero; iz++ ) {						// loop through zeros
 				for( ib=0; ib < b; ib++ ) {								// loop through biquads
 					if( bList[ib].z1 == iz || bList[ib].z2 == iz ) {	// already taken
@@ -503,9 +528,9 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 				}
 			}	// iz loop
 
-			if( bList[b].z1 != EMPTY_PAIR ) {				// if z1 is not empty
-				if( !cisreal(pzk->zeros[bList[b].z1]) ) {	// and is complex
-					bList[b].z2 = iz;						// z2 becomes the same
+			if( bList[b].z1 != EMPTY_PAIR ) {					// if z1 is not empty
+				if( !cisreal(pzk->zeros[bList[b].z1]) ) {		// and is complex
+					bList[b].z2 = bList[b].z1;					// z2 becomes the same
 				}
 			}
 
@@ -533,6 +558,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 			}
 
 			// if z1 is not empty but z2 is, then try to find another real zero
+			min = DBL_MAX;
 			if( bList[b].z1 != EMPTY_PAIR && bList[b].z2 == EMPTY_PAIR ) {
 				for( iz=0; iz < pzk->nextZero; iz++ ) {						// loop through zeros
 					if( !cisreal(pzk->zeros[iz]) ) {						// if zero is complex
@@ -544,6 +570,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 							break;
 						}
 					}
+					if( bList[ib].z1 == iz ) continue;						// actual biquad (not included in for loop)
 					if( ib != -1 ) {														// if zero is not yet taken
 						if( bList[b].p2 != EMPTY_PAIR ) {									// if there is p2
 							dist = cabs( csub(pzk->poles[bList[b].p2], pzk->zeros[iz]) );	// use that to calculate distance
@@ -600,8 +627,8 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 				}
 			}	// iz loop
 
-			if( !cisreal(pzk->zeros[iz]) ) {	// if zero is complex
-				bList[b].z2 = iz;				// z2 becomes the same
+			if( !cisreal(pzk->zeros[bList[b].z1]) ) {	// if zero is complex
+				bList[b].z2 = bList[b].z1;				// z2 becomes the same
 			}
 
 			// check if wz can be used and nearer than the previously found
@@ -617,6 +644,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 			}
 
 			// if z1 is not empty but z2 is, then try to find another real zero
+			min = DBL_MAX;
 			if( bList[b].z1 != EMPTY_PAIR && bList[b].z2 == EMPTY_PAIR ) {
 				for( iz=0; iz < pzk->nextZero; iz++ ) {						// loop through zeros
 					if( !cisreal(pzk->zeros[iz]) ) {						// if zero is complex
@@ -628,8 +656,13 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 							break;
 						}
 					}
+					if( bList[ib].z1 == iz ) continue;						// actual biquad (not included in for loop)
 					if( ib != -1 ) {													// if zero is not yet taken
-						dist = cabs( csub(pzk->poles[bList[b].p1], pzk->zeros[iz]) );	// calculate distance
+						if( bList[b].p1 == WZ_PAIR ) {										// if p1 is wz
+							dist = cabs( csub(cwz, pzk->zeros[iz]) );						// then calculate distance from wz
+						} else {
+							dist = cabs( csub(pzk->poles[bList[b].p1], pzk->zeros[iz]) );	// else: calculate distance from p1
+						}
 						if( dist < min ) {												// if new distance is smaller than the actual minimal
 							min = dist;													// new distance becomes the actual minimal
 							bList[b].z2 = iz;											// use this zero
