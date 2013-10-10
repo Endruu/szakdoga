@@ -93,20 +93,20 @@ int runTestcase( char * tcname ) {
 }
 
 int debugFilterInfo(char * s, int l ) {
-	pzkContainer *pzk1 = NULL, *pzk2;
-	int level = 0, i;
+	int i;
+	unsigned char level = 0;
 	filterInfo * fi = &filterBank[actualFilter];
-
+	
 	for( i = 0; i < l; i++ ) {
 		switch( s[i] ) {
 			case 'R' :
-				level |= 0x001;
+				level |= P_REFERENT;
 				break;
 			case 'T' :
-				level |= 0x010;
+				level |= P_TRANSFORMED;
 				break;
 			case 'D' :
-				level |= 0x100;
+				level |= P_DIGITALIZED;
 				break;
 			case 'A' :
 				level |= 0x111;
@@ -116,47 +116,10 @@ int debugFilterInfo(char * s, int l ) {
 		}
 	}
 
-	if( level > 0x001 ) {
-		if( pzk1 = createReferentFilter( fi ) ) {
-			if( level & 0x001 ) {
-				out("\n-- Referent filter: ---------------------------\n\n");
-				printPzkContainer( pzk1 );
-			}
-
-			if( level > 0x010 ) {
-				if( pzk2 = transformFilter( fi, pzk1 ) ) {
-					sortPzkContainer( pzk2, SORT_BY_MAGNITUDE, ORDER_UP );
-					if( level & 0x010 ) {
-						out("\n-- Transformed filter: -----------------------\n\n");
-						printPzkContainer( pzk2 );
-					}
-
-					if( level > 0x010 ) {
-						deletePzkContainer( pzk1 );
-						if( pzk1 = digitalizeFilter( fi, pzk2 ) ) {
-							out("\n-- Digital filter: ---------------------------\n\n");
-							printPzkContainer( pzk1 );
-						} else {
-							deletePzkContainer( pzk2 );
-							error(75);
-						}
-					}
-
-					deletePzkContainer( pzk2 );
-				} else {
-					deletePzkContainer( pzk1 );
-					error(74);
-				}
-			}
-
-			deletePzkContainer( pzk1 );
-		} else {
-			error(73);
-		}
+	if( createIirFilter( fi, level | P_PRINT ) ) {
+		return 1;
 	} else {
-		error(72);
+		error(79);
 	}
-
-	return 1;
 
 }

@@ -1,6 +1,71 @@
 #include "../headers/iir_functions.h"	// function prototypes
 #include "../headers/filterinfo.h"		// filterinfo constructors
+#include "../headers/diagnostics.h"		// diagnostic functions
 #include <stdio.h>
+#include <stdlib.h>
+
+
+int createIirFilter( filterInfo * fi, unsigned char level ) {
+	pzkContainer *pzk1 = NULL, *pzk2 = NULL;
+	biquad * bList;	// biquad list
+	uint insert;
+
+	if( level >= P_REFERENT ) {
+		if( pzk1 = createReferentFilter( fi ) ) {
+			if( level & (P_REFERENT | P_PRINT) ) {
+				out("\n-- Referent filter: ---------------------------\n\n");
+				printPzkContainer( pzk1 );
+			}
+
+			if( level >= P_TRANSFORMED ) {
+				if( pzk2 = transformFilter( fi, pzk1 ) ) {
+					deletePzkContainer( pzk1 );
+
+					insert = sortPzkContainer( pzk2, SORT_BY_QFACTOR, ORDER_UP );
+
+					if( level & (P_TRANSFORMED | P_PRINT) ) {
+						out("\n-- Transformed filter: -----------------------\n\n");
+						printPzkContainer( pzk2 );
+					}
+
+					if ( bList = pairPZ( pzk2, insert, PAIR_ZEROS_TO_POLES ) ) {
+
+						if( level > P_DIGITALIZED ) {
+							if( pzk1 = digitalizeFilter( fi, pzk2 ) ) {
+								deletePzkContainer( pzk2 );
+
+								if( level & (P_DIGITALIZED | P_PRINT) ) {
+									out("\n-- Digital filter: ---------------------------\n\n");
+									printPzkContainer( pzk1 );
+								}
+
+							} else {
+								free(bList);
+								deletePzkContainer( pzk2 );
+								error(75);
+							}
+						}
+
+					} else {
+						deletePzkContainer( pzk2 );
+						error(78);
+					}
+				} else {
+					deletePzkContainer( pzk1 );
+					error(74);
+				}
+			}
+
+			deletePzkContainer( pzk1 );
+		} else {
+			error(73);
+		}
+	} else {
+		error(72);
+	}
+
+	return 1;
+}
 
 int parseIirDigitalizationParameters( char * s, int l, filterInfo * fi ) {
 	float tmp;
@@ -232,8 +297,6 @@ int cmdGenerateIir( char * s, int l, int modify ) {
 	int nextDelimiter = -1;
 	int sectionStart;
 	
-	pzkContainer *pzk1, *pzk2;
-	
 	filterInfo * newFilter = &filterBank[tmpFilter];
 	
 	if( modify ) {
@@ -266,29 +329,12 @@ int cmdGenerateIir( char * s, int l, int modify ) {
 		}
 	}
 	
-	if( pzk1 = createReferentFilter( newFilter ) ) {
-		if( pzk2 = transformFilter( newFilter, pzk1 ) ) {
-			deletePzkContainer( pzk1 );
-			if( pzk1 = digitalizeFilter( newFilter, pzk2, 0 ) ) {
-				deletePzkContainer( pzk2 );
-				if( implementFilter( newFilter, pzk1 ) ) {
-					deletePzkContainer( pzk1 );
-				} else {
-					deletePzkContainer( pzk1 );
-					error(35);
-				}
-			} else {
-				deletePzkContainer( pzk2 );
-				error(33);
-			}
-		} else {
-			deletePzkContainer( pzk1 );
-			error(31);
-		}
+	if( createIirFilter( newFilter, P_ALL | P_PRINT ) ) {
+		
 	} else {
-		error(29);
+		error(80);
 	}
-	
+	/*
 	// set the new filter in an atomic way
 	//CLI();
 	//disableAudio();
@@ -303,7 +349,8 @@ int cmdGenerateIir( char * s, int l, int modify ) {
 	
 	//enableAudio();
 	//STI();
-	
+	*/
+
 	return 1;
 	
 }

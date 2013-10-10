@@ -12,6 +12,7 @@ int parseIirReferentParameters( char * s, int l, filterInfo * fi );
 int parseIirTransformParameters( char * s, int l, filterInfo * fi );
 
 int cmdGenerateIir( char * s, int l, int modify );
+int createIirFilter( filterInfo * fi, unsigned char level );
 
 // Referent
 
