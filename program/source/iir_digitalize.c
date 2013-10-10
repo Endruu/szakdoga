@@ -65,7 +65,7 @@ pzkContainer * bilinear(pzkContainer * pzk, real pwf) {
 	if( auto_pwf == 1 ) pwf = getPrewarpFactor( pzk->wz );
 	if( pzk->wz == 0 ) {
 		f->amp	= pzk->amp * pow(pwf, (real)pzk->no_wz);
-		f->wz	= -0;
+		f->wz	= DIGITAL_ZERO;
 	} else {
 		tmp.re = pwf * pwf;
 		tmp.im = pz.im * pz.im;

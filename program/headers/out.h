@@ -3,6 +3,6 @@
 
 #include <stdio.h>
 
-void out( char * string );
+void out( const char * string );
 
 #endif
