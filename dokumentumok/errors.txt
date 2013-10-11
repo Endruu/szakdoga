@@ -101,3 +101,20 @@
 70	: Testcase max call depth reached
 
 71	: Missing transform parameter
+
+72	: Missing parameter for createIirFilter
+73	: Error while creating referent filter
+74	: Error while transforming referent filter
+32	: Transformed filter is missing
+33	: Error while digitalizing transformed filter
+34	: Digitalized filter is missing
+35	: Error while implementing digitalized filter
+
+75	: More zeros than poles
+76	: Can not allocate space for biquad list
+77	: Biquad index overrun
+
+78	: Error while creating biquad list
+
+79	: Error while creating IIR filter for printing
+80	: Error while creating IIR filter
