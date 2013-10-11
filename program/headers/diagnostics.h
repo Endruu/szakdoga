@@ -34,6 +34,7 @@ int printCodeWord();
 
 
 void printPzkContainer(pzkContainer * pzk);
+void printBiquadList(biquad * bList, pzkContainer * pzk);
 /*
 void print4Matlab(pzkContainer * pzk);
 void simulateFilter(const filterInfo * fi, const char * simfile);*/

@@ -105,6 +105,9 @@ int debugFilterInfo(char * s, int l ) {
 			case 'T' :
 				level |= P_TRANSFORMED;
 				break;
+			case 'B' :
+				level |= P_BIQUAD;
+				break;
 			case 'D' :
 				level |= P_DIGITALIZED;
 				break;

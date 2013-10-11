@@ -5,6 +5,79 @@
 
 clock_t tickCounter, tickDelay;
 
+void printBiquadList(biquad * bList, pzkContainer * pzk) {
+	const int limit = countBiquads(pzk);
+	int i;
+	char bfr[50];
+	char pz;
+
+	for( i=0; i<limit; i++ ) {
+		out("\n-----------------------------\n");
+
+		pz = bList[i].p1;
+		out("p1: ");
+		if( pz == EMPTY_PAIR ) {
+			sprintf(bfr, "INF\n");
+		} else if( pz == WZ_PAIR ) {
+			if( pzk->wz < 0 ) {
+				sprintf(bfr, "%10g + %gi\n", cos(pzk->wz), -sin(pzk->wz));
+			} else {
+				sprintf(bfr, "%10g + %gi\n", 0.0, pzk->wz);
+			}
+		} else {
+			sprintf(bfr, "%10g + %gi\n", pzk->poles[pz].re, pzk->poles[pz].im);
+		}
+		out(bfr);
+
+		pz = bList[i].p2;
+		out("p2: ");
+		if( pz == EMPTY_PAIR ) {
+			sprintf(bfr, "INF\n");
+		} else if( pz == WZ_PAIR ) {
+			if( pzk->wz < 0 ) {
+				sprintf(bfr, "%10g - %gi\n", cos(pzk->wz), -sin(pzk->wz));
+			} else {
+				sprintf(bfr, "%10g - %gi\n", 0.0, pzk->wz);
+			}
+		} else {
+			sprintf(bfr, "%10g - %gi\n", pzk->poles[pz].re, pzk->poles[pz].im);
+		}
+		out(bfr);
+
+		pz = bList[i].z1;
+		out("z1: ");
+		if( pz == EMPTY_PAIR ) {
+			sprintf(bfr, "INF\n");
+		} else if( pz == WZ_PAIR ) {
+			if( pzk->wz < 0 ) {
+				sprintf(bfr, "%10g + %gi\n", cos(pzk->wz), -sin(pzk->wz));
+			} else {
+				sprintf(bfr, "%10g + %gi\n", 0.0, pzk->wz);
+			}
+		} else {
+			sprintf(bfr, "%10g + %gi\n", pzk->zeros[pz].re, pzk->zeros[pz].im);
+		}
+		out(bfr);
+
+		pz = bList[i].z2;
+		out("z2: ");
+		if( pz == EMPTY_PAIR ) {
+			sprintf(bfr, "INF\n");
+		} else if( pz == WZ_PAIR ) {
+			if( pzk->wz < 0 ) {
+				sprintf(bfr, "%10g - %gi\n", cos(pzk->wz), -sin(pzk->wz));
+			} else {
+				sprintf(bfr, "%10g - %gi\n", 0.0, pzk->wz);
+			}
+		} else {
+			sprintf(bfr, "%10g - %gi\n", pzk->zeros[pz].re, pzk->zeros[pz].im);
+		}
+		out(bfr);
+	}
+	
+	out("\n----------------------------------------------\n");
+}
+
 void printPzkContainer(pzkContainer * pzk) {
 	unsigned int i;
 	char bfr[60];
@@ -24,11 +97,9 @@ void printPzkContainer(pzkContainer * pzk) {
 			out(bfr);
 			if( pzk->wz >= 0 ) {
 				if( pzk->zeros[i].re != 0 ) {
-					sprintf(bfr, "\tabs: %3g - Q: %3g\n", cabs(pzk->zeros[i]), cabs(pzk->zeros[i]) / fabs(pzk->zeros[i].re));
-				} else {
-					sprintf(bfr, "\tabs: %3g - Q: INF\n", cabs(pzk->zeros[i]));
+					sprintf(bfr, "\t( abs: %3g - Q: %3g )\n", cabs(pzk->zeros[i]), 0.5 * cabs(pzk->zeros[i]) / fabs(pzk->zeros[i].re));
+					out(bfr);
 				}
-				out(bfr);
 			}
 		}
 	}
@@ -41,11 +112,9 @@ void printPzkContainer(pzkContainer * pzk) {
 			out(bfr);
 			if( pzk->wz >= 0 ) {
 				if( pzk->poles[i].re != 0 ) {
-					sprintf(bfr, "\tabs: %3g - Q: %3g\n", cabs(pzk->poles[i]), cabs(pzk->poles[i]) / fabs(pzk->poles[i].re));
-				} else {
-					sprintf(bfr, "\tabs: %3g - Q: INF\n", cabs(pzk->poles[i]));
+					sprintf(bfr, "\t( abs: %3g - Q: %3g )\n", cabs(pzk->poles[i]), 0.5 * cabs(pzk->poles[i]) / fabs(pzk->poles[i].re));
+					out(bfr);
 				}
-				out(bfr);
 			}
 		}
 	}

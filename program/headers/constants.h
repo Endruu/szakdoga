@@ -117,7 +117,8 @@
 #define P_PRINT					0x01
 #define P_REFERENT				0x02
 #define P_TRANSFORMED			0x04
-#define P_DIGITALIZED			0x08
+#define P_BIQUAD				0x08
+#define P_DIGITALIZED			0x10
 #define P_ALL					0xFE
 
 #endif

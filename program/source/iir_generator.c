@@ -28,27 +28,37 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 						printPzkContainer( pzk2 );
 					}
 
-					if ( bList = pairPZ( pzk2, insert, PAIR_ZEROS_TO_POLES ) ) {
-
-						if( level > P_DIGITALIZED ) {
-							if( pzk1 = digitalizeFilter( fi, pzk2 ) ) {
-								deletePzkContainer( pzk2 );
-
-								if( level & (P_DIGITALIZED | P_PRINT) ) {
-									out("\n-- Digital filter: ---------------------------\n\n");
-									printPzkContainer( pzk1 );
-								}
-
-							} else {
-								free(bList);
-								deletePzkContainer( pzk2 );
-								error(75);
+					if( level >= P_BIQUAD ) {
+						if ( bList = pairPZ( pzk2, insert, PAIR_ZEROS_TO_POLES ) ) {
+							if( level & (P_TRANSFORMED | P_PRINT | P_BIQUAD) ) {
+								out("\n-- Analog biquad list: -----------------------\n\n");
+								printBiquadList( bList, pzk2 );
 							}
-						}
 
-					} else {
-						deletePzkContainer( pzk2 );
-						error(78);
+							if( level > P_DIGITALIZED ) {
+								if( pzk1 = digitalizeFilter( fi, pzk2 ) ) {
+									deletePzkContainer( pzk2 );
+
+									if( level & (P_DIGITALIZED | P_PRINT) ) {
+										out("\n-- Digital filter: ---------------------------\n\n");
+										printPzkContainer( pzk1 );
+										if( level & P_BIQUAD ) {
+											out("\n-- Digital biquad list: ----------------------\n\n");
+											printBiquadList( bList, pzk1 );
+										}
+									}
+
+								} else {
+									free(bList);
+									deletePzkContainer( pzk2 );
+									error(75);
+								}
+							}
+
+						} else {
+							deletePzkContainer( pzk2 );
+							error(78);
+						}
 					}
 				} else {
 					deletePzkContainer( pzk1 );
