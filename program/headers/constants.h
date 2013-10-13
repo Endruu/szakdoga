@@ -121,4 +121,6 @@
 #define P_DIGITALIZED			0x10
 #define P_ALL					0xFE
 
+#define FILTER_NUM				1
+
 #endif

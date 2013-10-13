@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-fract32 passThrough(fract16 input, fract16 * coeffs, fract16 * delays);
+fract32 passThrough(fract16 input, COEFF_TYPE * coeffs, DELAY_TYPE * delays);
+fract32 f_direct1_float_postK(fract16 input, COEFF_TYPE * coeffs, DELAY_TYPE * delays);
 
 fract32 direct1_float(fract16 input, fract16 * coeffs, fract16 * delays);
 

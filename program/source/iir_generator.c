@@ -19,7 +19,7 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 
 			if( level >= P_TRANSFORMED ) {
 				if( pzk2 = transformFilter( fi, pzk1 ) ) {
-					deletePzkContainer( pzk1 );
+					pzk1 = deletePzkContainer( pzk1 );
 
 					insert = sortPzkContainer( pzk2, SORT_BY_QFACTOR, ORDER_UP );
 
@@ -37,7 +37,7 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 
 							if( level > P_DIGITALIZED ) {
 								if( pzk1 = digitalizeFilter( fi, pzk2 ) ) {
-									deletePzkContainer( pzk2 );
+									pzk2 = deletePzkContainer( pzk2 );
 
 									if( level & (P_DIGITALIZED | P_PRINT) ) {
 										out("\n-- Digital filter: ---------------------------\n\n");
@@ -46,6 +46,8 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 											out("\n-- Digital biquad list: ----------------------\n\n");
 											printBiquadList( bList, pzk1 );
 										}
+
+										implementFilter(0, pzk1, bList);
 									}
 
 								} else {
@@ -66,13 +68,16 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 				}
 			}
 
-			deletePzkContainer( pzk1 );
 		} else {
 			error(73);
 		}
 	} else {
 		error(72);
 	}
+
+	if( pzk1 != NULL ) deletePzkContainer(pzk1);
+	if( pzk2 != NULL ) deletePzkContainer(pzk2);
+	if( bList != NULL ) free(bList);
 
 	return 1;
 }

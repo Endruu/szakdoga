@@ -89,7 +89,7 @@ typedef struct {
 	transformParameters	transformP;
 	implementParameters implementP;
 
-	fract32 (*filter)(fract16 input, fract16 * coeffs, fract16 * delays);
+	fract32 (*filter)(fract16 input, COEFF_TYPE * coeffs, DELAY_TYPE * delays);
 
 	real		warping;
 
@@ -110,4 +110,10 @@ typedef struct {
 typedef struct {
 	char p1, p2, z1, z2;
 } biquad;
+
+typedef struct {
+	fract32 (*filter)(fract16 input, COEFF_TYPE * coeffs, DELAY_TYPE * delays);
+	int (*implementer)( pzkContainer * pzk, biquad * bList );
+} filterList;
+
 #endif
