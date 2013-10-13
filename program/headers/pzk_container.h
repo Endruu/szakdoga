@@ -5,7 +5,7 @@
 
 pzkContainer * createPzkContainer(uint np, uint nz);
 uint shrinkPzkContainer(pzkContainer * pzk, uint min);
-void deletePzkContainer(pzkContainer * pzk);
+pzkContainer * deletePzkContainer(pzkContainer * pzk);
 
 int compareMagnitude( complex c1, complex c2 );
 int compareQFactor( complex c1, complex c2 );

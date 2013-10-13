@@ -65,14 +65,14 @@ uint shrinkPzkContainer(pzkContainer * pzk, uint min) {
 	return freed;
 }
 
-void deletePzkContainer(pzkContainer * pzk) {
+pzkContainer * deletePzkContainer(pzkContainer * pzk) {
 	if(pzk == NULL) {
 		return;
 	}
 	free(pzk->poles);
 	free(pzk->zeros);
 	free(pzk);
-	pzk = NULL;
+	return NULL;
 }
 
 
