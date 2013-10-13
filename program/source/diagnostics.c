@@ -269,9 +269,9 @@ void printMemoryUsage() {
 	
 	sprintf( buffer, "Memory usage:\n");
 	out(buffer);
-	sprintf( buffer, "Delay: %d bytes - %f.2%%\n", fi->mem_delay, (float)(fi->mem_delay * 100)/(float)(DELAY_SIZE));
+	sprintf( buffer, "Delay: %d bytes - %.2f%%%%\n", fi->mem_delay, (float)(fi->mem_delay * 100)/(float)(DELAY_SIZE));
 	out(buffer);
-	sprintf( buffer, "Coeff: %d bytes - %f.2%%\n", fi->mem_coeff, (float)(fi->mem_coeff * 100)/(float)(COEFF_SIZE));
+	sprintf( buffer, "Coeff: %d bytes - %.2f%%%%\n", fi->mem_coeff, (float)(fi->mem_coeff * 100)/(float)(COEFF_SIZE));
 	out(buffer);
 }
 
