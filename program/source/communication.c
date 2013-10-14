@@ -177,16 +177,15 @@ int parseInputTest( char * s, int l ) {
 	else if	( s[0] == 'T' && s[1] == 'C' ) {
 		runTestcase( s + 3 );
 	}
-	/*
-	else if	( s[0] == 'I' && s[1] == 'R' ) {
-		runImpulse(  s + 3, l);
+	else if	( s[0] == 'P' && s[1] == 'R' ) {
+		simulatePSRespose(  s + 3, l, 0);
 	}
-	else if	( s[0] == 'R' && s[1] == 'S' ) {
-		runSimulation( s + 3, l);
+	else if	( s[0] == 'S' && s[1] == 'R' ) {
+		simulatePSRespose(  s + 3, l, 1);
 	}
 	else {
 		//hiba
 	}
-	*/
+
 	return 1;
 }

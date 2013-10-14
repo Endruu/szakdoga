@@ -349,7 +349,7 @@ int cmdGenerateIir( char * s, int l, int modify ) {
 	} else {
 		error(80);
 	}
-	/*
+	
 	// set the new filter in an atomic way
 	//CLI();
 	//disableAudio();
@@ -364,7 +364,6 @@ int cmdGenerateIir( char * s, int l, int modify ) {
 	
 	//enableAudio();
 	//STI();
-	*/
 
 	return 1;
 	

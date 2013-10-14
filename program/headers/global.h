@@ -26,8 +26,8 @@ uint receiveString(void);
 
 real implementFilter(filterInfo * fi);
 
-fract32 direct1(fract16 input, fract16 * coeffs, fract16 * delays);
-fract32 passThrough(fract16 input, fract16 * coeffs, fract16 * delays);
+OUTPUT_TYPE direct1(INPUT_TYPE input, COEFF_TYPE * coeffs, DELAY_TYPE * delays);
+OUTPUT_TYPE passThrough(INPUT_TYPE input, COEFF_TYPE * coeffs, DELAY_TYPE * delays);
 
 #endif
 

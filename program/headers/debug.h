@@ -6,4 +6,10 @@
 
 int runTestcase( char * tcname );
 int debugFilterInfo(char * s, int l );
+
+simulationParameters defaultPulseSimulationParameters();
+
+simulationParameters defaultSinusSimulationParameters();
+
+int simulatePSRespose( char * s, int l, char sinus );
 #endif

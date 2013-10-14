@@ -14,6 +14,11 @@
 
 #define COEFF_TYPE				fract16
 #define DELAY_TYPE				fract16
+#define INPUT_TYPE				fract16
+#define OUTPUT_TYPE				fract32
+
+#define INPUT_MAX				0x7FFF
+#define OUTPUT_MAX				0x7FFFFFFF
 
 
 #define DEFAULT_BW_E0			1.0			// 1/sqrt(2) (~3dB) attenuation at corner freq

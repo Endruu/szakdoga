@@ -321,7 +321,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 
 		if( b == bmax ) {
 			free(bList);
-			errorR(78, NULL);
+			errorR(77, NULL);
 		}
 
 		bList[b].p1 = ip;				// default value: loop counter
@@ -517,6 +517,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 		else {
 
 			if( options | PAIR_ZEROS_TO_POLES ) {			// if zeros were exhausted
+				remainingPoles--;							// one pole used
 				b++;										// increase biquad counter
 				continue;									// skip rest of the loop (check next ip)
 			}
@@ -628,10 +629,16 @@ int i_direct1_float_K( pzkContainer * pzk, biquad * bList ) {
 	c += 2;
 
 	for( ib = 0; ib < bNum; ib++ ) {
-		if( bList[ib].z1 == bList[ib].z2 ) {		// complex or both digital one
+		if( bList[ib].z1 == bList[ib].z2 ) {		// complex or both digital zero
 			if( bList[ib].z1 == EMPTY_PAIR ) {
-				c[ic++] = 1.0;		// b2
-				c[ic++] = 2.0;		// b1
+				if( bList[ib].p2 == EMPTY_PAIR ) {	// p2 and z2 kill each other
+					c[ic++] = 0;		// b2
+					c[ic++] = 1.0;		// b1
+				} else {
+					c[ic++] = 1.0;		// b2
+					c[ic++] = 2.0;		// b1
+				}
+
 			} else if( bList[ib].z1 == WZ_PAIR ) {
 				if( pzk->wz == DIGITAL_ZERO ) {
 					c[ic++] = 1.0;		// b2
@@ -646,19 +653,15 @@ int i_direct1_float_K( pzkContainer * pzk, biquad * bList ) {
 			}
 		}
 		else {
-			if( bList[ib].z1 == EMPTY_PAIR ) {
-				if( bList[ib].z2 == WZ_PAIR ) {			// also means digital one
-					c[ic++] = -1.0;		// b2
-					c[ic++] = 0.0;		// b1
-				} else {
-					tmp = -pzk->zeros[bList[ib].z2].re;
-					c[ic++] = tmp;		// b2 = -|z| = -Re{z}
-					c[ic++] = 1.0+tmp;	// b1 = 1-Re{z}
-				}
-			} else if( bList[ib].z1 == WZ_PAIR ) {		// also means digital one
+			if( bList[ib].z1 == WZ_PAIR ) {				// also means digital zero
 				if( bList[ib].z2 == EMPTY_PAIR ) {
-					c[ic++] = -1.0;		// b2
-					c[ic++] = 0.0;		// b1
+					if( bList[ib].p2 == EMPTY_PAIR ) {	// p2 and z2 kill each other
+						c[ic++] = 0;		// b2
+						c[ic++] = -1.0;		// b1
+					} else {
+						c[ic++] = -1.0;		// b2
+						c[ic++] = 0.0;		// b1
+					}
 				} else {
 					tmp = pzk->zeros[bList[ib].z2].re;
 					c[ic++] = tmp;		// b2 = |z| = Re{z}
@@ -667,8 +670,13 @@ int i_direct1_float_K( pzkContainer * pzk, biquad * bList ) {
 			} else {
 				if( bList[ib].z2 == EMPTY_PAIR ) {
 					tmp = -pzk->zeros[bList[ib].z1].re;
-					c[ic++] = tmp;		// b2 = -|z| = -Re{z}
-					c[ic++] = 1.0+tmp;	// b1 = 1-Re{z}
+					if( bList[ib].p2 == EMPTY_PAIR ) {	// p2 and z2 kill each other
+						c[ic++] = 0;		// b2
+						c[ic++] = tmp;		// b1
+					} else {
+						c[ic++] = tmp;		// b2 = -|z| = -Re{z}
+						c[ic++] = 1.0+tmp;	// b1 = 1-Re{z}
+					}
 				} else if( bList[ib].z2 == WZ_PAIR ) {
 					tmp = pzk->zeros[bList[ib].z1].re;
 					c[ic++] = tmp;		// b2 = |z| = Re{z}
@@ -681,51 +689,58 @@ int i_direct1_float_K( pzkContainer * pzk, biquad * bList ) {
 			}
 		}
 
+
 		if( bList[ib].p1 == bList[ib].p2 ) {		// complex or both digital one or empty
 			if( bList[ib].p1 == EMPTY_PAIR ) {
-				c[ic++] = 1.0;		// a2
-				c[ic++] = 2.0;		// a1
+				if( bList[ib].z2 == EMPTY_PAIR ) {
+					c[ic++] = 0;		// a2
+					c[ic++] = 1.0;		// a1
+				} else {
+					c[ic++] = 1.0;		// a2
+					c[ic++] = 2.0;		// a1
+				}
 			} else if( bList[ib].p1 == WZ_PAIR ) {
 				if( pzk->wz == DIGITAL_ZERO ) {
 					c[ic++] = 1.0;		// a2
 					c[ic++] = -2.0;		// a1
 				} else {
 					c[ic++] = 1.0;					// a2
-					c[ic++] = -2.0*cos(pzk->wz);	// a1 = -2*Re{z}
+					c[ic++] = -2.0*cos(pzk->wz);	// a1 = -2*Re{p}
 				}
 			} else {
-				c[ic++] = cabs2(pzk->poles[bList[ib].p1]);		// a2 = |z|^2
-				c[ic++] = -2.0*pzk->poles[bList[ib].p1].re;		// a1 = -2*Re{z}
+				c[ic++] = cabs2(pzk->poles[bList[ib].p1]);		// a2 = |p|^2
+				c[ic++] = -2.0*pzk->poles[bList[ib].p1].re;		// a1 = -2*Re{p}
 			}
 		}
 		else {
-			if( bList[ib].p1 == EMPTY_PAIR ) {
-				if( bList[ib].p2 == WZ_PAIR ) {			// also means digital one
-					c[ic++] = -1.0;		// a2
-					c[ic++] = 0.0;		// a1
-				} else {
-					tmp = -pzk->poles[bList[ib].p2].re;
-					c[ic++] = tmp;		// a2 = -|z| = -Re{z}
-					c[ic++] = 1.0+tmp;	// a1 = 1-Re{z}
-				}
-			} else if( bList[ib].p1 == WZ_PAIR ) {		// also means digital one
+			if( bList[ib].p1 == WZ_PAIR ) {		// also means digital zero
 				if( bList[ib].p2 == EMPTY_PAIR ) {
-					c[ic++] = -1.0;		// a2
-					c[ic++] = 0.0;		// a1
+					if( bList[ib].z2 == EMPTY_PAIR ) {	// p2 and z2 kill each other
+						c[ic++] = 0;		// a2
+						c[ic++] = -1;		// a1
+					} else {
+						c[ic++] = -1.0;		// a2
+						c[ic++] = 0.0;		// a1
+					}
 				} else {
 					tmp = pzk->poles[bList[ib].p2].re;
-					c[ic++] = tmp;		// a2 = |z| = Re{z}
-					c[ic++] = -1.0-tmp;	// a1 = -(1+Re{z})
+					c[ic++] = tmp;		// a2 = |p| = Re{p}
+					c[ic++] = -1.0-tmp;	// a1 = -(1+Re{p})
 				}
 			} else {
 				if( bList[ib].p2 == EMPTY_PAIR ) {
 					tmp = -pzk->poles[bList[ib].p1].re;
-					c[ic++] = tmp;		// a2 = -|z| = -Re{z}
-					c[ic++] = 1.0+tmp;	// a1 = 1-Re{z}
+					if( bList[ib].p2 == EMPTY_PAIR ) {	// p2 and z2 kill each other
+						c[ic++] = 0;		// a2
+						c[ic++] = tmp;		// a1
+					} else {
+						c[ic++] = tmp;		// a2 = -|p| = -Re{p}
+						c[ic++] = 1.0+tmp;	// a1 = 1-Re{p}
+					}
 				} else if( bList[ib].p2 == WZ_PAIR ) {
 					tmp = pzk->poles[bList[ib].p1].re;
-					c[ic++] = tmp;		// a2 = |z| = Re{z}
-					c[ic++] = -1.0-tmp;	// a1 = -(1+Re{z})
+					c[ic++] = tmp;		// a2 = |z| = Re{p}
+					c[ic++] = -1.0-tmp;	// a1 = -(1+Re{p})
 				} else {
 					tmp = pzk->poles[bList[ib].p1].re;
 					c[ic++] = pzk->poles[bList[ib].p1].re * pzk->poles[bList[ib].p2].re;		// a2 = |p1|*|p2| = Re{p1}*Re{p2}
