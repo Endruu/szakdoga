@@ -1,64 +1,26 @@
 #include "headers/variables.h"
 #include "headers/communication.h"
+#include "headers/diagnostics.h"
 
 #ifndef _COMPILE_WITH_BLACKFIN
 
-/*#include <string.h>
-#include <stdio.h>
-clock_t st;*/
+char buff[256];	// = ">gi:Rf:BW:N4*DP:B*TP:LP:C1000";
+int i;
 
-char buff[100];	// = ">gi:Rf:BW:N4*DP:B*TP:LP:C1000";
-
-void main(void)
+void main( int argc, char *argv[] )
 {
+
+	calibrateClock();
+
+	for( i=1; i<argc; i++ ) {
+		parseInput(argv[i], 256);
+	}
 
 	while(1) {
 		scanf("%s", buff);
-		parseInput(buff, 100);
-	}
-	/*filterR = newFilterInfo();
-	
-	
-
-	while(1) {
-		scanf("%s", uart_buffer);
-		if( uart_buffer[1] == ':') {
-			if ( uart_buffer[0] == 'f') {
-				changeState( uart_buffer+2 );
-				if( getErrors() ) {
-					printErrors(uart_buffer, UART_BUF_SIZE);
-					printf("%s\n", uart_buffer);
-					clearErrors();
-				} else {
-					printf("OK\n");
-				}
-			}
-			else if ( uart_buffer[0] == 's') {
-				printf("ERROR: Not implemented yet!\n");
-			}
-			else if ( uart_buffer[0] == 'x') {
-				break;
-			}
-			else {
-				printf("ERROR: Input should start with 's:', 'f:', or 'x:'!\n");
-			}
-		} else {
-			printf("ERROR: Input should start with 's:', 'f:', or 'x:'!\n");
-		}
+		parseInput(buff, 256);
 	}
 
-	calibrateClock();
-	startClock();
-	st = clock();
-	while( clock() - st < 5000 ) {
-		printf(".");
-	}
-	stopClock();
-	printf("\n%d\n", clock() - st);
-	setTick(&filterR);
-	printTick(&filterR);
-	
-	*/
 }
 
 #endif
