@@ -1,0 +1,17 @@
+#ol:tc1_log.txt
+>gi:rf:bw:n3*tp:lp:C1000,W*dp:p*
+#sr:sinus.txt
+#pr:pulse.txt
+
+
+*{
+>gi:rf:bw:c10,s50,w2*tp:bp:c1000.1,d2000*dp:b*
+
+>mi:tp:bp:c1000.1,d2000*
+#cl
+
+call tc2
+#tc:tc2.txt
+#ol:tc1_log.txt
+#cm:Ujra megnyitva, és befejezve
+*}
