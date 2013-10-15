@@ -156,6 +156,7 @@ simulationParameters defaultSinusSimulationParameters() {
 int simulatePSRespose( char * s, int l, char sinus ) {
 	int nextLetter, prevLetter;
 	simulationParameters sp;
+	int tmp;
 
 	if( sinus == 1 ) {
 		sp = defaultSinusSimulationParameters();
@@ -183,12 +184,24 @@ int simulatePSRespose( char * s, int l, char sinus ) {
 
 		switch( s[prevLetter] ) {
 			case 'D' :
-				if ( sscanf( s + prevLetter + 1, "%d", &sp.delay ) != 1 ) {
+				if ( sscanf( s + prevLetter + 1, "%d", &tmp ) == 1 ) {
+					if( tmp < 0 ) {
+						tmp *= -1;
+						// warn
+					}
+					sp.delay = tmp;
+				} else {
 					error(86);
 				}
 				break;
 			case 'P' :
-				if ( sscanf( s + prevLetter + 1, "%d", &sp.pulse ) != 1 ) {
+				if ( sscanf( s + prevLetter + 1, "%d", &tmp ) == 1 ) {
+					if( tmp < 0 ) {
+						tmp *= -1;
+						// warn
+					}
+					sp.pulse = tmp;
+				} else {
 					error(87);
 				}
 				break;
@@ -218,7 +231,9 @@ int simulatePSRespose( char * s, int l, char sinus ) {
 	}
 
 	if( sinus == 1 ) {
-
+		if( !simulateSinus( s, sp ) ) {
+			error(97);
+		}
 	} else {
 		if( !simulatePulse( s, sp ) ) {
 			error(93);
@@ -232,47 +247,47 @@ int simulatePulse( const char * filename, simulationParameters sp ) {
 	uint r, j;
 	FILE * sf;
 	INPUT_TYPE in;
-	OUTPUT_TYPE out;
+	OUTPUT_TYPE output;
 
 	in = sp.amplitude+sp.offset;
 
 	sf = fopen( filename, "w");
 	if( sf != NULL ) {
-		fprintf(sf, "%% -- PULSE SIMULATION ---------------\n%%\n");
-		fprintf(sf, "%%\tDelay:             %d\n", sp.delay);
-		fprintf(sf, "%%\tPulse length:      %d\n", sp.pulse);
-		fprintf(sf, "%%\tPeriod length:     %d\n", sp.length);
+		fprintf(sf, "%% -- PULSE SIMULATION ------------------------------\n%%\n");
+		fprintf(sf, "%%\tDelay:             %d (~%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPulse length:      %d (~%.5gms)\n", sp.pulse, (float)(sp.pulse*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPeriod length:     %d (~%.5gms)\n", sp.length, (float)(sp.length*1000)/F_SAMPLING);
 		fprintf(sf, "%%\tNumber of periods: %d\n", sp.repetitions);
-		fprintf(sf, "%%\tSimulation length: %d\n", sp.repetitions*sp.length+sp.delay);
-		fprintf(sf, "%%\tPulse amplitude:   %d\n", sp.amplitude);
-		fprintf(sf, "%%\tOffset:            %d\n", sp.offset);
-		fprintf(sf, "%% -----------------------------------\n");
+		fprintf(sf, "%%\tSimulation length: %d (~%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
+		fprintf(sf, "%%\tPulse amplitude:   %d (~%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%%\tOffset:            %d (~%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%% --------------------------------------------------\n");
 
 		for( j=0; j<sp.delay; j++ ) {
 			startClock();
-			out = filterBank[actualFilter].filter(0, coeffLines[actualFilter], delayLine);
+			output = filterBank[actualFilter].filter(0, coeffLines[actualFilter], delayLine);
 			stopClock();
 			setTick();
-			fprintf(sf, "0 %d\n", out);
+			fprintf(sf, "0 %d\n", output);
 		}
 		for( r=0; r<sp.repetitions; r++ ) {
 			for( j=0; j<sp.pulse; j++ ) {
 				startClock();
-				out = filterBank[actualFilter].filter(in, coeffLines[actualFilter], delayLine);
+				output = filterBank[actualFilter].filter(in, coeffLines[actualFilter], delayLine);
 				stopClock();
 				setTick();
-				fprintf(sf, "%g %d\n", (float)in, out);
+				fprintf(sf, "%g %d\n", (float)in, output);
 			}
 			for( ; j<sp.length; j++ ) {
 				startClock();
-				out = filterBank[actualFilter].filter(sp.offset, coeffLines[actualFilter], delayLine);
+				output = filterBank[actualFilter].filter(sp.offset, coeffLines[actualFilter], delayLine);
 				stopClock();
 				setTick();
-				fprintf(sf, "%g %d\n", (float)sp.offset, out);
+				fprintf(sf, "%g %d\n", (float)sp.offset, output);
 			}
 		}
 
-
+		out("Simulation complete!\n");
 		fclose(sf);
 		return 1;
 
@@ -281,4 +296,47 @@ int simulatePulse( const char * filename, simulationParameters sp ) {
 	}
 }
 
-	
+int simulateSinus( const char * filename, simulationParameters sp ) {
+	uint r, j;
+	FILE * sf;
+	INPUT_TYPE in;
+	OUTPUT_TYPE output;
+
+	sf = fopen( filename, "w");
+	if( sf != NULL ) {
+		fprintf(sf, "%% -- SINUS WAVE SIMULATION -------------------------\n%%\n");
+		fprintf(sf, "%%\tDelay:             %d (~%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPhase delay:       %d (~%.5g°)\n", sp.pulse, -(float)sp.pulse/(float)sp.length*360);
+		fprintf(sf, "%%\tPeriod length:     %d (~%.5gHz)\n", sp.length, F_SAMPLING/(float)sp.length);
+		fprintf(sf, "%%\tNumber of periods: %d\n", sp.repetitions);
+		fprintf(sf, "%%\tSimulation length: %d (~%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
+		fprintf(sf, "%%\Sinus amplitude:    %d (~%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%%\tOffset:            %d (~%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%% --------------------------------------------------\n");
+		for( j=0; j<sp.delay; j++ ) {
+			startClock();
+			output = filterBank[actualFilter].filter(0, coeffLines[actualFilter], delayLine);
+			stopClock();
+			setTick();
+			fprintf(sf, "0 %d\n", output);
+		}
+		for( r=0; r<sp.repetitions; r++ ) {
+
+			for( j=0; j<sp.length; j++ ) {
+				in = (INPUT_TYPE)( (float)sp.amplitude*sin(2.0*PI*(float)(j+sp.pulse)/(float)sp.length)+sp.offset );
+				startClock();
+				output = filterBank[actualFilter].filter(in, coeffLines[actualFilter], delayLine);
+				stopClock();
+				setTick();
+				fprintf(sf, "%d %d\n", in, output);
+			}
+		}
+
+		out("Simulation complete!\n");
+		fclose(sf);
+		return 1;
+
+	} else {
+		error(95);
+	}
+}

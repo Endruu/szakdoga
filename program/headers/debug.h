@@ -8,8 +8,10 @@ int runTestcase( char * tcname );
 int debugFilterInfo(char * s, int l );
 
 simulationParameters defaultPulseSimulationParameters();
-
 simulationParameters defaultSinusSimulationParameters();
 
 int simulatePSRespose( char * s, int l, char sinus );
+int simulatePulse( const char * filename, simulationParameters sp );
+int simulateSinus( const char * filename, simulationParameters sp );
+
 #endif
