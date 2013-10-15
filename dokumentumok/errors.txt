@@ -118,3 +118,24 @@
 
 79	: Error while creating IIR filter for printing
 80	: Error while creating IIR filter
+
+81	: Not enough memory for coefficients
+82	: Not enough memory for delays
+83	: Error while implementing filter
+
+84	: Error while opening file for writing
+
+85	: Missing filename for simulation
+86	: Error while reading the delay for the simulation
+87	: Error while reading the pulse length / phase for the simulation
+88	: Error while reading the length of the period for the simulation
+89	: Error while reading the number of periods for the simulation
+90	: Error while reading the amplitude for the simulation
+91	: Error while reading the offset for the simulation
+92	: Error in the input command
+
+93	: Error while simulating pulse
+94	: same as 77
+
+95	: Error while opening file for writing
+96	: Error while simulating sinus
