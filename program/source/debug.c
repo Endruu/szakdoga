@@ -11,12 +11,15 @@ int runTestcase( char * tcname ) {
 	FILE * tc;
 	int i;
 	int commentLevel = 0;
+	char buff[100];
 
 	if( tcDepth >= TC_CALL_MAX_DEPTH ) {
 		error(70);
 	}
 
-	tc = tcBuffer[tcDepth] = fopen( tcname, "r");
+	sprintf(buff, TESTCASE_DIR "%s", tcname);
+
+	tc = tcBuffer[tcDepth] = fopen( buff, "r");
 	tcDepth++;
 
 	if( tc != NULL ) {
@@ -248,19 +251,22 @@ int simulatePulse( const char * filename, simulationParameters sp ) {
 	FILE * sf;
 	INPUT_TYPE in;
 	OUTPUT_TYPE output;
+	char buff[100];
+
+	sprintf(buff, SIM_OUTPUT_DIR "%s", filename);
 
 	in = sp.amplitude+sp.offset;
 
-	sf = fopen( filename, "w");
+	sf = fopen( buff, "w");
 	if( sf != NULL ) {
 		fprintf(sf, "%% -- PULSE SIMULATION ------------------------------\n%%\n");
-		fprintf(sf, "%%\tDelay:             %d (~%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
-		fprintf(sf, "%%\tPulse length:      %d (~%.5gms)\n", sp.pulse, (float)(sp.pulse*1000)/F_SAMPLING);
-		fprintf(sf, "%%\tPeriod length:     %d (~%.5gms)\n", sp.length, (float)(sp.length*1000)/F_SAMPLING);
-		fprintf(sf, "%%\tNumber of periods: %d\n", sp.repetitions);
-		fprintf(sf, "%%\tSimulation length: %d (~%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
-		fprintf(sf, "%%\tPulse amplitude:   %d (~%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
-		fprintf(sf, "%%\tOffset:            %d (~%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%%\tDelay:             %6d (%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPulse length:      %6d (%.5gms)\n", sp.pulse, (float)(sp.pulse*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPeriod length:     %6d (%.5gms)\n", sp.length, (float)(sp.length*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tNumber of periods: %6d\n", sp.repetitions);
+		fprintf(sf, "%%\tSimulation length: %6d (%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
+		fprintf(sf, "%%\tPulse amplitude:   %6d (%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%%\tOffset:            %6d (%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
 		fprintf(sf, "%% --------------------------------------------------\n");
 
 		for( j=0; j<sp.delay; j++ ) {
@@ -301,17 +307,20 @@ int simulateSinus( const char * filename, simulationParameters sp ) {
 	FILE * sf;
 	INPUT_TYPE in;
 	OUTPUT_TYPE output;
+	char buff[100];
 
-	sf = fopen( filename, "w");
+	sprintf(buff, SIM_OUTPUT_DIR "%s", filename);
+
+	sf = fopen( buff, "w");
 	if( sf != NULL ) {
 		fprintf(sf, "%% -- SINUS WAVE SIMULATION -------------------------\n%%\n");
-		fprintf(sf, "%%\tDelay:             %d (~%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
-		fprintf(sf, "%%\tPhase delay:       %d (~%.5g°)\n", sp.pulse, -(float)sp.pulse/(float)sp.length*360);
-		fprintf(sf, "%%\tPeriod length:     %d (~%.5gHz)\n", sp.length, F_SAMPLING/(float)sp.length);
-		fprintf(sf, "%%\tNumber of periods: %d\n", sp.repetitions);
-		fprintf(sf, "%%\tSimulation length: %d (~%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
-		fprintf(sf, "%%\Sinus amplitude:    %d (~%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
-		fprintf(sf, "%%\tOffset:            %d (~%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%%\tDelay:             %6d (%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPhase delay:       %6d (%.5g°)\n", sp.pulse, -(float)sp.pulse/(float)sp.length*360);
+		fprintf(sf, "%%\tPeriod length:     %6d (%.5gHz)\n", sp.length, F_SAMPLING/(float)sp.length);
+		fprintf(sf, "%%\tNumber of periods: %6d\n", sp.repetitions);
+		fprintf(sf, "%%\tSimulation length: %6d (%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
+		fprintf(sf, "%%\tSinus amplitude:   %6d (%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%%\tOffset:            %6d (%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
 		fprintf(sf, "%% --------------------------------------------------\n");
 		for( j=0; j<sp.delay; j++ ) {
 			startClock();

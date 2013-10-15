@@ -128,4 +128,8 @@
 
 #define FILTER_NUM				1
 
+#define TESTCASE_DIR			"../simulation/testcase/"
+#define SIM_INPUT_DIR			"../simulation/input/"
+#define SIM_OUTPUT_DIR			"../simulation/output/"
+
 #endif
