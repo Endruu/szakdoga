@@ -10,6 +10,155 @@
 FILE * tcBuffer[TC_CALL_MAX_DEPTH];
 int tcDepth = 0;
 
+
+void printBiquadList(biquad * bList, pzkContainer * pzk) {
+	const int limit = countBiquads(pzk);
+	int i;
+	char bfr[50];
+	char pz;
+
+	for( i=0; i<limit; i++ ) {
+		out("\n-----------------------------\n");
+
+		pz = bList[i].p1;
+		out("p1: ");
+		if( pz == EMPTY_PAIR ) {
+			sprintf(bfr, "INF\n");
+		} else if( pz == WZ_PAIR ) {
+			if( pzk->wz < 0 ) {
+				sprintf(bfr, "%10g + %gi\n", cos(pzk->wz), -sin(pzk->wz));
+			} else {
+				sprintf(bfr, "%10g + %gi\n", 0.0, pzk->wz);
+			}
+		} else {
+			sprintf(bfr, "%10g + %gi\n", pzk->poles[pz].re, pzk->poles[pz].im);
+		}
+		out(bfr);
+
+		pz = bList[i].p2;
+		out("p2: ");
+		if( pz == EMPTY_PAIR ) {
+			sprintf(bfr, "INF\n");
+		} else if( pz == WZ_PAIR ) {
+			if( pzk->wz < 0 ) {
+				sprintf(bfr, "%10g - %gi\n", cos(pzk->wz), -sin(pzk->wz));
+			} else {
+				sprintf(bfr, "%10g - %gi\n", 0.0, pzk->wz);
+			}
+		} else {
+			sprintf(bfr, "%10g - %gi\n", pzk->poles[pz].re, pzk->poles[pz].im);
+		}
+		out(bfr);
+
+		pz = bList[i].z1;
+		out("z1: ");
+		if( pz == EMPTY_PAIR ) {
+			sprintf(bfr, "INF\n");
+		} else if( pz == WZ_PAIR ) {
+			if( pzk->wz < 0 ) {
+				sprintf(bfr, "%10g + %gi\n", cos(pzk->wz), -sin(pzk->wz));
+			} else {
+				sprintf(bfr, "%10g + %gi\n", 0.0, pzk->wz);
+			}
+		} else {
+			sprintf(bfr, "%10g + %gi\n", pzk->zeros[pz].re, pzk->zeros[pz].im);
+		}
+		out(bfr);
+
+		pz = bList[i].z2;
+		out("z2: ");
+		if( pz == EMPTY_PAIR ) {
+			sprintf(bfr, "INF\n");
+		} else if( pz == WZ_PAIR ) {
+			if( pzk->wz < 0 ) {
+				sprintf(bfr, "%10g - %gi\n", cos(pzk->wz), -sin(pzk->wz));
+			} else {
+				sprintf(bfr, "%10g - %gi\n", 0.0, pzk->wz);
+			}
+		} else {
+			sprintf(bfr, "%10g - %gi\n", pzk->zeros[pz].re, pzk->zeros[pz].im);
+		}
+		out(bfr);
+	}
+	
+	out("\n----------------------------------------------\n");
+}
+
+void printPzkContainer(pzkContainer * pzk) {
+	unsigned int i;
+	char bfr[60];
+
+	if(pzk == NULL) {
+		return;
+	}
+
+	sprintf(bfr, "Amplification: %g\n", pzk->amp);
+	out(bfr);
+
+	if(pzk->nextZero) {
+		sprintf(bfr, "Zeros: (%u)\n", countZeros(pzk));
+		out(bfr);
+		for(i=0; i<pzk->nextZero;i++) {
+			sprintf(bfr, "  %10g + %gi\n", pzk->zeros[i].re, pzk->zeros[i].im);
+			out(bfr);
+			if( pzk->wz >= 0 ) {
+				if( pzk->zeros[i].re != 0 ) {
+					sprintf(bfr, "\t( abs: %3g - Q: %3g )\n", cabs(pzk->zeros[i]), 0.5 * cabs(pzk->zeros[i]) / fabs(pzk->zeros[i].re));
+					out(bfr);
+				}
+			}
+		}
+	}
+
+	if(pzk->nextPole) {
+		sprintf(bfr, "Poles: (%u)\n", countPoles(pzk));
+		out(bfr);
+		for(i=0; i<pzk->nextPole;i++) {
+			sprintf(bfr, "  %10g + %gi\n", pzk->poles[i].re, pzk->poles[i].im);
+			out(bfr);
+			if( pzk->wz >= 0 ) {
+				if( pzk->poles[i].re != 0 ) {
+					sprintf(bfr, "\t( abs: %3g - Q: %3g )\n", cabs(pzk->poles[i]), 0.5 * cabs(pzk->poles[i]) / fabs(pzk->poles[i].re));
+					out(bfr);
+				}
+			}
+		}
+	}
+	
+	sprintf(bfr, "Biquads: %u\n", countBiquads(pzk));
+	out(bfr);
+
+	if( pzk->wz != 0 ) {
+		out("Number of ");
+		if(pzk->wz == 0.0 || pzk->wz == DIGITAL_ZERO ) {
+			if(pzk->no_wz > 0) {
+				sprintf(bfr, "differentiators: %d\n", pzk->no_wz);
+			}
+			else if(pzk->no_wz < 0) {
+				sprintf(bfr, "integrators: %d\n", -pzk->no_wz);
+			}
+		} else {
+			if( pzk->wz < 0 ) {			// DIGITAL
+				if(pzk->no_wz > 0) {
+					sprintf(bfr, "e^j%g conjugate zero pairs: %d\n", -pzk->wz, pzk->no_wz);
+				} else {
+					sprintf(bfr, "e^j%g conjugate pole pairs: %d\n", -pzk->wz, pzk->no_wz);
+				}
+			} else {
+				if(pzk->no_wz > 0) {
+					sprintf(bfr, "j%g conjugate zero pairs: %d\n", pzk->wz, pzk->no_wz);
+				} else {
+					sprintf(bfr, "j%g conjugate pole pairs: %d\n", pzk->wz, pzk->no_wz);
+				}
+			}
+		}
+		out(bfr);
+	}
+
+	out("\n----------------------------------------------\n");
+}
+
+
 int runTestcase( char * tcname ) {
 	FILE * tc;
 	int i;

@@ -7,7 +7,12 @@
 #define	TC_CALL_MAX_DEPTH	3
 
 int runTestcase( char * tcname );
+
+
 int debugFilterInfo(char * s, int l );
+void printPzkContainer(pzkContainer * pzk);
+void printBiquadList(biquad * bList, pzkContainer * pzk);
+
 
 void getTimeStamp( char * s );
 
