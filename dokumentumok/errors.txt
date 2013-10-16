@@ -139,3 +139,5 @@
 
 95	: Error while opening file for writing
 96	: Error while simulating sinus
+
+97	: Debug functions not enabled
