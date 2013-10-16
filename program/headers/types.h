@@ -116,6 +116,7 @@ typedef struct {
 	int (*implementer)( pzkContainer * pzk, biquad * bList );
 } filterList;
 
+#ifdef DEBUG_FUNCTIONS_ENABLED
 typedef struct {
 	uint	delay,
 			pulse,	// or phase
@@ -124,5 +125,6 @@ typedef struct {
 	INPUT_TYPE	amplitude,
 				offset;
 } simulationParameters;
+#endif
 
 #endif

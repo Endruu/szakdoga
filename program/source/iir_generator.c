@@ -12,10 +12,13 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 
 	if( level >= P_REFERENT ) {
 		if( pzk1 = createReferentFilter( fi ) ) {
+
+#ifdef DEBUG_FUNCTIONS_ENABLED  //--------------------------------------------------------------------------++
 			if( level & (P_REFERENT | P_PRINT) ) {
 				out("\n-- Referent filter: ---------------------------\n\n");
 				printPzkContainer( pzk1 );
 			}
+#endif //---------------------------------------------------------------------------------------------------//
 
 			if( level >= P_TRANSFORMED ) {
 				if( pzk2 = transformFilter( fi, pzk1 ) ) {
@@ -23,22 +26,28 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 
 					insert = sortPzkContainer( pzk2, SORT_BY_QFACTOR, ORDER_UP );
 
+#ifdef DEBUG_FUNCTIONS_ENABLED  //--------------------------------------------------------------------------++
 					if( level & (P_TRANSFORMED | P_PRINT) ) {
 						out("\n-- Transformed filter: -----------------------\n\n");
 						printPzkContainer( pzk2 );
 					}
+#endif //---------------------------------------------------------------------------------------------------//
 
 					if( level >= P_BIQUAD ) {
 						if ( bList = pairPZ( pzk2, insert, PAIR_ZEROS_TO_POLES ) ) {
+
+#ifdef DEBUG_FUNCTIONS_ENABLED  //--------------------------------------------------------------------------++
 							if( level & (P_TRANSFORMED | P_PRINT | P_BIQUAD) ) {
 								out("\n-- Analog biquad list: -----------------------\n\n");
 								printBiquadList( bList, pzk2 );
 							}
+#endif //---------------------------------------------------------------------------------------------------//
 
 							if( level > P_DIGITALIZED ) {
 								if( pzk1 = digitalizeFilter( fi, pzk2 ) ) {
 									pzk2 = deletePzkContainer( pzk2 );
 
+#ifdef DEBUG_FUNCTIONS_ENABLED  //--------------------------------------------------------------------------++
 									if( level & (P_DIGITALIZED | P_PRINT) ) {
 										out("\n-- Digital filter: ---------------------------\n\n");
 										printPzkContainer( pzk1 );
@@ -46,8 +55,13 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 											out("\n-- Digital biquad list: ----------------------\n\n");
 											printBiquadList( bList, pzk1 );
 										}
+#endif //---------------------------------------------------------------------------------------------------//
 
-										implementFilter(0, pzk1, bList);
+										if( !implementFilter(0, pzk1, bList) ) {
+											free(bList);
+											deletePzkContainer( pzk1 );
+											error(98);
+										}
 									}
 
 								} else {

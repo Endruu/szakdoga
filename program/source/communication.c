@@ -151,6 +151,7 @@ int parseInputDebug( char * s, int l ) {
 		msgLog( "\n" );
 	}
 	else if	( s[0] == 'E' && s[1] == 'X' ) {	// Exit
+		out("Closing program...");
 		exit(0);
 	}
 	else if	( s[0] == 'T' && s[1] == 'C' ) {

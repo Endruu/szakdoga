@@ -22,11 +22,11 @@ void printErrors() {
 	
 	for( i=0; i < _errors_occurred && i < ERROR_BUFFER_SIZE; i++ ) {
 		if( _error_container[i] < 0 ) {
-			if( sprintf( buffer, "WARN %04d\n", (unsigned int)(-_error_container[i]) ) ) {
+			if( sprintf( buffer, "W-%04d\n", (unsigned int)(-_error_container[i]) ) ) {
 				out( buffer );
 			}
 		} else {
-			if( sprintf( buffer, "ERROR %04d\n", (unsigned int)(_error_container[i]) )  ) {
+			if( sprintf( buffer, "E-%04d\n", (unsigned int)(_error_container[i]) )  ) {
 				out( buffer );
 			}
 		}

@@ -141,3 +141,5 @@
 96	: Error while simulating sinus
 
 97	: Debug functions not enabled
+
+98	: Error while implementing filter

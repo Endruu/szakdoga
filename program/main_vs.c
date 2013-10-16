@@ -4,7 +4,6 @@
 
 #ifndef _COMPILE_WITH_BLACKFIN
 
-char buff[256];	// = ">gi:Rf:BW:N4*DP:B*TP:LP:C1000";
 int i;
 
 void main( int argc, char *argv[] )
@@ -13,12 +12,12 @@ void main( int argc, char *argv[] )
 	calibrateClock();
 
 	for( i=1; i<argc; i++ ) {
-		parseInput(argv[i], 256);
+		parseInput(argv[i], INPUT_BUF_SIZE);
 	}
 
 	while(1) {
-		scanf("%s", buff);
-		parseInput(buff, 256);
+		scanf("%s", inputBuffer);
+		parseInput(inputBuffer, INPUT_BUF_SIZE);
 	}
 
 }

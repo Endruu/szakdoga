@@ -47,7 +47,6 @@ int runTestcase( char * tcname ) {
 
 					case '>' :
 					case '<' :
-					case '?' :
 					case '#' :
 						if( !commentLevel ) {
 							out(inputBuffer);
@@ -118,7 +117,7 @@ int debugFilterInfo(char * s, int l ) {
 				level |= P_DIGITALIZED;
 				break;
 			case 'A' :
-				level |= 0x111;
+				level |= P_ALL;
 				break;
 			default:
 				;//warn
