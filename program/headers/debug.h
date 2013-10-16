@@ -7,6 +7,8 @@
 int runTestcase( char * tcname );
 int debugFilterInfo(char * s, int l );
 
+void getTimeStamp( char * s );
+
 simulationParameters defaultPulseSimulationParameters();
 simulationParameters defaultSinusSimulationParameters();
 

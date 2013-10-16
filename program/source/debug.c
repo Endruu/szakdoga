@@ -130,6 +130,16 @@ int debugFilterInfo(char * s, int l ) {
 
 }
 
+void getTimeStamp( char * s ) {
+	time_t rawtime;
+	struct tm * timeinfo;
+
+	time (&rawtime);
+	timeinfo = localtime (&rawtime);
+
+	strftime (s, 13, "%y%m%d%H%M%H", timeinfo);
+}
+
 simulationParameters defaultPulseSimulationParameters() {
 	simulationParameters sp;
 
@@ -167,13 +177,13 @@ int simulatePSRespose( char * s, int l, char sinus ) {
 		sp = defaultPulseSimulationParameters();
 	}
 
-	if( l == 0 ) {
+	/*if( l == 0 ) {
 		error(85);
-	}
+	}*/
 
 	nextLetter = 0;
-	for( ; nextLetter < l && s[nextLetter] != ','; nextLetter++ );
-	if( s[nextLetter] == ',' ) {
+	for( ; nextLetter < l && s[nextLetter] != CODE_DELIMITER; nextLetter++ );
+	if( s[nextLetter] == CODE_DELIMITER ) {
 		s[nextLetter] = '\0';
 	}
 	
@@ -252,22 +262,31 @@ int simulatePulse( const char * filename, simulationParameters sp ) {
 	INPUT_TYPE in;
 	OUTPUT_TYPE output;
 	char buff[100];
+	char ts[13];
 
-	sprintf(buff, SIM_OUTPUT_DIR "%s", filename);
+	getTimeStamp(ts);
 
-	in = sp.amplitude+sp.offset;
+	if( filename[0] == '\0' ) {
+		sprintf(buff, SIM_OUTPUT_DIR "P%s.txt", ts);
+	} else {
+		sprintf(buff, SIM_OUTPUT_DIR "%s", filename);
+	}
 
 	sf = fopen( buff, "w");
 	if( sf != NULL ) {
-		fprintf(sf, "%% -- PULSE SIMULATION ------------------------------\n%%\n");
-		fprintf(sf, "%%\tDelay:             %6d (%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
-		fprintf(sf, "%%\tPulse length:      %6d (%.5gms)\n", sp.pulse, (float)(sp.pulse*1000)/F_SAMPLING);
-		fprintf(sf, "%%\tPeriod length:     %6d (%.5gms)\n", sp.length, (float)(sp.length*1000)/F_SAMPLING);
-		fprintf(sf, "%%\tNumber of periods: %6d\n", sp.repetitions);
-		fprintf(sf, "%%\tSimulation length: %6d (%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
-		fprintf(sf, "%%\tPulse amplitude:   %6d (%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
-		fprintf(sf, "%%\tOffset:            %6d (%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
+
+		fprintf(sf, "%% -- PULSE SIMULATION ------------------------------\n");
+		fprintf(sf, "%%\tSimulation ID:     %12s\n", ts);
+		fprintf(sf, "%%\tDelay:             %12d (%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPulse length:      %12d (%.5gms)\n", sp.pulse, (float)(sp.pulse*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPeriod length:     %12d (%.5gms)\n", sp.length, (float)(sp.length*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tNumber of periods: %12d\n", sp.repetitions);
+		fprintf(sf, "%%\tSimulation length: %12d (%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
+		fprintf(sf, "%%\tPulse amplitude:   %12d (%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%%\tOffset:            %12d (%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
 		fprintf(sf, "%% --------------------------------------------------\n");
+
+		in = sp.amplitude+sp.offset;
 
 		for( j=0; j<sp.delay; j++ ) {
 			startClock();
@@ -276,6 +295,7 @@ int simulatePulse( const char * filename, simulationParameters sp ) {
 			setTick();
 			fprintf(sf, "0 %d\n", output);
 		}
+
 		for( r=0; r<sp.repetitions; r++ ) {
 			for( j=0; j<sp.pulse; j++ ) {
 				startClock();
@@ -293,7 +313,10 @@ int simulatePulse( const char * filename, simulationParameters sp ) {
 			}
 		}
 
-		out("Simulation complete!\n");
+		out("Simulation complete!\nOutput file: ");
+		out(buff);
+		sprintf(buff, "\nID: %s\n", ts);
+		out(buff);
 		fclose(sf);
 		return 1;
 
@@ -308,20 +331,30 @@ int simulateSinus( const char * filename, simulationParameters sp ) {
 	INPUT_TYPE in;
 	OUTPUT_TYPE output;
 	char buff[100];
+	char ts[13];
 
-	sprintf(buff, SIM_OUTPUT_DIR "%s", filename);
+	getTimeStamp(ts);
+
+	if( filename[0] == '\0' ) {
+		sprintf(buff, SIM_OUTPUT_DIR "S%s.txt", ts);
+	} else {
+		sprintf(buff, SIM_OUTPUT_DIR "%s", filename);
+	}
 
 	sf = fopen( buff, "w");
 	if( sf != NULL ) {
-		fprintf(sf, "%% -- SINUS WAVE SIMULATION -------------------------\n%%\n");
-		fprintf(sf, "%%\tDelay:             %6d (%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
-		fprintf(sf, "%%\tPhase delay:       %6d (%.5g°)\n", sp.pulse, -(float)sp.pulse/(float)sp.length*360);
-		fprintf(sf, "%%\tPeriod length:     %6d (%.5gHz)\n", sp.length, F_SAMPLING/(float)sp.length);
-		fprintf(sf, "%%\tNumber of periods: %6d\n", sp.repetitions);
-		fprintf(sf, "%%\tSimulation length: %6d (%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
-		fprintf(sf, "%%\tSinus amplitude:   %6d (%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
-		fprintf(sf, "%%\tOffset:            %6d (%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
+
+		fprintf(sf, "%% -- SINUS WAVE SIMULATION -------------------------\n");
+		fprintf(sf, "%%\tSimulation ID:     %12s\n", ts);
+		fprintf(sf, "%%\tDelay:             %12d (%.5gms)\n", sp.delay, (float)(sp.delay*1000)/F_SAMPLING);
+		fprintf(sf, "%%\tPhase delay:       %12d (%.5g°)\n", sp.pulse, -(float)sp.pulse/(float)sp.length*360);
+		fprintf(sf, "%%\tPeriod length:     %12d (%.5gHz)\n", sp.length, F_SAMPLING/(float)sp.length);
+		fprintf(sf, "%%\tNumber of periods: %12d\n", sp.repetitions);
+		fprintf(sf, "%%\tSimulation length: %12d (%.5gms)\n", sp.repetitions*sp.length+sp.delay, (float)(sp.repetitions*sp.length+sp.delay)/F_SAMPLING);
+		fprintf(sf, "%%\tSinus amplitude:   %12d (%.3g%%)\n", sp.amplitude, (float)sp.amplitude/(float)INPUT_MAX*100.0);
+		fprintf(sf, "%%\tOffset:            %12d (%.3g%%)\n", sp.offset, (float)sp.offset/(float)INPUT_MAX*100.0);
 		fprintf(sf, "%% --------------------------------------------------\n");
+
 		for( j=0; j<sp.delay; j++ ) {
 			startClock();
 			output = filterBank[actualFilter].filter(0, coeffLines[actualFilter], delayLine);
@@ -329,6 +362,7 @@ int simulateSinus( const char * filename, simulationParameters sp ) {
 			setTick();
 			fprintf(sf, "0 %d\n", output);
 		}
+
 		for( r=0; r<sp.repetitions; r++ ) {
 
 			for( j=0; j<sp.length; j++ ) {
@@ -341,7 +375,10 @@ int simulateSinus( const char * filename, simulationParameters sp ) {
 			}
 		}
 
-		out("Simulation complete!\n");
+		out("Simulation complete!\nOutput file: ");
+		out(buff);
+		sprintf(buff, "\nID: %s\n", ts);
+		out(buff);
 		fclose(sf);
 		return 1;
 
