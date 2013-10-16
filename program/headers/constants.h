@@ -132,4 +132,6 @@
 #define SIM_INPUT_DIR			"../simulation/input/"
 #define SIM_OUTPUT_DIR			"../simulation/output/"
 
+#define	DEBUG_FUNCTIONS_ENABLED
+
 #endif

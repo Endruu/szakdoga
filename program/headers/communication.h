@@ -7,6 +7,5 @@ int parseInput( char * s, int maxLength );
 int parseInputInfo( char * s, int l );
 int parseInputDebug( char * s, int l );
 int parseInputCommand( char * s, int l );
-int parseInputTest( char * s, int l );
 
 #endif

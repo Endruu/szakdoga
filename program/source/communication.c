@@ -40,12 +40,8 @@ int parseInput( char * s, int maxLength ) {
 			parseInputInfo( s+1, length );
 		break;
 		
-		case '?' :
-			parseInputDebug( s+1, length );
-		break;
-		
 		case '#' :
-			parseInputTest( s+1, length );
+			parseInputDebug( s+1, length );
 		break;
 		
 		default:
@@ -95,24 +91,6 @@ int parseInputInfo( char * s, int l ) {
 	return 1;
 }
 
-int parseInputDebug( char * s, int l ) {
-	
-	if( l < 4 ) {
-		//hiba
-	}
-	
-	convertToUpper(s, l);
-
-	if ( s[0] == 'F' && s[1] == 'I' ) {
-		debugFilterInfo( s+3, l-3 );
-	}
-	else {
-		//hiba
-	}
-	
-	return 1;
-}
-
 int parseInputCommand( char * s, int l ) {
 
 	if( l > 2 && s[2] != ':' ) {
@@ -153,8 +131,9 @@ int parseInputCommand( char * s, int l ) {
 	return 1;
 }
 
-int parseInputTest( char * s, int l ) {
+int parseInputDebug( char * s, int l ) {
 
+#ifdef DEBUG_FUNCTIONS_ENABLED
 	if( l > 2 && s[2] != ':' ) {
 		//hiba
 	}
@@ -183,9 +162,17 @@ int parseInputTest( char * s, int l ) {
 	else if	( s[0] == 'S' && s[1] == 'R' ) {
 		simulatePSRespose(  s + 3, l, 1);
 	}
+	else if ( s[0] == 'F' && s[1] == 'I' ) {
+		debugFilterInfo( s + 3, l-3 );
+	}
 	else {
 		//hiba
 	}
 
 	return 1;
+
+#else
+	error(97);
+#endif
+
 }

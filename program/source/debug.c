@@ -1,4 +1,7 @@
 #include "../headers/variables.h"
+
+#ifdef DEBUG_FUNCTIONS_ENABLED
+
 #include "../headers/communication.h"
 #include "../headers/debug.h"
 #include "../headers/iir_functions.h"
@@ -386,3 +389,5 @@ int simulateSinus( const char * filename, simulationParameters sp ) {
 		error(95);
 	}
 }
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef DEBUG_FUNCTIONS_ENABLED
+
 #ifndef _DEBUG_H
 #define _DEBUG_H
 
@@ -17,3 +19,6 @@ int simulatePulse( const char * filename, simulationParameters sp );
 int simulateSinus( const char * filename, simulationParameters sp );
 
 #endif
+
+#endif
+
