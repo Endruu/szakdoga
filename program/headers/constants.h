@@ -43,16 +43,16 @@
 //--------------------------------------------------------------------------------------------------------
 #ifdef _COMPILE_WITH_BLACKFIN
 
-#include <fract.h>		// fract typedefs and functions
-#include <complex.h>	// complex typedefs and functions
+#include <fract.h>			// fract typedefs and functions
+#include <complex.h>		// complex typedefs and functions
 
 #else
 
-#include <stddef.h>		// NULL pointer
-#include <stdint.h>		// fixed width int
-#define fract16 int16_t
-#define fract32 int32_t
-#define USE_CUSTOM_MATH
+#include <stddef.h>			// NULL pointer
+#include <stdint.h>			// fixed width int
+#define fract16 int16_t		// instead of fract.h
+#define fract32 int32_t		// instead of fract.h
+#define USE_CUSTOM_MATH		// (in emath.h) instead of complex.h
 
 #endif
 
@@ -79,10 +79,10 @@
 // sampling rate of ADC
 #define F_SAMPLING				48000.0
 
+
 // math constants
 #define PI						3.14159265358979323846
 #define PIP2					1.57079632679489661923		// pi/2
-
 
 #define CODE_DELIMITER			'*'
 
@@ -92,12 +92,7 @@
 
 #define DIGITAL_ZERO			-6.283	// ~ -2pi
 
-#define MAX_REAL				9999999
-
 #define CLKIN					25000000
-
-#define IN_CH_NUM				2
-#define OUT_CH_NUM				2
 
 #define LOGGING_ENABLED
 
@@ -112,8 +107,6 @@
 #define PAIR_ZEROS_TO_POLES		1
 #define EMPTY_PAIR				-1
 #define WZ_PAIR					-2
-#define CRR_ENABLED				0x02
-#define RRC_ENABLED				0x04
 
 #define INFINITY_IN_SEQUENCE	0
 #define INFINITY_FIRST			1
