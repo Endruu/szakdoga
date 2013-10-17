@@ -5,8 +5,6 @@
 // Time
 //--------------------------------------------------------------------------------------------------------
 
-#define CLOCK_CALIBRATION_LENGTH	16
-
 #include <time.h>
 
 void calibrateClock();

@@ -1,6 +1,5 @@
 #include "../headers/iir_filters.h"
 #include "../headers/type_converters.h"
-#include <math.h>
 
 OUTPUT_TYPE passThrough(INPUT_TYPE input, COEFF_TYPE * coeffs, DELAY_TYPE * delays) {
 	return input_to_output( input );

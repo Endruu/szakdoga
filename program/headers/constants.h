@@ -95,6 +95,7 @@
 #define CLKIN					25000000
 
 #define LOGGING_ENABLED
+#define LOGGING_MODE			"w"		// "a" - append, "w" - write
 
 
 #define SORT_BY_MAGNITUDE		0
@@ -126,5 +127,9 @@
 #define SIM_OUTPUT_DIR			"../simulation/output/"
 
 #define	DEBUG_FUNCTIONS_ENABLED
+#define ERROR_BUFFER_SIZE	10
+#define CLOCK_CALIBRATION_LENGTH	16
+#define COPY_COMMENTS		2		// 0 - dont, 1 - mark, 2 - copy
+#define	TC_CALL_MAX_DEPTH	3
 
 #endif
