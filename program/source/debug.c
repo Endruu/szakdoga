@@ -296,7 +296,7 @@ simulationParameters defaultPulseSimulationParameters() {
 
 	sp.delay		= 0;
 	sp.pulse		= 1;
-	sp.length		= F_SAMPLING;		// 1 sec
+	sp.length		= (uint)F_SAMPLING;		// 1 sec
 	sp.repetitions	= 1;
 	sp.amplitude	= INPUT_MAX / 2;
 	sp.offset		= 0;
@@ -309,7 +309,7 @@ simulationParameters defaultSinusSimulationParameters() {
 
 	sp.delay		= 0;
 	sp.pulse		= 0;
-	sp.length		= F_SAMPLING / 1000;	// 1000Hz
+	sp.length		= (uint)F_SAMPLING / 1000;	// 1000Hz
 	sp.repetitions	= 10;
 	sp.amplitude	= INPUT_MAX / 2;
 	sp.offset		= 0;
@@ -453,14 +453,14 @@ int simulatePulse( const char * filename, simulationParameters sp ) {
 				output = filterBank[actualFilter].filter(in, coeffLines[actualFilter], delayLine);
 				stopClock();
 				setTick();
-				fprintf(sf, "%g %d\n", (float)in, output);
+				fprintf(sf, "%d %d\n", in, output);
 			}
 			for( ; j<sp.length; j++ ) {
 				startClock();
 				output = filterBank[actualFilter].filter(sp.offset, coeffLines[actualFilter], delayLine);
 				stopClock();
 				setTick();
-				fprintf(sf, "%g %d\n", (float)sp.offset, output);
+				fprintf(sf, "%d %d\n", sp.offset, output);
 			}
 		}
 

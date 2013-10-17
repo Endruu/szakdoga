@@ -609,7 +609,7 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 
 int i_direct1_float_K( pzkContainer * pzk, biquad * bList ) {
 	float *c;
-	const uint bNum = countBiquads(pzk);
+	const int bNum = countBiquads(pzk);
 	int ib, ic = 0;
 	float tmp;
 

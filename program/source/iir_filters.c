@@ -3,7 +3,7 @@
 #include <math.h>
 
 OUTPUT_TYPE passThrough(INPUT_TYPE input, COEFF_TYPE * coeffs, DELAY_TYPE * delays) {
-	return fr16_to_fr32( input );
+	return input_to_output( input );
 }
 
 OUTPUT_TYPE f_direct1_float_postK(INPUT_TYPE input, COEFF_TYPE * coeffs, DELAY_TYPE * delays) {
@@ -18,7 +18,7 @@ OUTPUT_TYPE f_direct1_float_postK(INPUT_TYPE input, COEFF_TYPE * coeffs, DELAY_T
 	K = c[1];
 	c += 2;
 
-	in = (float)input;
+	in = input_to_float(input);
 	id = ic = 0;
 
 	acc = in;
@@ -45,5 +45,5 @@ OUTPUT_TYPE f_direct1_float_postK(INPUT_TYPE input, COEFF_TYPE * coeffs, DELAY_T
 
 	acc *= K;
 
-	return float_to_fr32( acc );
+	return float_to_output( acc );
 }

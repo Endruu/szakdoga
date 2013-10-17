@@ -1,6 +1,6 @@
 #include "../headers/iir_functions.h"	// function prototypes
 #include "../headers/filterinfo.h"		// filterinfo constructors
-#include "../headers/diagnostics.h"		// diagnostic functions
+#include "../headers/debug.h"		// diagnostic functions
 #include <stdio.h>
 #include <stdlib.h>
 
