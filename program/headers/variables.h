@@ -4,23 +4,12 @@
 #include "types.h"
 #include "error.h"
 
-extern int aLeftIn;
-extern int aRightIn;
-extern int aLeftOut;
-extern int aRightOut;
-
-// DMA buffers for audio
-extern int aRxBuffer[];
-extern int aTxBuffer[];
-extern int channelDelay;
-
 extern char inputBuffer[];
 
 // pending string from uart
-extern uint uartRequest;
+extern char pendingCommand;
 
 extern unsigned int interruptBackup;
-
 
 // delay line, and coeff array
 extern DELAY_TYPE delayLine[];
@@ -30,5 +19,7 @@ extern filterInfo filterBank[];
 
 extern int actualFilter;
 extern int tmpFilter;
+
+extern int coreFrequency;
 
 #endif

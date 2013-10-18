@@ -21,3 +21,9 @@
 #define BAUD_RATE				57600
 
 #define CLKIN					25000000
+
+#define MAX_SEND_TRIES	1000
+
+#define LONG_COMMAND			2
+
+#define ECHO_DEFAULT			0

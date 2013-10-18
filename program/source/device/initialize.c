@@ -142,55 +142,7 @@ void Init_Interrupts()
 	*pSIC_IMASK = 0x00000820;
 }
 
-//--------------------------------------------------------------------------------------------------------
-// Function:	Init_UART
-//
-// Description:	Initialize UART0 for TX and RX
-//--------------------------------------------------------------------------------------------------------
-void Init_UART()
-{
-	unsigned int divisor;		// Used to hold the calculated divisor value
-	unsigned int msel;		// Multiplier MSEL[5:0] of PLL_CTL register[14:9]
-	unsigned int ssel;		// Divisor SSEL[3:0] of PLL_DIV register[3:0]
 
-	*pUART0_GCTL = UCEN;		// UART Clock enable
-	
-	// Line Control Setup : 8-bit data, no parity, 1 stop bit
-	*pUART0_LCR = 0x0003;
-
-
-	// Read the MSEL from PLL_CTL register
-	msel = (*pPLL_CTL)>>9;		// Read MSEL[5:0] from PLL_CTL
-	msel &= 0x3F;			// Clear all bits except msel[5:0]
-
-	// Read SSEL from PLL_DIV register
-	ssel = *pPLL_DIV;
-	ssel &= 0x0F;			// Clear all bits except ssel[3:0]
-
-	/* divisor calculation:
-		SCLK = (msel * CLKIN)/ssel if DF = 0
-		SCLK = (msel * CLKIN/2)/ssel if DF = 1
-		divisor = SCLK/(16 * BAUD_RATE)
-	*/
-	divisor = ((msel * CLKIN)/(ssel * 16 * BAUD_RATE));
-
-	if(*pPLL_CTL & 0x1) {		// If DF = 1, CLKIN/2 is going to PLL
-		divisor /= 2;		// Divide by 2
-	}
-
-
-	*pUART0_LCR |= DLAB;		// Enable Divisor Latch Access
-	*pUART0_DLL = divisor;
-	ssync();
-	*pUART0_DLH = (divisor>>8);
-	ssync();
-	*pUART0_LCR &= ~DLAB;		// Disable Divisor Latch Access
-	ssync();
-
-	*pUART0_IER =0x1;		//Enable interrupts for receive
-
-	ssync();
-}
 
 //--------------------------------------------------------------------------------------------------------
 // Function:	Init_All

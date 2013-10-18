@@ -10,10 +10,15 @@
 //--------------------------------------------------------------------------------------------------------
 
 // UART buffersize
+// Placement in memory
 #ifdef _COMPILE_WITH_BLACKFIN
 #define INPUT_BUF_SIZE				100
+#define DELAY_SECTION				section("L1_data_a")
+#define COEFF_SECTION				section("L1_data_b")
 #else
 #define INPUT_BUF_SIZE				1000
+#define DELAY_SECTION
+#define COEFF_SECTION
 #endif
 
 // parameters for preallocated data/coefficient arrays
@@ -52,7 +57,6 @@
 
 // For CPU usage
 #define CLOCK_CALIBRATION_LENGTH	16
-#define CPU_FREQ					600000000
 
 // Default e0 values for referent filters
 #define DEFAULT_BW_E0				1.0			// 1/sqrt(2) (~3dB) attenuation at corner freq

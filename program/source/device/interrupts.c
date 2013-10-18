@@ -1,8 +1,19 @@
-#include "../headers/global.h"
+#include "../../headers/variables.h"
 
 #ifdef _COMPILE_WITH_BLACKFIN
 
+#include "../../headers/uart.h"
 #include <blackfin.h>
+
+int aLeftIn;
+int aRightIn;
+int aLeftOut		= 0;
+int aRightOut		= 0;
+
+// DMA buffers for audio
+int aRxBuffer[AUDIO_BUF_SIZE];
+int aTxBuffer[AUDIO_BUF_SIZE];
+int channelDelay	= 0;
 
 //--------------------------------------------------------------------------------------------------------
 // Function:	Sport0_RX_ISR
@@ -32,7 +43,7 @@ EX_INTERRUPT_HANDLER(Sport0_RX_ISR)
 	// run filter
 	aLeftOut = aRightIn;
 	//aRightOut = aLeftIn;
-	aRightOut = (*filterR.filter)(aRightIn >> 8, coeffLineR, delayLineR) >> 8;
+	aRightOut = (filterBank[actualFilter].filter)(aRightIn >> 8, coeffLineR, delayLineR) >> 8;
 
 }
 

@@ -99,7 +99,7 @@ void printCpuUsage() {
 	char buffer[50];
 	filterInfo * fi = &filterBank[actualFilter];	
 	
-	sprintf( buffer, "CPU usage: %d ticks - %.2f%%%%\n", fi->ticks, (float)(fi->ticks * 100)*F_SAMPLING/(float)(CPU_FREQ) );
+	sprintf( buffer, "CPU usage: %d ticks - %.2f%%%%\n", fi->ticks, (float)(fi->ticks * 100)*F_SAMPLING/(float)(coreFrequeny) );
 	out( buffer );
 }
 
