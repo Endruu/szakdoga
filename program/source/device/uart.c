@@ -1,8 +1,7 @@
-#include "../../headers/variables.h"
+#include "../../headers/uart.h"
 
 #ifdef _COMPILE_WITH_BLACKFIN
 
-#include "../../headers/uart.h"
 #include <blackfin.h>
 
 uint _ticks_per_char = 1;
