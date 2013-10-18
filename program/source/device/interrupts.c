@@ -1,9 +1,8 @@
-#include "../../headers/variables.h"
+#include "../../headers/interrupts.h"
 
 #ifdef _COMPILE_WITH_BLACKFIN
 
 #include "../../headers/uart.h"
-#include <blackfin.h>
 
 int aLeftIn;
 int aRightIn;
