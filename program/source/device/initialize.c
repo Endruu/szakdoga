@@ -1,85 +1,89 @@
 #include "../headers/global.h"		//prototypes
 
 #ifdef _COMPILE_WITH_BLACKFIN
-#include <blackfin.h>	//symbolic register names
-#endif
 
-#ifdef _COMPILE_WITH_BLACKFIN
+#include "../../headers/uart.h"
+#include <blackfin.h>
+
+void initializeDevice() {
+
+/*
+	1. Configure PORT F
+	2. Configure SPORT0
+	3. Reset audio (ADC and DAC)
+	4. Configure DMA for ADC and DAC
+	5. Configure interrupts
+	6. Initialize UART
+	7. Enable DMA and interrupts
+
+*/
 
 //--------------------------------------------------------------------------------------------------------
-// Function:	Init_Flags
-//
-// Description:	Configure PORTF flags to control ADC and DAC RESETs
+// 1. Configure PORTF
 //--------------------------------------------------------------------------------------------------------
-void Init_Flags()
-{
+	// PORTF[15:13]	: CAN interface (Disabled)
+	// PORTF[12]	: Audio Reset (Active Low)
+	// PORTF[11:6]	: LED[6-1]
+	// PORTF[5:2]	: Button[4-1]
+	// PORTF[1]		: UART0 RX
+	// PORTF[0]		: UART0 TX
+	
 	int temp;
 	// configure programmable flags
-	// set PORTF function enable register (need workaround)
+	// set PORTF Function Enable Register (need workaround)
 	temp = *pPORTF_FER;
 	temp++;
     *pPORTF_FER = 0x0000;
-    *pPORTF_FER = 0x0003;		// enable uart0 TX and RX
+    *pPORTF_FER = 0x0003;		// enable uart0 TX and RX function
 
     // set PORTF direction register
-    *pPORTFIO_DIR = 0x1FC0;
+    *pPORTFIO_DIR = 0x1FC0;		// reg[15:0] : IIIO OOOO OOII IISS	(Input, Output, Special)
         
    	// set PORTF input enable register
-    *pPORTFIO_INEN = 0x003C;
+    *pPORTFIO_INEN = 0x003C;	// reg[15:0] : DDDE OOOO OOEE EESS	(Disabled, Enabled, Output)
          
 	// set PORTF clear register
-    *pPORTFIO_CLEAR = 0x0FC0;
-}
-
+    *pPORTFIO_CLEAR = 0x0FC0;	// clear output pins
 
 //--------------------------------------------------------------------------------------------------------
-// Function:	Audio_Reset
-//
-// Description:	This function Resets the ADC and DAC.
+// 2. Configure Sport0 for I2S mode, to transmit/receive data to/from the ADC/DAC.
 //--------------------------------------------------------------------------------------------------------
-void Audio_Reset()
-{
-	int i;
-	// give some time for reset to take affect
-    for(i = 0; i< AUDIO_RESET_DELAY; i++) {};
- 	
-    // set port f set register
-    *pPORTFIO_SET = PF12;
-
-}
-
-//--------------------------------------------------------------------------------------------------------
-// Function:	Init_Sport0
-//
-// Description:	Configure Sport0 for I2S mode, to transmit/receive data
-//				to/from the ADC/DAC.Configure Sport for external clocks and
-//				frame syncs.
-//--------------------------------------------------------------------------------------------------------
-void Init_Sport0()
-{
-	// Sport0 receive configuration
-	// External CLK, External Frame sync, MSB first, Active Low
-	// 24-bit data, Secondary side enable, Stereo frame sync enable
+	// use Port J (with its default mux settings)
+	
+	// xFSR		: Frame Sync Required (for every data word)
+	// LxFS		: Low x Frame Sync 
+	// xCKFE	: Clock drive/sample edge (data driven on the falling edge, externally generated frame syncs sampled on rising edge)
+	// SLEN_24	: 24-bit data format
+	// xSFSE	: Stereo Frame Sync Enable
+	
+	// Sport0 receive configuration:
+	// External CLK (~IRCLK), External Frame sync (~ITFS), MSB first (~RLSBIT), Active Low
+	// 24-bit data, Stereo frame sync enable
 	*pSPORT0_RCR1 = RFSR | LRFS | RCKFE;
 	*pSPORT0_RCR2 = SLEN_24 | RSFSE;
 	
-	// Sport0 transmit configuration
+	// Sport0 transmit configuration:
 	// External CLK, External Frame sync, MSB first, Active Low
-	// 24-bit data, Secondary side enable, Stereo frame sync enable
+	// 24-bit data, Stereo frame sync enable
 	*pSPORT0_TCR1 = TFSR | LTFS | TCKFE;
 	*pSPORT0_TCR2 = SLEN_24 | TSFSE;	
-}
 
 //--------------------------------------------------------------------------------------------------------
-// Function:	Init_DMA
-//
-// Description:	Initialize DMA3 in autobuffer mode to receive and DMA4 in
-//				autobuffer mode to transmit
+// 3. Reset audio (ADC and DAC)
 //--------------------------------------------------------------------------------------------------------
-void Init_DMA()
-{
-	// Configure DMA3
-	// 32-bit transfers, Interrupt on completion, Autobuffer mode
+	// clear port f set register
+    *pPORTFIO_CLEAR = PF12;		// 0: reset
+	
+	// give some time for reset to take affect
+    for(temp = 0; temp< AUDIO_RESET_DELAY; temp++) {};
+ 	
+    // set port f set register
+    *pPORTFIO_SET = PF12;		// 1: reset
+	
+//--------------------------------------------------------------------------------------------------------
+// 4. Configure DMA3 and DMA4
+//--------------------------------------------------------------------------------------------------------
+	// Configure DMA3: receive, autobuffer mode, 32-bit, interrupt on completion
 	*pDMA3_CONFIG = WNR | WDSIZE_32 | DI_EN | FLOW_1;
 	// Start address of data buffer
 	*pDMA3_START_ADDR = aRxBuffer;
@@ -88,9 +92,7 @@ void Init_DMA()
 	// DMA loop address increment
 	*pDMA3_X_MODIFY = 4;
 	
-
-	// Configure DMA4
-	// 32-bit transfers, Autobuffer mode
+	// Configure DMA4: transmit, autobuffer mode, 32-bit
 	*pDMA4_CONFIG = WDSIZE_32 | FLOW_1;
 	// Start address of data buffer
 	*pDMA4_START_ADDR = aTxBuffer;
@@ -98,78 +100,42 @@ void Init_DMA()
 	*pDMA4_X_COUNT = 2;
 	// DMA loop address increment
 	*pDMA4_X_MODIFY = 4;
-
-}
-
-//--------------------------------------------------------------------------------------------------------
-// Function:	Enable_DMA_Sport
-//
-// Description:	Enable DMA3, DMA4, Sport0 TX and Sport0 RX
-//--------------------------------------------------------------------------------------------------------
-void Enable_DMA_Sport0()
-{
-	// enable DMAs
-	*pDMA4_CONFIG	= (*pDMA4_CONFIG | DMAEN);
-	*pDMA3_CONFIG	= (*pDMA3_CONFIG | DMAEN);
 	
-	// enable Sport0 TX and RX
-	*pSPORT0_TCR1 	= (*pSPORT0_TCR1 | TSPEN);
-	*pSPORT0_RCR1 	= (*pSPORT0_RCR1 | RSPEN);
-}
-
 //--------------------------------------------------------------------------------------------------------
-// Function:	Init_Interrupts
-//
-// Description:	Initialize Interrupts
+// 5. Configure Interrupts
 //--------------------------------------------------------------------------------------------------------
-void Init_Interrupts()
-{
-	// Set Sport0 RX (DMA3) interrupt priority to 2 = IVG9 
-	*pSIC_IAR0 = 0xff2fffff;	// ADC RX	=> ivg9
-	*pSIC_IAR1 = 0xffff3fff;	// UART0 RX	=> ivg10
-	*pSIC_IAR2 = 0xffffffff;
-	*pSIC_IAR3 = 0xffffffff;
+	// Set interrupt priorities:
+	*pSIC_IAR0 = 0xFF2FFFFF;	// ADC RX (SPORT0, DMA3)	2 => IVG9
+	*pSIC_IAR1 = 0xFFFF3FFF;	// UART0 RX					3 => IVG10
+	*pSIC_IAR2 = 0xFFFFFFFF;	// all other:
+	*pSIC_IAR3 = 0xFFFFFFFF;	// IVG15
 
-	// assign ISRs to interrupt vectors
+	// assign ISRs to interrupt vectors:
 	
 	// Sport0 RX ISR -> IVG 9
 	register_handler(ik_ivg9, Sport0_RX_ISR);
-	
 	// UART0 RX ISR -> IVG 10
-	register_handler(ik_ivg10, Uart0_RX_ISR); 
+	register_handler(ik_ivg10, Uart0_RX_ISR);
+
+//--------------------------------------------------------------------------------------------------------
+// 6. Initialize UART0
+//--------------------------------------------------------------------------------------------------------
+	initUart();		// from uart.h
+
+//--------------------------------------------------------------------------------------------------------
+// 7. Enable DMA3, DMA4, Sport0_TX, Sport0_RX, and interrupts
+//--------------------------------------------------------------------------------------------------------
+	// enable DMAs
+	*pDMA4_CONFIG	|= DMAEN;
+	*pDMA3_CONFIG	|= DMAEN;
+	
+	// enable Sport0 TX and RX
+	*pSPORT0_TCR1 	|= TSPEN;
+	*pSPORT0_RCR1 	|= RSPEN;
 
 	// enable UART0 RX and Sport0 RX interrupts
-	*pSIC_IMASK = 0x00000820;
-}
-
-
-
-//--------------------------------------------------------------------------------------------------------
-// Function:	Init_All
-//
-// Description:	Aggregates all of the initializating functions
-//--------------------------------------------------------------------------------------------------------
-void Init_Device()
-{
-	Init_Flags();
-	Audio_Reset();
-	Init_Sport0();
-	Init_UART();
-	Init_DMA();
-	Init_Interrupts();
-	Enable_DMA_Sport0();
+	*pSIC_IMASK = IM_UART0_RX | IM_SPORT0_RX;
+	
 }
 
 #endif
-
-void enableAudio() {
-#ifdef _COMPILE_WITH_BLACKFIN
-	*pSIC_IMASK |= 0x00000020;
-#endif
-}
-
-void disableAudio() {
-#ifdef _COMPILE_WITH_BLACKFIN
-	*pSIC_IMASK &= 0xFFFFFFDF;
-#endif
-}

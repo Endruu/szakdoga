@@ -31,4 +31,7 @@
 
 #define ECHO_DEFAULT			0
 
+#define	IM_UART_RX				0x0800
+#define	IM_SPORT0_RX			0x0020
+
 #endif
