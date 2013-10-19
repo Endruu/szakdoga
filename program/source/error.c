@@ -1,4 +1,5 @@
-#include "error.h"
+#include "../headers/error.h"
+#include "../headers/constants.h"
 
 int _error_container[ERROR_BUFFER_SIZE];
 int _errors_occurred = 0;

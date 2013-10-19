@@ -4,15 +4,6 @@
 // Definition of global variables
 //--------------------------------------------------------------------------------------------------------
 
-int aLeftIn;
-int aRightIn;
-int aLeftOut		= 0;
-int aRightOut		= 0;
-
-int aRxBuffer[AUDIO_BUF_SIZE];
-int aTxBuffer[AUDIO_BUF_SIZE];
-int channelDelay	= 0;
-
 char inputBuffer[INPUT_BUF_SIZE];
 
 uint uartRequest	= 0;
