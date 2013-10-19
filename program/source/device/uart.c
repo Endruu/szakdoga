@@ -9,7 +9,28 @@ int _echo = ECHO_DEFAULT;
 int _buffer_index = 0;
 
 uint toggleEcho() {
-	return _echo = !_echo;
+
+	sendChar('E');
+	sendChar('C');
+	sendChar('H');
+	sendChar('O');
+	sendChar(' ');
+	sendChar('O');
+	
+	_echo = !_echo;
+	
+	if( _echo ) {
+		sendChar('N');
+	} else {
+		sendChar('F');
+		sendChar('F');
+	}
+	
+	sendChar(10);								// Line Feed
+	sendChar(13);								// Carriage Return
+	
+	return _echo;
+	
 }
 
 uint sendChar(char c) {
@@ -28,6 +49,10 @@ uint sendChar(char c) {
 
 void receiveString() {
 	char in = *pUART0_RBR;
+	
+	if( _buffer_index == 0 && in == ECHO_TOGGLE_CHAR ) {
+		toggleEcho();
+	}
 	
 	if( pendingCommand == 1 ) {							// buffer is in use
 		sendChar('!');
