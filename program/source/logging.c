@@ -40,7 +40,9 @@ void startLog( const char * filename ) {
 
 	}
 
-	logfile = fopen( filename, LOGGING_MODE );
+	sprintf(bfr, LOGGING_DIR "%s", filename);
+
+	logfile = fopen( bfr, LOGGING_MODE );
 	if( logfile != NULL ) {
 		sprintf(bfr, "\n-- Log started at: %4d-%02d-%02d %02d:%02d\n\n", t->tm_year+1900, t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min);
 	} else {

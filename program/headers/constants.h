@@ -44,6 +44,7 @@
 #define SIM_OUTPUT_DIR				"../simulation/output/"
 
 // Logging
+#define LOGGING_DIR					"../simulation/log/"
 #define LOGGING_ENABLED
 #define LOGGING_MODE				"w"			// "a" - append, "w" - write
 
