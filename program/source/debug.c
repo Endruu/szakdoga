@@ -227,10 +227,14 @@ int runTestcase( char * tcname ) {
 						}
 				}
 			} else {
-				fclose(tc);
-				tc = NULL;
 				tcDepth--;
-				error(69);
+				if( !feof(tc) ) {
+					fclose(tc);
+					error(69);
+				} else {
+					fclose(tc);
+					return 1;
+				}
 			}
 		} while( !feof(tc) );
 
@@ -240,7 +244,6 @@ int runTestcase( char * tcname ) {
 	}
 
 	fclose(tc);
-	tc = NULL;
 	tcDepth--;
 	return 1;
 
