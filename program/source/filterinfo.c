@@ -18,6 +18,7 @@ filterInfo defaultIirFilterInfo() {
 	r.ticks			= 0;
 	r.mem_coeff		= 0;
 	r.mem_delay		= 0;
+	r.warping		= WARP_AUTO_FIX;
 	
 	return r;
 }
@@ -35,7 +36,7 @@ filterInfo copyFilterInfo( filterInfo * fi ) {
 	r.ticks			= 0;
 	r.mem_coeff		= 0;
 	r.mem_delay		= 0;
-
+	r.warping		= fi->warping;
 	
 	return r;
 }

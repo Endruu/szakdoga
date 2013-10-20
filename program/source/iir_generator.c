@@ -326,6 +326,7 @@ int parseIirImplementParameters( char * s, int l, filterInfo * fi ) {
 	int nextLetter, prevLetter;
 	implementParameters ip = defaultImplementParameters();
 	char tmp;
+	int tmp2;
 	
 	nextLetter = -1;
 	while( ++nextLetter < l ) {
@@ -373,15 +374,15 @@ int parseIirImplementParameters( char * s, int l, filterInfo * fi ) {
 				}
 				break;
 			case 'F' :
-				if ( sscanf( s + prevLetter + 1, "%d", &tmp ) == 1 ) {
-					if( tmp < 0 ) {
+				if ( sscanf( s + prevLetter + 1, "%d", &tmp2 ) == 1 ) {
+					if( tmp2 < 0 ) {
 						// warn
-						tmp = -tmp;
+						tmp2 = -tmp2;
 					}
-					if( tmp >= FILTER_NUM ) {
+					if( tmp2 >= FILTER_NUM ) {
 						error(209);
 					}
-					ip.filter = tmp;
+					ip.filter = tmp2;
 				} else {
 					error(204);
 				}
