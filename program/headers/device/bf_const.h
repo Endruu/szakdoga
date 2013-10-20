@@ -35,4 +35,14 @@
 #define	IM_UART_RX				0x0800
 #define	IM_SPORT0_RX			0x0020
 
+#undef INPUT_BUF_SIZE
+#undef DELAY_SECTION
+#undef COEFF_SECTION
+#define INPUT_BUF_SIZE			100
+#define DELAY_SECTION			section("L1_data_a")
+#define COEFF_SECTION			section("L1_data_b")
+
+#undef DEBUG_FUNCTIONS_ENABLED	// disable debug functions
+#undef LOGGING_ENABLED			// disable log
+
 #endif
