@@ -1,4 +1,4 @@
-#include "../../headers/uart.h"
+#include "../../headers/device/uart.h"
 
 #ifdef _COMPILE_WITH_BLACKFIN
 

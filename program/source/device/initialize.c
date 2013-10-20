@@ -1,8 +1,8 @@
-#include "../headers/global.h"		//prototypes
+#include "../headers/device/device.h"		//prototypes
 
 #ifdef _COMPILE_WITH_BLACKFIN
 
-#include "../../headers/uart.h"
+#include "../../headers/device/uart.h"
 #include <blackfin.h>
 
 void initializeDevice() {

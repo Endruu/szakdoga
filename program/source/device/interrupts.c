@@ -1,8 +1,8 @@
-#include "../../headers/interrupts.h"
+#include "../../headers/device/interrupts.h"
 
 #ifdef _COMPILE_WITH_BLACKFIN
 
-#include "../../headers/uart.h"
+#include "../../headers/device/uart.h"
 
 int aLeftIn;
 int aRightIn;
