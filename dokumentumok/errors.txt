@@ -143,3 +143,14 @@
 97	: Debug functions not enabled
 
 98	: Error while implementing filter
+
+200	: Error while parsing implementation parameter section
+201	: Error while reading SORT BY parameter
+202	: Error while reading PAIR TO parameter
+203	: Error while reading ORDER parameter
+204	: Error while reading FILTER NUM parameter
+205	: Error in the implementation parameter section of the input command
+206	: Wrong parameter for SORT BY, try Q/F
+207	: Wrong parameter for PAIR TO, try P/Z
+208	: Wrong parameter for ORDER, try U/D
+209	: Wrong parameter for FILTER NUM

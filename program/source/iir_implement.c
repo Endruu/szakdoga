@@ -753,9 +753,12 @@ int i_direct1_float_K( pzkContainer * pzk, biquad * bList ) {
 	return 1;
 }
 
-int implementFilter( uint filter, pzkContainer * digitalized, biquad * bList ) {
-	if( fList[filter].implementer( digitalized, bList ) ) {
-		filterBank[tmpFilter].filter = *fList[filter].filter;
+int implementFilter( pzkContainer * digitalized, biquad * bList ) {
+	filterInfo fi = filterBank[tmpFilter];
+	char fnum = fi.implementP.filter;
+
+	if( fList[fnum].implementer( digitalized, bList ) ) {
+		fi.filter = *fList[fnum].filter;
 		return 1;
 	} else {
 		error(83);

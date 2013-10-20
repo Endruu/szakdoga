@@ -49,7 +49,7 @@ complex prewarpPZ(complex pz);
 
 // Implement
 
-int implementFilter( uint filter, pzkContainer * digitalized, biquad * bList );
+int implementFilter( pzkContainer * digitalized, biquad * bList );
 biquad * pairPZ( pzkContainer * pzk, uint insert, char options );
 int i_direct1_float_K( pzkContainer * pzk, biquad * bList );
 

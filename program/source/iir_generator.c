@@ -57,7 +57,7 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 										}
 #endif //---------------------------------------------------------------------------------------------------//
 
-										if( !implementFilter(0, pzk1, bList) ) {
+										if( !implementFilter(pzk1, bList) ) {
 											free(bList);
 											deletePzkContainer( pzk1 );
 											error(98);
@@ -322,6 +322,81 @@ int parseIirTransformParameters( char * s, int l, filterInfo * fi ) {
 	
 }
 
+int parseIirImplementParameters( char * s, int l, filterInfo * fi ) {
+	int nextLetter, prevLetter;
+	implementParameters ip = defaultImplementParameters();
+	char tmp;
+	
+	nextLetter = -1;
+	while( ++nextLetter < l ) {
+		prevLetter = nextLetter++;
+		for( ; nextLetter < l && s[nextLetter] != ','; nextLetter++ );
+		
+		switch( s[prevLetter] ) {
+			case 'S' :
+				if ( sscanf( s + prevLetter + 1, "%c", &tmp ) == 1 ) {
+					if( tmp == 'q' || tmp == 'Q' ) {
+						ip.sort = SORT_BY_QFACTOR;
+					} else if( tmp == 'f' || tmp == 'F' ) {
+						ip.sort = SORT_BY_MAGNITUDE;
+					} else {
+						error(206);
+					}
+				} else {
+					error(201);
+				}
+				break;
+			case 'P' :
+				if ( sscanf( s + prevLetter + 1, "%c", &tmp ) == 1 ) {
+					if( tmp == 'p' || tmp == 'P' ) {
+						ip.pair = PAIR_ZEROS_TO_POLES;
+					} else if( tmp == 'z' || tmp == 'Z' ) {
+						ip.pair = PAIR_POLES_TO_ZEROS;
+					} else {
+						error(207);
+					}
+				} else {
+					error(202);
+				}
+				break;
+			case 'O' :
+				if ( sscanf( s + prevLetter + 1, "%c", &tmp ) == 1 ) {
+					if( tmp == 'u' || tmp == 'U' ) {
+						ip.order = ORDER_UP;
+					} else if( tmp == 'd' || tmp == 'D' ) {
+						ip.order = ORDER_DOWN;
+					} else {
+						error(208);
+					}
+				} else {
+					error(203);
+				}
+				break;
+			case 'F' :
+				if ( sscanf( s + prevLetter + 1, "%d", &tmp ) == 1 ) {
+					if( tmp < 0 ) {
+						// warn
+						tmp = -tmp;
+					}
+					if( tmp >= FILTER_NUM ) {
+						error(209);
+					}
+					ip.filter = tmp;
+				} else {
+					error(204);
+				}
+				break;
+			default:
+				error(205);
+		}
+	}
+	
+	fi->implementP = ip;
+	
+	return 1;
+
+}
+
 int cmdGenerateIir( char * s, int l, int modify ) {
 	int nextDelimiter = -1;
 	int sectionStart;
@@ -351,6 +426,11 @@ int cmdGenerateIir( char * s, int l, int modify ) {
 		else if	( s[sectionStart] == 'D' && s[sectionStart + 1] == 'P' ) {
 			if( !parseIirDigitalizationParameters( s + sectionStart + 3, nextDelimiter - sectionStart - 3, newFilter ) ) {
 				error(66);
+			}
+		}
+		else if	( s[sectionStart] == 'I' && s[sectionStart + 1] == 'P' ) {
+			if( !parseIirImplementParameters( s + sectionStart + 3, nextDelimiter - sectionStart - 3, newFilter ) ) {
+				error(200);
 			}
 		}
 		else {

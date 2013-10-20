@@ -81,7 +81,7 @@ typedef struct {
 	char	pair,
 			sort,
 			order,
-			infinity;
+			filter;
 } implementParameters;
 
 typedef struct {

@@ -69,10 +69,10 @@ iirParameters defaultIirParameters() {
 implementParameters defaultImplementParameters() {
 	implementParameters r;
 
-	r.pair	= PAIR_POLES_TO_ZEROS;
-	r.sort	= SORT_BY_QFACTOR;
-	r.order	= ORDER_UP;
-	r.infinity	= INFINITY_IN_SEQUENCE;
+	r.pair		= PAIR_POLES_TO_ZEROS;
+	r.sort		= SORT_BY_QFACTOR;
+	r.order		= ORDER_UP;
+	r.filter	= 0;
 
 	return r;
 }
