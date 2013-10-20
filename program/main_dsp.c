@@ -1,23 +1,30 @@
-#include "global.h"
+#include "headers/variables.h"
 
 #ifdef _COMPILE_WITH_BLACKFIN
 
+#include "headers/communication.h"
+#include "headers/diagnostics.h"
+#include "headers/device/device.h"
+
 void main(void)
 {
-	filterR = newFilterInfo();
-	Init_Device();
+	calibrateClock();
+	initializeDevice();
 
 	while(1) {
-		if( uartRequest == 1 ) {
-			changeState(uart_buffer);
-			if( getErrors() ) {
-				printErrors(uart_buffer, UART_BUF_SIZE);
-				//printf("%s\n", uart_buffer);
-				clearErrors();
+		if( pendingCommand ) {
+		
+			if( pendingCommand == LONG_COMMAND ) {
+				// error
 			} else {
-				//printf("OK\n");
+				parseInput(inputBuffer, INPUT_BUF_SIZE);
 			}
-			uartRequest = 0;
+			
+			if( getErrors() ) {
+				printErrors();
+				clearErrors();
+			}
+			
 		}
 	}
 }

@@ -1,5 +1,7 @@
 #ifdef __VISUALDSPVERSION__
+#ifndef _COMPILE_WITH_BLACKFIN
 #define _COMPILE_WITH_BLACKFIN	// uncomment to compile with other compiler, some functions will be unavailable
+#endif
 #endif
 
 #ifndef  _CONSTANTS_H
@@ -10,11 +12,11 @@
 //--------------------------------------------------------------------------------------------------------
 
 // UART buffersize
-#ifdef _COMPILE_WITH_BLACKFIN
-#define INPUT_BUF_SIZE				100
-#else
 #define INPUT_BUF_SIZE				1000
-#endif
+
+// Placement in memory
+#define DELAY_SECTION
+#define COEFF_SECTION
 
 // parameters for preallocated data/coefficient arrays
 #define COEFF_SIZE					100
@@ -53,7 +55,6 @@
 
 // For CPU usage
 #define CLOCK_CALIBRATION_LENGTH	16
-#define CPU_FREQ					600000000
 
 // Default e0 values for referent filters
 #define DEFAULT_BW_E0				1.0			// 1/sqrt(2) (~3dB) attenuation at corner freq

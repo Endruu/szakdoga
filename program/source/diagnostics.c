@@ -97,8 +97,8 @@ void setTick() {
 
 void printCpuUsage() {
 	filterInfo * fi = &filterBank[actualFilter];	
-	
-	sprintf( inputBuffer, "CPU usage: %d ticks - %.2f%%%%\n", fi->ticks, (float)(fi->ticks * 100)*F_SAMPLING/(float)(CPU_FREQ) );
+
+	sprintf( inputBuffer, "CPU usage: %d ticks - %.2f%%%%\n", fi->ticks, (float)(fi->ticks * 100)*F_SAMPLING/(float)(coreFrequency) );
 	out( inputBuffer );
 }
 
