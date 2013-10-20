@@ -25,7 +25,9 @@
 
 #define CLKIN					25000000
 
-#define MAX_SEND_TRIES	1000
+#define MAX_SEND_TRIES			10
+
+#define	MAX_OUTPUT_LENGTH		110;
 
 #define LONG_COMMAND			2
 
