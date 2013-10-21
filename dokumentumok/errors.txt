@@ -1,0 +1,156 @@
+0	: general error
+		implement.c:
+	direct1_biquad:
+1	: First pole is complex, assuming it has a conjugate pair, therefore second pole should not be defined
+2	: First zero is complex, assuming it has a conjugate pair, therefore second zero should not be defined
+	implementFilter:
+3	: The number of zeros and poles must be equal
+4	: The buffer for coefficients is full
+5	: Error in direct1_biquad()
+		generate.c
+	normalizeIirParameters:
+100	: Amplification at corner frequency is greater than one, must be less than one
+101	: Amplification at stop frequency is greater than one, must be less than one
+102	: Amplification at corner and stop frequency are equal
+103	: Corner and stop frequency are equal
+104	: Error while converting input parameters for Butterworth
+105	: Error while converting input parameters for Chebyshev
+106	: Error while converting input parameters for Inverse Chebyshev
+107	: Not a valid filter type for referent filter creation (try: BW, C1, C2)
+108	: Error while generating referent filter
+109	: Error while fixing the stop frequency of the referent filter
+
+110	: Stop frequency or stopband attenuation is missing
+111	: Stop frequency or stopband attenuation or passband attenuation is missing
+112	: Failed to create empty pzkContainer
+113	: Stop frequency or stopband attenuation is missing
+114	: Stop frequency or stopband attenuation or passband attenuation is missing
+115	: Failed to create empty pzkContainer
+116	: Stop frequency and stopband attenuation are missing
+117	: Stop frequency or stopband attenuation or passband attenuation is missing
+118	: Failed to create empty pzkContainer
+
+10	: Filter's type is not defined
+11	: FIR not implemented yet
+12	: Error in the digitalization section of the input command
+13	: Delimiter not found at the digitalization section of the input command
+14	: Error in the digitalization section of the input command
+15	: Not a valid filter type in the transform section of the input command (try: LP, HP, BP, BS)
+16	: Error in the transform section of the input command
+17	: Delimiter not found at the transform section of the input command
+18	: Error while normalizing transform parameters
+19	: Not a valid filter type in the generate section of the input command (try: BW, C1, C2)
+20	: Error in the generate IIR section of the input command
+21	: Delimiter not found at the generate IIR section of the input command
+22	: Error while normalizing generate IIR parameters
+23	: Error while decoding generate IIR section of the input command
+24	: FIR not implemented yet
+25	: Not a valid filter type in the generate section of the input command (try: GI, GF)
+26	: Error while decoding transform section of the input command
+27	: Error while decoding digitalization section of the input command
+28	: Error while decoding input command
+29	: Error while creating referent filter
+30	: Referent filter is missing
+31	: Error while transforming referent filter
+32	: Transformed filter is missing
+33	: Error while digitalizing transformed filter
+34	: Digitalized filter is missing
+35	: Error while implementing digitalized filter
+
+36	: Error while digitalizing transformed filter
+
+37	: Could not allocate space for a pzkContainer
+38	: Could not allocate space for zeros
+39	: Could not allocate space for poles
+
+40	: Bandwidth should be shrunk but it is already minimal
+41	: Bandwidth should be shrunk but it is already minimal
+42	: Bandwidth should be shrunk but it is already minimal
+43	: Not a valid filter type for filter transformation (try: LP, HP, BP, BS)
+44	: Error while transforming referent filter
+
+45	: Error while reading warping frequency
+46	: Error while reading warping frequency
+47	: Error in the digitalization section of the input command
+
+48	: Referent filter parameter list is too short
+49	: Missing ':' in referent filter parameter list
+50	: Error while reading the order of the referent filter
+51	: Error while reading the corner frequency of the referent filter
+52	: Error while reading the stop attenuation of the referent filter
+53	: Error while reading the stop frequency of the referent filter
+54	: Error in the referent filter section of the input command
+
+55	: Transform parameter list is too short
+56	: Missing ':' in transform parameter list
+57	: Error while reading the corner frequency of the filter
+58	: Error while reading the center frequency of the filter
+59	: Error while reading the bandwidth of the filter
+60	: Error while reading the lower cut frequency of the filter
+61	: Error while reading the upper cut frequency of the filter
+62	: Error in the transform parameter section of the input command
+63	: Mixed parameter usage (use C-D for center freq. and bandwidth or L-U for lower and upper cut frequency)
+
+64	: Error while parsing referent filter section
+65	: Error while parsing transform parameter section
+66	: Error while parsing digitalization parameter section
+67	: Error while parsing IIR filter parameters
+
+68	: Can't open testcase
+69	: Error while reading from testcase
+70	: Testcase max call depth reached
+
+71	: Missing transform parameter
+
+72	: Missing parameter for createIirFilter
+73	: Error while creating referent filter
+74	: Error while transforming referent filter
+32	: Transformed filter is missing
+33	: Error while digitalizing transformed filter
+34	: Digitalized filter is missing
+35	: Error while implementing digitalized filter
+
+75	: More zeros than poles
+76	: Can not allocate space for biquad list
+77	: Biquad index overrun
+
+78	: Error while creating biquad list
+
+79	: Error while creating IIR filter for printing
+80	: Error while creating IIR filter
+
+81	: Not enough memory for coefficients
+82	: Not enough memory for delays
+83	: Error while implementing filter
+
+84	: Error while opening file for writing
+
+85	: Missing filename for simulation
+86	: Error while reading the delay for the simulation
+87	: Error while reading the pulse length / phase for the simulation
+88	: Error while reading the length of the period for the simulation
+89	: Error while reading the number of periods for the simulation
+90	: Error while reading the amplitude for the simulation
+91	: Error while reading the offset for the simulation
+92	: Error in the input command
+
+93	: Error while simulating pulse
+94	: same as 77
+
+95	: Error while opening file for writing
+96	: Error while simulating sinus
+
+97	: Debug functions not enabled
+
+98	: Error while implementing filter
+
+200	: Error while parsing implementation parameter section
+201	: Error while reading SORT BY parameter
+202	: Error while reading PAIR TO parameter
+203	: Error while reading ORDER parameter
+204	: Error while reading FILTER NUM parameter
+205	: Error in the implementation parameter section of the input command
+206	: Wrong parameter for SORT BY, try Q/F
+207	: Wrong parameter for PAIR TO, try P/Z
+208	: Wrong parameter for ORDER, try U/D
+209	: Wrong parameter for FILTER NUM
