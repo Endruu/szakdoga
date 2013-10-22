@@ -759,13 +759,31 @@ int i_direct1_float_K( pzkContainer * pzk, biquad * bList ) {
 }
 
 int implementFilter( pzkContainer * digitalized, biquad * bList ) {
-	filterInfo fi = filterBank[tmpFilter];
-	char fnum = fi.implementP.filter;
+	filterInfo * fi = &filterBank[tmpFilter];
+	char fnum = fi->implementP.filter;
 
 	if( fList[fnum].implementer( digitalized, bList ) ) {
-		fi.filter = *fList[fnum].filter;
+		fi->filter = *fList[fnum].filter;
 		return 1;
 	} else {
 		error(83);
 	}
+}
+
+void swapToNewFilter() {
+	int i;
+
+	// disable actual filter
+	filterBank[actualFilter].filter = &passThrough;
+
+	// clear delay line
+	for( i = 0; i < DELAY_SIZE; i++ ) {
+		delayLine[i] = 0;
+	}
+
+	// swap old and new filters
+	i = actualFilter;
+	actualFilter = tmpFilter;
+	tmpFilter = i;
+
 }

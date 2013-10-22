@@ -1,6 +1,6 @@
 #include "../headers/iir_functions.h"	// function prototypes
 #include "../headers/filterinfo.h"		// filterinfo constructors
-#include "../headers/debug.h"		// diagnostic functions
+#include "../headers/debug.h"			// diagnostic functions
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,7 +14,7 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 		if( pzk1 = createReferentFilter( fi ) ) {
 
 #ifdef DEBUG_FUNCTIONS_ENABLED  //--------------------------------------------------------------------------++
-			if( level & (P_REFERENT | P_PRINT) ) {
+			if( level & P_REFERENT && level & P_PRINT ) {
 				out("\n-- Referent filter: ---------------------------\n\n");
 				printPzkContainer( pzk1 );
 			}
@@ -27,7 +27,7 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 					insert = sortPzkContainer( pzk2, SORT_BY_QFACTOR, ORDER_UP );
 
 #ifdef DEBUG_FUNCTIONS_ENABLED  //--------------------------------------------------------------------------++
-					if( level & (P_TRANSFORMED | P_PRINT) ) {
+					if( level & P_TRANSFORMED && level & P_PRINT ) {
 						out("\n-- Transformed filter: -----------------------\n\n");
 						printPzkContainer( pzk2 );
 					}
@@ -37,7 +37,7 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 						if ( bList = pairPZ( pzk2, insert, PAIR_ZEROS_TO_POLES ) ) {
 
 #ifdef DEBUG_FUNCTIONS_ENABLED  //--------------------------------------------------------------------------++
-							if( level & (P_TRANSFORMED | P_PRINT | P_BIQUAD) ) {
+							if( level & P_TRANSFORMED && level & P_PRINT && level & P_BIQUAD ) {
 								out("\n-- Analog biquad list: -----------------------\n\n");
 								printBiquadList( bList, pzk2 );
 							}
@@ -48,15 +48,17 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 									pzk2 = deletePzkContainer( pzk2 );
 
 #ifdef DEBUG_FUNCTIONS_ENABLED  //--------------------------------------------------------------------------++
-									if( level & (P_DIGITALIZED | P_PRINT) ) {
+									if( level & P_DIGITALIZED && level & P_PRINT ) {
 										out("\n-- Digital filter: ---------------------------\n\n");
 										printPzkContainer( pzk1 );
 										if( level & P_BIQUAD ) {
 											out("\n-- Digital biquad list: ----------------------\n\n");
 											printBiquadList( bList, pzk1 );
 										}
+									}
 #endif //---------------------------------------------------------------------------------------------------//
 
+									if( level & P_IMPLEMENTED ) {
 										if( !implementFilter(pzk1, bList) ) {
 											free(bList);
 											deletePzkContainer( pzk1 );
@@ -439,26 +441,12 @@ int cmdGenerateIir( char * s, int l, int modify ) {
 		}
 	}
 	
-	if( createIirFilter( newFilter, P_ALL | P_PRINT ) ) {
-		
-	} else {
+	if( createIirFilter( newFilter, P_ALL) ) {
+		swapToNewFilter();
+	}
+	else {
 		error(80);
 	}
-	
-	// set the new filter in an atomic way
-	//CLI();
-	//disableAudio();
-	
-	nextDelimiter = actualFilter;	// nextDelimiter as temp var for swap
-	actualFilter = tmpFilter;
-	tmpFilter = nextDelimiter;
-	
-	for(nextDelimiter = 0; nextDelimiter < DELAY_SIZE; nextDelimiter++) {
-			delayLine[nextDelimiter] = 0;
-	}
-	
-	//enableAudio();
-	//STI();
 
 	return 1;
 	
