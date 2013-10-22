@@ -164,7 +164,8 @@ int parseInputDebug( char * s, int l ) {
 		simulatePSRespose(  s + 3, l, 1);
 	}
 	else if ( s[0] == 'F' && s[1] == 'I' ) {
-		debugFilterInfo( s + 3, l-3 );
+		convertToUpper(s + 3, l);
+		debugFilterInfo( s + 3, l );
 	}
 	else {
 		//hiba

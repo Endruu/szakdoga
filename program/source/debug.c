@@ -291,7 +291,7 @@ void getTimeStamp( char * s ) {
 	time (&rawtime);
 	timeinfo = localtime (&rawtime);
 
-	strftime (s, 13, "%y%m%d%H%M%H", timeinfo);
+	strftime (s, 13, "%y%m%d%H%M%S", timeinfo);
 }
 
 simulationParameters defaultPulseSimulationParameters() {

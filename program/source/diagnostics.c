@@ -137,10 +137,10 @@ void printActualChannel() {
 */
 
 int printCodeWord() {
-	const filterInfo fi = filterBank[actualFilter];
-	real ws = fi.iirP.ws;
+	const filterInfo * fi = &filterBank[actualFilter];
+	real ws = fi->iirP.ws;
 
-	if( fi.iirP.fixWs ) {
+	if( fi->iirP.fixWs ) {
 		ws = 1 / ws;
 	}
 
@@ -148,7 +148,7 @@ int printCodeWord() {
 	
 	// Referent ------------------------------------------------
 	out("RF:");
-	switch( fi.subtype ) {
+	switch( fi->subtype ) {
 		case butterworth : 
 			out("BW:");
 			break;
@@ -160,24 +160,24 @@ int printCodeWord() {
 			break;
 	}
 
-	if( fi.iirP.ac && fi.iirP.as ) {
-		sprintf(inputBuffer, "C%.5g,S%.5g,W%.5g", fi.iirP.ac, fi.iirP.as, ws);
-	} else if( fi.iirP.ac && fi.iirP.n ) {
-		sprintf(inputBuffer, "N%dC%.5g", fi.iirP.n, fi.iirP.ac);
-	} else if( fi.iirP.as && fi.iirP.n ) {
-		sprintf(inputBuffer, "N%d,S%.5g,W%.5g", fi.iirP.n, fi.iirP.as, ws);
+	if( fi->iirP.ac && fi->iirP.as ) {
+		sprintf(inputBuffer, "C%.5g,S%.5g,W%.5g", fi->iirP.ac, fi->iirP.as, ws);
+	} else if( fi->iirP.ac && fi->iirP.n ) {
+		sprintf(inputBuffer, "N%dC%.5g", fi->iirP.n, fi->iirP.ac);
+	} else if( fi->iirP.as && fi->iirP.n ) {
+		sprintf(inputBuffer, "N%d,S%.5g,W%.5g", fi->iirP.n, fi->iirP.as, ws);
 	} else {
-		sprintf(inputBuffer, "N%d", fi.iirP.n);
+		sprintf(inputBuffer, "N%d", fi->iirP.n);
 	}
 	out(inputBuffer);
 
-	if( fi.iirP.inDb == 0 ) {
+	if( fi->iirP.inDb == 0 ) {
 		out(",L");
 	}
 
 	// Transform -----------------------------------------------
 	out("*TP:");
-	switch( fi.type ) {
+	switch( fi->type ) {
 		case lowpass :
 			out("LP");
 			break;
@@ -191,50 +191,50 @@ int printCodeWord() {
 			out("BS");
 			break;
 	}
-	sprintf(inputBuffer, ":W,C%.3g", fi.transformP.w0);
+	sprintf(inputBuffer, ":W,C%.3g", fi->transformP.w0);
 	out(inputBuffer);
-	if( fi.type == bandpass || fi.type == bandstop ) {
-		sprintf(inputBuffer, ",D%.3g", fi.transformP.w0);
+	if( fi->type == bandpass || fi->type == bandstop ) {
+		sprintf(inputBuffer, ",D%.3g", fi->transformP.w0);
 		out(inputBuffer);
 	}
 
 	// Digitalization ------------------------------------------
 	out("*DP:");
-	if( fi.warping == WARP_FACTOR ) {
+	if( fi->warping == WARP_FACTOR ) {
 		out("B");
-	} else if( fi.warping == WARP_FREQUENCY ) {
+	} else if( fi->warping == WARP_FREQUENCY ) {
 		out("P");
-	} else if( fi.warping == WARP_AUTO_FIX ) {
+	} else if( fi->warping == WARP_AUTO_FIX ) {
 		out("C");
 	} else {
-		sprintf(inputBuffer, "W%.3g", fi.warping);
+		sprintf(inputBuffer, "W%.3g", fi->warping);
 		out(inputBuffer);
 	}
 
 	// Implementation ------------------------------------------
 	out("*IP:S");
-	if( fi.implementP.sort == SORT_BY_QFACTOR ) {
+	if( fi->implementP.sort == SORT_BY_QFACTOR ) {
 		out("Q");
 	} else {
 		out("F");
 	}
 
 	out(",O");
-	if( fi.implementP.order == ORDER_UP ) {
+	if( fi->implementP.order == ORDER_UP ) {
 		out("U");
 	} else {
 		out("D");
 	}
 
 	out(",P");
-	if( fi.implementP.pair == PAIR_POLES_TO_ZEROS ) {
+	if( fi->implementP.pair == PAIR_POLES_TO_ZEROS ) {
 		out("Z");
 	} else {
 		out("P");
 	}
 
 	out(",F");
-	sprintf(inputBuffer, "%d\n", fi.implementP.filter);
+	sprintf(inputBuffer, "%d\n", fi->implementP.filter);
 	out(inputBuffer);
 
 	return 1;
