@@ -8,6 +8,7 @@
 #include <float.h>							// float limits
 
 const filterList fList[FILTER_NUM] = {
+	{ &passThrough, &i_no_implement },
 	{ &f_direct1_float_postK, &i_direct1_float_K }
 };
 
@@ -605,6 +606,10 @@ biquad * pairPZ( pzkContainer * pzk, uint insert, char options ) {
 
 	return bList;
 
+}
+
+int i_no_implement( pzkContainer * pzk, biquad * bList ) {
+	return 1;
 }
 
 int i_direct1_float_K( pzkContainer * pzk, biquad * bList ) {

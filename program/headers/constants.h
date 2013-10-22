@@ -33,7 +33,7 @@
 #define F_SAMPLING					48000.0
 
 // Number of filters
-#define FILTER_NUM					1
+#define FILTER_NUM					2
 
 // Debugging
 #define	DEBUG_FUNCTIONS_ENABLED
