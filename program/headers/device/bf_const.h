@@ -47,4 +47,6 @@
 #undef DEBUG_FUNCTIONS_ENABLED	// disable debug functions
 #undef LOGGING_ENABLED			// disable log
 
+#define CPU_DIAGNOSTIC_ENABLED
+
 #endif

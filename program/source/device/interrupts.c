@@ -4,6 +4,10 @@
 
 #include "../../headers/device/uart.h"
 
+#ifdef CPU_DIAGNOSTIC_ENABLED
+#include "../../headers/diagnostics.h"
+#endif
+
 int aLeftIn;
 int aRightIn;
 int aLeftOut		= 0;
@@ -42,7 +46,16 @@ EX_INTERRUPT_HANDLER(Sport0_RX_ISR)
 	// run filter
 	aLeftOut = aRightIn;
 	//aRightOut = aLeftIn;
+#ifdef CPU_DIAGNOSTIC_ENABLED
+	startClock();
+#endif
+
 	aRightOut = (filterBank[actualFilter].filter)(aRightIn >> 8, coeffLineR, delayLineR) >> 8;
+	
+#ifdef CPU_DIAGNOSTIC_ENABLED
+	stopClock();
+	setTick();
+#endif
 
 }
 
