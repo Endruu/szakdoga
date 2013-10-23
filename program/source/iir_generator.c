@@ -10,6 +10,10 @@ int createIirFilter( filterInfo * fi, unsigned char level ) {
 	biquad * bList;	// biquad list
 	uint insert;
 
+	if( fi->type == empty || fi->subtype == empty ) {
+		error(211);
+	}
+
 	if( level >= P_REFERENT ) {
 		if( pzk1 = createReferentFilter( fi ) ) {
 

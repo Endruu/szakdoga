@@ -5,67 +5,6 @@
 
 clock_t tickCounter, tickDelay;
 
-
-/*
-
-void print4Matlab(pzkContainer * pzk) {
-	unsigned int i;
-
-	if(pzk == NULL) {
-		return;
-	}
-
-	printf("k = %10g;\n", pzk->amp);
-
-	printf("z = [ ");
-	if(pzk->nextZero) {
-		for(i=0; i<pzk->nextZero;i++) {
-			printf("%.10g%+.10gi ", pzk->zeros[i].re, pzk->zeros[i].im);
-			if(pzk->zeros[i].im != 0) {
-				printf("%.10g%+.10gi ", pzk->zeros[i].re, -pzk->zeros[i].im);
-			}
-		}
-	}
-	if(pzk->no_wz > 0) {
-		if( pzk->wz != DIGITAL_FILTER ) {
-			if(pzk->wz == 0 ) {
-				for(i=0; i<pzk->no_wz; i++) {
-					printf("0 ");
-				}
-			} else {
-				for(i=0; i<pzk->no_wz; i++) {
-					printf("%.10gi %.10gi ", pzk->wz, -pzk->wz);
-				}
-			}
-		}
-	}
-	printf("];\n");
-
-	printf("p = [ ");
-	if(pzk->nextPole) {
-		for(i=0; i<pzk->nextPole;i++) {
-			printf("%.10g%+.10gi ", pzk->poles[i].re, pzk->poles[i].im);
-			if(pzk->poles[i].im != 0) {
-				printf("%.10g%+.10gi ", pzk->poles[i].re, -pzk->poles[i].im);
-			}
-		}
-	}
-	if( pzk->wz != DIGITAL_FILTER ) {
-		if(pzk->no_wz < 0) {
-			if(pzk->wz == 0 ) {
-				for(i=0; i<-pzk->no_wz; i++) {
-					printf("0 ");
-				}
-			} else {
-				for(i=0; i<-pzk->no_wz; i++) {
-					printf("%.10gi %.10gi ", pzk->wz, -pzk->wz);
-				}
-			}
-		}
-	}
-	printf("];\n\n");
-}
-*/
 //--------------------------------------------------------------------------------------------------------
 // Time
 //--------------------------------------------------------------------------------------------------------
@@ -139,6 +78,10 @@ void printActualChannel() {
 int printCodeWord() {
 	const filterInfo * fi = &filterBank[actualFilter];
 	real ws = fi->iirP.ws;
+
+	if( fi->type == empty || fi->subtype == empty ) {
+		error(210);
+	}
 
 	if( fi->iirP.fixWs ) {
 		ws = 1 / ws;

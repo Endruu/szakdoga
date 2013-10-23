@@ -154,3 +154,6 @@
 207	: Wrong parameter for PAIR TO, try P/Z
 208	: Wrong parameter for ORDER, try U/D
 209	: Wrong parameter for FILTER NUM
+
+210	: Filter not initialized
+211	: Filter not initialized
