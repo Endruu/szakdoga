@@ -1,9 +1,9 @@
 // Input buffersize
-#define INPUT_BUF_SIZE				1000
+#define INPUT_BUF_SIZE				100
 
 // Placement in memory
-#define DELAY_SECTION
-#define COEFF_SECTION
+#define DELAY_SECTION				section("L1_data_a")
+#define COEFF_SECTION				section("L1_data_b")
 
 // parameters for preallocated data/coefficient arrays
 #define COEFF_SIZE					100
@@ -23,7 +23,7 @@
 #define FILTER_NUM					2
 
 // Debugging
-#define	DEBUG_FUNCTIONS_ENABLED
+//#define	DEBUG_FUNCTIONS_ENABLED		// comment to disable
 // Testcase
 #define TESTCASE_DIR				"../simulation/testcase/"
 #define	TC_CALL_MAX_DEPTH			3
@@ -33,20 +33,30 @@
 #define SIM_OUTPUT_DIR				"../simulation/output/"
 
 // Logging
+//#define LOGGING_ENABLED				// comment to disable
 #define LOGGING_DIR					"../simulation/log/"
-#define LOGGING_ENABLED
 #define LOGGING_MODE				"w"			// "a" - append, "w" - write
 
 // Error
-#define ERROR_BUFFER_SIZE			30
+#define ERROR_BUFFER_SIZE			10
 
 // Diagnostics
-//#define DISABLE_DIAGNOSTICS
+//#define DISABLE_DIAGNOSTICS			// comment to enable
 #define ENABLE_DIAG_CU				// cpu usage
 #define ENABLE_DIAG_MU				// memory usage
 #define ENABLE_DIAG_CW				// codeword
 // For CPU usage
 #define CLOCK_CALIBRATION_LENGTH	16
+
+// Clock rate of CPU
+#define CLKIN					25000000
+
+// UART
+#define ECHO_DEFAULT			0		// 0: echo off, 1: echo on
+#define ECHO_TOGGLE_CHAR		'?'		// which character toggles echo
+#define MAX_SEND_TRIES			10		// how many character send tries before error
+#define	MAX_OUTPUT_LENGTH		110;	// max output length for safety, if '\0' is missing from end of string
+#define BAUD_RATE				57600
 
 // Default e0 values for referent filters
 #define DEFAULT_BW_E0				1.0			// 1/sqrt(2) (~3dB) attenuation at corner freq
