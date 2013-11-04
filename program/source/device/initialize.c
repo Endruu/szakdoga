@@ -8,6 +8,7 @@
 void initializeDevice() {
 
 /*
+	0. Configure coreFrequency
 	1. Configure PORT F
 	2. Configure SPORT0
 	3. Reset audio (ADC and DAC)
@@ -17,6 +18,26 @@ void initializeDevice() {
 	7. Enable DMA and interrupts
 
 */
+//--------------------------------------------------------------------------------------------------------
+// 0. Configure coreFrequency
+//--------------------------------------------------------------------------------------------------------
+
+	unsigned int msel;			// Multiplier MSEL[5:0] of PLL_CTL register[14:9]
+	unsigned int csel;			// Divisor CSEL[1:0] of PLL_DIV register[5:4]
+	
+	// Read the MSEL from PLL_CTL register
+	msel = (*pPLL_CTL) >> 9;	// Read MSEL[5:0] from PLL_CTL
+	msel &= 0x3F;				// Clear all bits except msel[5:0]
+
+	// Read CSEL from PLL_DIV register
+	csel = *pPLL_DIV >> 4;
+	csel &= 0x03;				// Clear all bits except csel[1:0]
+	
+	coreFrequency = ( msel * CLKIN ) / csel;
+	
+	if(*pPLL_CTL & 0x1) {		// If DF = 1, CLKIN/2 is going to PLL
+		coreFrequency /= 2;
+	}
 
 //--------------------------------------------------------------------------------------------------------
 // 1. Configure PORTF
