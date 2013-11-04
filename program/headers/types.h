@@ -51,15 +51,6 @@ typedef struct {
 	filterType type;
 } pzkContainer;
 
-typedef enum {
-	sStart,
-	sReferent,
-	sTransform,
-	sDigitalize,
-	sImplement,
-	sRunning
-} filterState;
-
 typedef struct {
 	double	ac,		// max attenuation at corner freq
 			as,		// min attenuation at stop freq
@@ -97,11 +88,7 @@ typedef struct {
 				subtype,		// butterworth, cheby, hanning, kaiser....
 				supertype;		// iir, fir
 
-	filterState	fState;
-
-	uint 		options,
-				stages,
-				mem_delay,		// bytes used from delay buffer
+	uint		mem_delay,		// bytes used from delay buffer
 				mem_coeff,		// bytes used from coeff buffer
 				ticks;			// no. of clock ticks while filtering
 	
