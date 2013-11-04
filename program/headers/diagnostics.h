@@ -21,7 +21,7 @@
 //--------------------------------------------------------------------------------------------------------
 #ifdef ENABLE_DIAG_CU
 
-#include <time.h>
+//#include <time.h>
 
 void calibrateClock();
 void startClock();

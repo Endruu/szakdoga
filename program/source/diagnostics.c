@@ -11,10 +11,22 @@
 //--------------------------------------------------------------------------------------------------------
 #ifdef ENABLE_DIAG_CU
 
+#ifdef DO_CYCLE_COUNTS
+#include <cycle_count.h>
+cycle_t tickCounter, tickDelay;
+#else
+#include <time.h>
 clock_t tickCounter, tickDelay;
+#endif
+
 
 void calibrateClock() {
-	unsigned int sum =0, i;
+#ifdef DO_CYCLE_COUNTS
+	cycle_t sum;
+#else
+	clock_t sum;
+#endif
+	unsigned int i;
 	tickDelay = 0;
 	
 	for( i = 0; i < CLOCK_CALIBRATION_LENGTH; i++ ) {
@@ -27,10 +39,20 @@ void calibrateClock() {
 }
 
 void startClock() {
+#ifdef DO_CYCLE_COUNTS
+	START_CYCLE_COUNT(tickCounter);
+#else
 	tickCounter = clock();
+#endif
 }
 void stopClock() {
+#ifdef DO_CYCLE_COUNTS
+	cycle_t counted;
+	STOP_CYCLE_COUNT(counted, tickCounter);
+	tickCounter = counted - tickDelay;
+#else
 	tickCounter =  clock() - tickCounter - tickDelay;
+#endif
 }
 
 void setTick() {

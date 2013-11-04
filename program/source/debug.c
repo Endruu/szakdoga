@@ -6,6 +6,7 @@
 #include "../headers/debug.h"
 #include "../headers/iir_functions.h"
 #include "../headers/diagnostics.h"
+#include <time.h>
 
 FILE * tcBuffer[TC_CALL_MAX_DEPTH];
 int tcDepth = 0;
