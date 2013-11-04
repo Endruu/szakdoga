@@ -157,3 +157,5 @@
 
 210	: Filter not initialized
 211	: Filter not initialized
+
+212	: Diagnostic function disabled

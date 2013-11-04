@@ -1,13 +1,17 @@
 #include "../headers/variables.h"
+
+#ifndef DISABLE_DIAGNOSTICS
+
 #include "../headers/diagnostics.h"
 #include "../headers/pzk_container.h"
 #include "../headers/emath.h"
 
-clock_t tickCounter, tickDelay;
-
 //--------------------------------------------------------------------------------------------------------
 // Time
 //--------------------------------------------------------------------------------------------------------
+#ifdef ENABLE_DIAG_CU
+
+clock_t tickCounter, tickDelay;
 
 void calibrateClock() {
 	unsigned int sum =0, i;
@@ -41,9 +45,11 @@ void printCpuUsage() {
 	out( inputBuffer );
 }
 
+#endif
 //--------------------------------------------------------------------------------------------------------
 // Memory usage
 //--------------------------------------------------------------------------------------------------------
+#ifdef ENABLE_DIAG_MU
 
 void setMem( int mem_delay, int mem_coeff ) {
 	filterInfo * fi = &filterBank[actualFilter];
@@ -62,6 +68,7 @@ void printMemoryUsage() {
 	out(inputBuffer);
 }
 
+#endif
 //--------------------------------------------------------------------------------------------------------
 // Other
 //--------------------------------------------------------------------------------------------------------
@@ -74,6 +81,8 @@ void printActualChannel() {
 	out(buffer);
 }
 */
+
+#ifdef ENABLE_DIAG_CW
 
 int printCodeWord() {
 	const filterInfo * fi = &filterBank[actualFilter];
@@ -182,3 +191,13 @@ int printCodeWord() {
 
 	return 1;
 }
+
+#endif
+
+#endif
+
+#ifdef ENABLE_DIAG_UNAV_FUNC
+int diagUnavailable() {
+	error(212);
+}
+#endif

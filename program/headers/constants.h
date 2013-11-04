@@ -53,6 +53,11 @@
 // Error
 #define ERROR_BUFFER_SIZE			10
 
+// Diagnostics
+//#define DISABLE_DIAGNOSTICS
+#define ENABLE_DIAG_CU				// cpu usage
+#define ENABLE_DIAG_MU				// memory usage
+#define ENABLE_DIAG_CW				// codeword
 // For CPU usage
 #define CLOCK_CALIBRATION_LENGTH	16
 
