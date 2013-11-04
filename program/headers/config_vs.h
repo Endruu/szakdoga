@@ -23,7 +23,7 @@
 #define FILTER_NUM					2
 
 // Debugging
-#define	DEBUG_FUNCTIONS_ENABLED
+#define	DEBUG_FUNCTIONS_ENABLED		// comment to disable
 // Testcase
 #define TESTCASE_DIR				"../simulation/testcase/"
 #define	TC_CALL_MAX_DEPTH			3
@@ -33,15 +33,15 @@
 #define SIM_OUTPUT_DIR				"../simulation/output/"
 
 // Logging
+#define LOGGING_ENABLED				// comment to disable
 #define LOGGING_DIR					"../simulation/log/"
-#define LOGGING_ENABLED
 #define LOGGING_MODE				"w"			// "a" - append, "w" - write
 
 // Error
 #define ERROR_BUFFER_SIZE			30
 
 // Diagnostics
-//#define DISABLE_DIAGNOSTICS
+//#define DISABLE_DIAGNOSTICS			// comment to enable
 #define ENABLE_DIAG_CU				// cpu usage
 #define ENABLE_DIAG_MU				// memory usage
 #define ENABLE_DIAG_CW				// codeword
