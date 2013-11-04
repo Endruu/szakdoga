@@ -1,0 +1,8 @@
+#ol:matlab.txt
+>gi:rf:c1:n3,s40,w2.5*tp:lp:c1000*ip:f1
+<cw
+#cm:MATLAB>>>
+#pr*
+#fi:td
+#cm:>>>MATLAB
+#cl

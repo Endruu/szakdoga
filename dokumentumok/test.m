@@ -1,261 +1,256 @@
+clear all
 close all
 
-% files:
-testroot = fullfile('szakdoga_c', 'szakdoga', 'program', 'simulation', 'output');
-ffc = 'f_continous.txt';
-ffd = 'f_discrete.txt';
-fsi = "s_input.txt";
-fso = "s_output.txt";
+fid = fopen('szakdoga_c/szakdoga/program/simulation/log/matlab.txt');
 
-wmin = 2*pi*10;
-wmax = 2*pi*25000;
+Fs = 48000;
+matlab = 0;
+dz = [];
+dp = [];
+cz = [];
+cp = [];
 
-Fs		= 48000;			% Sampling frequency
-Ts		= 1/Fs;				% Sample time
-Wlog	= logspace(1,log10(wmin),log10(wmax));
+while ~feof(fid)
+    tline = fgetl(fid);
+    if strcmp( tline, 'MATLAB>>>' )
+        matlab = 1;
+        break
+    end
+end
 
-tc = chooseTest(testroot);
+if matlab
+    while ~feof(fid)
+        tline = fgetl(fid);
+        
+        [tmp, cnt] = sscanf(tline, 'ID: %s', 1);
+        if cnt
+            simfile = ['P', tmp, '.txt'];
+        end
+        
+        if strcmp( tline, '-- Transformed filter: -----------------------' )
+             fgetl(fid);    % empty line
+             tline = fgetl(fid);
+             ca = sscanf(tline, 'Amplification: %g', 1);
+             tline = fgetl(fid);
+             if strcmp( tline(1:5), 'Zeros' )
+                  tline = fgetl(fid);
+                  k = 1;
+                  [tmp, cnt] = sscanf(tline, '%g + %gi', 2);
+                  while cnt
+                      if( tmp(2) ~= 0 )
+                          cz(k)     = tmp(1) + 1i*tmp(2);
+                          cz(k+1)	= conj(cz(k));
+                          k = k + 2;
+                      else
+                          cz(k)     = tmp(1);
+                          k = k + 1;
+                      end
+                      fgetl(fid);
+                      tline = fgetl(fid);
+                      [tmp, cnt] = sscanf(tline, '%g + %gi', 2);
+                  end
+             end
+             if strcmp( tline(1:5), 'Poles' )
+                  tline = fgetl(fid);
+                  k = 1;
+                  [tmp, cnt] = sscanf(tline, '%g + %gi', 2);
+                  while cnt
+                      if( tmp(2) ~= 0 )
+                          cp(k)     = tmp(1) + 1i*tmp(2);
+                          cp(k+1)	= conj(cp(k));
+                          k = k + 2;
+                      else
+                          cp(k)     = tmp(1);
+                          k = k + 1;
+                      end
+                      fgetl(fid);
+                      tline = fgetl(fid);
+                      [tmp, cnt] = sscanf(tline, '%g + %gi', 2);
+                  end
+             end
+             tline = fgetl(fid);
+             if length(tline) > 10
+                 if strcmp( tline(1:10), 'Number of ' )
+                     tline = tline(11:end);
+                 end
+                 [tmp, cnt] = sscanf(tline, 'differentiators: %d', 1);
+                 if cnt
+                     cz = [cz zeros(1, tmp)];
+                 else
+                     [tmp, cnt] = sscanf(tline, 'integrators: %d', 1);
+                     if cnt
+                        cp = [cp zeros(1, tmp)];
+                     else
+                        [tmp, cnt] = sscanf(tline, 'j%g conjugate zero pairs: %d', 2);
+                        if cnt == 2
+                        	cz = [cz 1i*tmp(1)*ones(1, tmp(2)) conj(1i*tmp(1)*ones(1, tmp(2)))];
+                        else
+                            [tmp, cnt] = sscanf(tline, 'j%g conjugate pole pairs: %d', 2);
+                            if cnt == 2
+                                cp = [cp 1i*tmp(1)*ones(1, tmp(2)) conj(1i*tmp(1)*ones(1, tmp(2)))];
+                            end
+                        end
+                     end
+                 end
+             end
+        end
+        
+        if strcmp( tline, '-- Digital filter: ---------------------------' )
+             fgetl(fid);    % empty line
+             tline = fgetl(fid);
+             da = sscanf(tline, 'Amplification: %g', 1);
+             tline = fgetl(fid);
+             if strcmp( tline(1:5), 'Zeros' )
+                  tline = fgetl(fid);
+                  k = 1;
+                  [tmp, cnt] = sscanf(tline, '%g + %gi', 2);
+                  while cnt
+                      if( tmp(2) ~= 0 )
+                          dz(k)     = tmp(1) + 1i*tmp(2);
+                          dz(k+1)	= conj(dz(k));
+                          k = k + 2;
+                      else
+                          dz(k)     = tmp(1);
+                          k = k + 1;
+                      end
+                      tline = fgetl(fid);
+                      [tmp, cnt] = sscanf(tline, '%g + %gi', 2);
+                  end
+             end
+             if strcmp( tline(1:5), 'Poles' )
+                  tline = fgetl(fid);
+                  k = 1;
+                  [tmp, cnt] = sscanf(tline, '%g + %gi', 2);
+                  while cnt
+                      if( tmp(2) ~= 0 )
+                          dp(k)     = tmp(1) + 1i*tmp(2);
+                          dp(k+1)	= conj(dp(k));
+                          k = k + 2;
+                      else
+                          dp(k)     = tmp(1);
+                          k = k + 1;
+                      end
+                      tline = fgetl(fid);
+                      [tmp, cnt] = sscanf(tline, '%g + %gi', 2);
+                  end
+             end
+              tline = fgetl(fid);
+             if length(tline) > 10
+                 if strcmp( tline(1:10), 'Number of ' )
+                     tline = tline(11:end);
+                 end
+                 [tmp, cnt] = sscanf(tline, 'differentiators: %d', 1);
+                 if cnt
+                     dz = [dz ones(1, tmp)];
+                 else
+                     [tmp, cnt] = sscanf(tline, 'integrators: %d', 1);
+                     if cnt
+                        dp = [dp ones(1, tmp)];
+                     else
+                        [tmp, cnt] = sscanf(tline, 'e^j%g conjugate zero pairs: %d', 2);
+                        if cnt == 2
+                        	dz = [dz exp(1i * tmp(1))*ones(1, tmp(2)) conj(exp(1i * tmp(1))*ones(1, tmp(2)))];
+                        else
+                            [tmp, cnt] = sscanf(tline, 'e^j%g conjugate pole pairs: %d', 2);
+                            if cnt == 2
+                                dp = [dp exp(1i * tmp(1))*ones(1, tmp(2)) conj(exp(1i * tmp(1))*ones(1, tmp(2)))];
+                            end
+                        end
+                     end
+                 end
+             end
+        end
+    end
+    
+    if strcmp( tline, '>>>MATLAB' )
+        matlab = 0;
+        break
+    end
+    
+end
 
-zpkC = readZpk(fullfile(testroot, tc.id, ffc));
-zpkD = readZpk(fullfile(testroot, tc.id, ffd));
+fclose(fid);
 
-filterC = zpk(zpkC.z, zpkC.p, zpkC.k);
-filterD = zpk(zpkD.z, zpkD.p, zpkD.k, Ts);
+if length(dz) < length(dp)
+    dz = [ dz -1*ones(1, length(dp)-length(dz)) ];
+end
 
-clear ffc, ffd, zpkC, zpkD
+sysC = zpk(cz, cp, ca)
+sysD = zpk(dz, dp, da, 1/Fs)
 
+A = importdata(['szakdoga_c/szakdoga/program/simulation/output/', simfile], ' ', 10);
+Q = A.data;
+qA = Q(1,1);
+Q = Q(:,2) / qA / 32768 / 2;
+
+L = length(Q);
+NFFT = 2^nextpow2(L); % Next power of 2 from length of y
+Y = Fs * fft(Q,NFFT)/L;
+Ylog = 20*log10(abs(Y(1:NFFT/2+1)))';
+f = Fs/2*linspace(0,1,NFFT/2+1);
+
+[isysD, t] = impulse(sysD, (L-1)/Fs);
+isysD = isysD / Fs;
+
+[isysC, t] = impulse(sysC, t);
+isysC = isysC / Fs;
+
+lim = max(isysC) * 1 / 100;
+for k = 1:length(t)
+    if abs(isysC(k)) > lim
+        limk = k;
+    end
+end
+lim = t(limk) * 2;
+
+plot(t, isysC, t, isysD, t, Q)
+xlim([0 lim])
+xlabel('time [sec]')
+ylabel('magnitude')
+title('Impulse Response')
+legend('Continous', 'Digital', 'Simulated')
+
+[mag, phs] = bode(sysC, f*2*pi);
+magC = 20*log10(mag(:,:));
+
+[mag, phs] = bode(sysD, f*2*pi);
+magD = 20*log10(mag(:,:));
+
+% Plot single-sided amplitude spectrum.
 figure
-bo = bodeoptions;
-bo.Grid				= 'on';
-bo.FreqUnits		= 'kHz';
-bo.MagLowerLimMode	= 'manual';
-bo.MagLowerLim		= -120;
+semilogx(f,magC, f,magD, f,Ylog, 'LineWidth',1)
+axis([10 24500 -200 10])
+grid on
+xlabel('frequency [Hz]')
+ylabel('magnitude [dB]')
+title('Bode Plot')
+legend('Continous', 'Digital', 'Simulated', 'Location', 'SouthWest')
 
-bodeplot(filterC, filterD, Wlog, bo)
+irdAD = (isysC - isysD);
+irdAS = (isysC - Q);
+irdDS = (isysD - Q);
+figure
+subplot(2,1,1);
+plot(t, irdAD, t, irdAS)
+xlim([0 lim])
+xlabel('time [sec]')
+ylabel('difference')
+title('Difference between impulse responses')
+legend('C-D', 'C-S', 'Location', 'SouthEast')
+subplot(2,1,2);
+plot(t, irdDS, 'r')
+xlim([0 lim])
+xlabel('time [sec]')
+ylabel('difference')
+legend('D-S', 'Location', 'SouthEast')
 
-if tc.length ~= 0
-	if tc.impulse ~= 0
-		simIn = getSimInput(tc.impulse);
-	else
-		simIn = getSimInput(fullfile(testroot, tc.id, fsi));
-	end
-	
-	simOut = getSimOutput(fullfile(testroot, tc.id, fso));
-	t = 0:Ts:(tc.length-1);		% Time vector
-	
-	% normalize
-	maxIn	= max(abs(simIn));
-	simIn	= simIn / maxIn;
-	simOut	= simOut / maxIn;
-
-	% simulate
-	[simC, t] = lsim(filterC, simIn, t);
-	[simD, t] = lsim(filterD, simIn, t);
-
-	% Plot simulation results
-	figure
-	plot( t,simIn, t,simOut, t,simC, t,simD )
-	
-	if tc.impulse ~= 0
-		
-		N = 2^nextpow2(tc.length);	% Next power of 2 from length of input
-		Wlin = Fs/2*linspace(0, 1, N/2+1);
-
-		Y = fft(sigOut,N)/L;
-
-		[bodeC, phase] = bode(filterC, Wlin);
-		[bodeD, phase] = bode(filterD, Wlin);
-
-		clear phase
-
-		% Plot single-sided amplitude spectrum
-		figure
-		semilogx( Wlin, 20*log10(abs(Y(1:N/2+1))) )
-		hold on
-		semilogx( Wlin, bodeC )
-		semilogx( Wlin, bodeD )
-		hold off
-
-		clear bodeC, bodeD
-	end
-	
-end
-
-% ----------------------------------------
-%  Select test
-% ----------------------------------------
-function test = chooseTest(dirname)
-	list = dir(dirname);
-	k = 0;
-	for d = list
-		if d.isdir == 1
-			filename = fullfile(dirname, d.name, 'info.txt');
-			fid = fopen(filename);
-			if fid ~= -1
-				tid = fscanf(fid, 'id: %s\n');
-				if tid ~= d.name
-					error('Corrupt info file:\n %s', filename);
-				end
-				[tname, c] = fscanf(fid, 'name: %s\n');
-				if c ~= 1
-					error('Corrupt info file:\n %s', filename);
-				end
-				[tdate, c] = fscanf(fid, 'date: %s %s\n');
-				if c ~= 2
-					error('Corrupt info file:\n %s', filename);
-				end
-				[tlength, c] = fscanf(fid, 'length: %u\n');
-				if c ~= 1
-					error('Corrupt info file:\n %s', filename);
-				end
-				[timpulse, c] = fscanf(fid, 'impulse: %i\n');
-				if c ~= 1
-					error('Corrupt info file:\n %s', filename);
-				end
-				fclose(fid);
-				
-				tdate = [tdate(1:10) ' ' tdate(11:end)];
-				k = k + 1;
-				tests(k) = struct('id', tid, 'name', tname, 'date', tdate, 'length', tlength, 'impulse', timpulse);
-			end
-		end
-	end
-	
-	if k >= 1
-		str = sprintf('Num Id         Date                Name       Impulse    Length\n') );
-		%		 xxx xxxxxxxxxx	xxxx-xx-xx xx:xx:xx xxxxxxxxxx xxxxxxxxxx xxxx...
-		disp(str);
-		k = 1;
-		for t = tests
-			str = sprintf('%3d %10s %19s %-10s %-10d %d\n', k, test.id, test.date, test.name, test.impulse, test.length);
-			disp(str);
-			k = k + 1;
-		end
-		str = sprintf('Choose test! ( 1-%d for test, 0 to print summary to file, ENTER to cancel)', k-1);
-		in = input(str);
-		if in == 0
-		elseif in > 0 && in < k
-		else
-			error('Invalid input value!');
-		end
-	else
-		error('Testroot is empty!');
-	end
-	
-end
-
-% ----------------------------------------
-%  Read ZPK informations from file
-% ----------------------------------------
-function zpk = readZpk(filename)
-	fid = fopen(filename);
-	
-	if fid == -1
-		error('Can''t open %s', filename);
-	end
-	
-	[A, c] = fscanf(fid,'z:%u|p:%u\nk: %g\n');
-	
-	if c ~= 3
-		error('Corrupt file: %s', filename);
-	end
-	
-	z = A(1);
-	p = A(2);
-	zpk.k = A(3);
-	
-	if z > 0
-		fscanf(fid,'zeros:\n');
-		[A, c] = fscanf(fid,'%g+j%g\n');
-		
-		if c/2 ~= z
-			fclose(fid);
-			error('Corrupt zeros section in file: %s', filename);
-		end
-		
-		kZ = 1;
-		for kA = 1:z
-			zpk.z(kZ) = A(1,kA) + A(2,kA) * 1i;
-			kZ = kZ + 1;
-			if A(2,kA) ~= 0
-				zpk.z(kZ) = conj(zpk.z(kZ-1));
-				kZ = kZ + 1;
-			end
-		end
-		
-	else
-		zpk.z = [];
-	end
-	
-	if p > 0
-		fscanf(fid,'poles:\n');
-		[A, c] = fscanf(fid,'%g+j%g\n');
-		
-		if c/2 ~= z
-			fclose(fid);
-			error('Corrupt poles section in file: %s', filename);
-		end
-		
-		kZ = 1;
-		for kA = 1:z
-			zpk.p(kZ) = A(1,kA) + A(2,kA) * 1i;
-			kZ = kZ + 1;
-			if A(2,kA) ~= 0
-				zpk.p(kZ) = conj(zpk.p(kZ-1));
-				kZ = kZ + 1;
-			end
-		end
-		
-	else
-		zpk.p = [];
-	end
-	
-	fclose(fid);
-end
-
-% ----------------------------------------
-%  Read simulation input from file
-% or create impulse
-% ----------------------------------------
-function simIn = getSimInput(filename)
-
-	if length(filename) > 1
-		
-		fid = fopen(filename);
-		if fid == -1
-			error("Can't open %s", filename);
-		end
-
-		[A, c] = fscanf(fid,"%i\n");
-		if c ~= L
-			error("Corrupt file: %s", filename);
-		end
-
-		simIn = A';
-		clear A, c
-		
-	else
-
-		simIn = fliplr(sparse( 1, L, filename ));
-		
-	end
-
-end
-
-% ----------------------------------------
-%  Read simulation output from file
-% ----------------------------------------
-function simOut = getSimOutput(filename, length)
-	filename = fso;
-	fid = fopen(filename);
-	if fid == -1
-		error("Can't open %s", filename);
-	end
-
-	[A, c] = fscanf(fid,"%i\n");
-	if c ~= length
-		error("Corrupt file: %s", filename);
-	end
-
-	simOut = A';
-end
+bmdAD = (magC - magD);
+bmdAS = (magC - Ylog);
+bmdDS = (magD - Ylog);
+figure
+plot(f, bmdAD, f, bmdAS, f, bmdDS)
+axis([10 24500 -100 100])
+xlabel('frequency [Hz]')
+ylabel('difference [dB]')
+title('Difference between transfer characteristics')
+legend('C-D', 'C-S', 'D-S', 'Location', 'SouthWest')
